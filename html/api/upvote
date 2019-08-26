@@ -49,7 +49,7 @@ if postlink:
     errorHandler.throwError('Curating your own post? Are you serious?')
 
   # check if author used bitbots
-  bidbots = ['booster','therising','smartsteem','upmewhale','minnowbooster','smartmarket','tipu','bdvoter','spydo','treeplanter']
+  bidbots = ['booster','therising','smartsteem','upmewhale','buildawhale','minnowbooster','smartmarket','tipu','bdvoter','spydo','treeplanter']
   account = Account(post['author'],client)
   history = account.get_account_history(-1,500,filter_by='transfer')
   for h in history:

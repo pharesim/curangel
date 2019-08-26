@@ -1,0 +1,41 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
+import sys
+sys.path.append('lib')
+
+import db
+import api
+import errorHandler
+
+import cgi
+
+from steem.steem import Steem
+
+client = Steem()
+
+# output variable
+user = {}
+
+# get and set variables
+form     = cgi.FieldStorage()
+username = form.getvalue('username')
+userhash = form.getvalue('userhash')
+
+results = db.select('users',['account','hash','admin','curator'],{'account':username},'account')
+if len(results) > 0:
+  if results[0]['hash'] == userhash:
+    user['account']   = username
+    user['admin']     = results[0]['admin']
+    user['curator']   = results[0]['curator']
+    user['delegator'] = 0
+
+    delegations = client.get_vesting_delegations(username,'curangel',1)
+    if len(delegations) > 0 and delegations[0]['delegatee'] == 'curangel':
+      user['delegator'] = 1
+  else:
+    errorHandler.throwError('Login failed')
+else:
+  errorHandler.throwError('Unknown user')
+
+api.output(user)

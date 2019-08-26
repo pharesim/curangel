@@ -1,0 +1,76 @@
+<div id="admin" class="hidden jumbotron page">
+  <h1>Curangel administration interface<h1>
+  <div class="lead">
+    <div class="accordion" id="admin-accordion">
+      <div class="card">
+        <div class="card-header" id="admin-accordion-headingThree">
+          <h2 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#admin-accordion-collapseThree" aria-expanded="true" aria-controls="admin-accordion-collapseThree">
+              Queue
+            </button>
+          </h2>
+        </div>
+        <div id="admin-accordion-collapseThree" class="collapse" aria-labelledby="admin-accordion-headingThree" data-parent="#admin-accordion">
+          <div class="card-body">
+            <table class="table table-hover table-sm" id="adminUpvotesTable">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Date</th>
+                  <th>Account</th>
+                  <th>User</th>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Delete</th>
+              </thead>
+              <tbody id="adminUpvotesTableBody">
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="admin-accordion-headingOne">
+          <h2 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#admin-accordion-collapseOne" aria-expanded="true" aria-controls="admin-accordion-collapseOne">
+              Users
+            </button>
+          </h2>
+        </div>
+        <div id="admin-accordion-collapseOne" class="collapse" aria-labelledby="admin-accordion-headingOne" data-parent="#admin-accordion">
+          <div class="card-body">
+            <table class="table table-hover" id="usersTable">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Account</th>
+                  <th>Curator</th>
+                  <th>Delegator</th>
+                  <th>Admin</th>
+                  <th>Created</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="admin-accordion-headingTwo">
+          <h2 class="mb-0">
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#admin-accordion-collapseTwo" aria-expanded="true" aria-controls="admin-accordion-collapseTwo">
+              Blacklist
+            </button>
+          </h2>
+        </div>
+        <div id="admin-accordion-collapseTwo" class="collapse" aria-labelledby="admin-accordion-headingTwo" data-parent="#admin-accordion">
+          <div class="card-body">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

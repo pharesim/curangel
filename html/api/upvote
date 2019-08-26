@@ -1,0 +1,88 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
+import sys
+sys.path.append('lib')
+
+import db
+import api
+import errorHandler
+
+import cgi
+import time
+import datetime
+import uuid
+
+from steem.steem import Steem
+from steem.blockchain import Blockchain
+
+client = Steem()
+chain = Blockchain()
+
+# output variable
+data = {}
+
+# get and set variables
+form     = cgi.FieldStorage()
+username = form.getvalue('username')
+userhash = form.getvalue('userhash')
+postlink = form.getvalue('postlink')
+
+# check permissions
+results = db.select('users',['id'],{'account':username,'hash':userhash},'id')
+if len(results) < 1:
+  errorHandler.throwError('No permission')
+
+# submit new post
+if postlink:
+  link = postlink.split('#')
+  if len(link) > 1:
+    link = link[1].split('/')
+  else:
+    link = postlink.split('/')
+
+  post = client.get_content(link[-2][1:],link[-1])
+
+  #check if already voted
+  for vote in post['active_votes']:
+    if vote['voter'] == 'curangel':
+      errorHandler.throwError('We already voted on that post.')
+
+  # check if exists in queue
+  results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink']},'id')
+  if len(results) > 0:
+    errorHandler.throwError('This post has been submitted before. Will not add to queue again.')
+
+  # check cashout time
+  cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+  chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+  if cashoutts - chaints < 60*60*24*2:
+    errorHandler.throwError('Cashout of post in less than 48 hours. Will not add to queue.')
+
+  # check blacklist
+  results = db.select('blacklist',['id'],{'account':post['author']},'id')
+  if len(results) > 0:
+    errorHandler.throwError('Author blacklistet. Will not add to queue.')
+
+  # check previous votes for author
+  results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'created >':"datetime('now','-7 days')"},'created')
+  if len(results) > 0:
+    errorHandler.throwError('You already submitted a post of this author in the last week. Will not add to queue.')
+  results = db.select('upvotes',['created'],{'user':post['author'],'created >':"datetime('now','-1 day')"},'created')
+  if len(results) > 0:
+    errorHandler.throwError('Someone else already submitted a post of this author today. Will not add to queue.')
+
+  post_type = 1
+  if post['parent_author']:
+    post_type = 2
+  db.insert('upvotes',{'id':uuid.uuid4().hex, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'in queue', 'reward_sbd': 0, 'reward_sp': 0})
+
+# get upvotes
+upvotes = []
+results = db.select('upvotes',['id','created','link','user','category','slug','title','type','payout','status','reward_sp','reward_sbd'],{'account':username},'created DESC')
+for row in results:
+  upvotes.append(dict(row))
+
+data['upvotes'] = upvotes
+
+api.output(data)

@@ -1,0 +1,32 @@
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  account TEXT NOT NULL,
+  hash TEXT NOT NULL,
+  ip TEXT NOT NULL,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  admin BOOLEAN,
+  curator BOOLEAN
+);
+
+CREATE TABLE upvotes (
+  id TEXT PRIMARY KEY,
+  account TEXT NOT NULL,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  link TEXT NOT NULL,
+  user TEXT NOT NULL,
+  category TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  title TEXT NOT NULL,
+  type NUMERIC,
+  payout TIMESTAMP NOT NULL,
+  status TEXT NOT NULL,
+  reward_sbd TEXT NOT NULL,
+  reward_sp TEXT NOT NULL
+);
+
+CREATE TABLE blacklist (
+  id TEXT PRIMARY KEY,
+  account TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);

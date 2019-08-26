@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
+import sys
+sys.path.append('lib')
+
+import db
+import api
+import errorHandler
+
+import cgi
+
+from steem.steem import Steem
+
+client = Steem()
+
+# output variable
+data = {}
+
+# get and set variables
+form     = cgi.FieldStorage()
+username = form.getvalue('username')
+userhash = form.getvalue('userhash')
+switch   = form.getvalue('switch')
+account  = form.getvalue('account')
+deleteuv = form.getvalue('deleteupvote')
+
+# check permissions
+results = db.select('users',['admin'],{'account':username,'hash':userhash},'account')
+if len(results) < 1 or results[0]['admin'] == 0:
+  errorHandler.throwError('No permission')
+
+if switch:
+  if switch == 'admin' or switch == 'delete':
+    results = db.select('users',['admin'],'1=1','id')
+    if len(results) < 2:
+      errorHandler.throwError('There has to be one admin')
+  if switch == 'delete':
+    db.delete('users',{'id':account})
+  else:
+    results = db.select('users',[switch],{'id':account},switch)
+    if results[0][switch] == 1:
+      new = 0
+    else:
+      new = 1
+    db.update('users',{switch:new},{'id':account})
+  data['status'] = 'success'
+elif deleteuv:
+  db.update('upvotes',{'status':'removed by '+username},{'id':deleteuv})
+  data['status'] = 'success'
+else:
+  # get users
+  results = db.select('users',['id','account','curator','admin','created'],'1=1','created DESC')
+  users = []
+  for row in results:
+    user = dict(row)
+    user['delegator'] = 0
+    delegations = client.get_vesting_delegations(user['account'],'curangel',1)
+    if len(delegations) > 0 and delegations[0]['delegatee'] == 'curangel':
+      user['delegator'] = 1
+    users.append(user)
+
+  data['users'] = users
+
+  # get upvotes
+  upvotes = []
+  results = db.select('upvotes',['id','account','created','link','user','category','slug','title','type','payout','status','reward_sp','reward_sbd'],'1=1','created DESC')
+  for row in results:
+    upvotes.append(dict(row))
+
+  data['upvotes'] = upvotes
+
+api.output(data)

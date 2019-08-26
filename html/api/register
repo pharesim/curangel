@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
+import sys
+sys.path.append('lib')
+
+import db
+import api
+import errorHandler
+
+import cgi
+import os
+import uuid
+
+# get and set variables
+userid   = uuid.uuid4().hex
+form     = cgi.FieldStorage()
+username = form.getvalue('username')
+userhash = form.getvalue('userhash')
+
+userip   = '0.0.0.0'
+if 'REMOTE_ADDR' in os.environ:
+  userip = cgi.escape(os.environ["REMOTE_ADDR"])
+
+# save a new entry
+if username and userhash:
+  # check if user exists
+  results = db.select('users',['account'],{'account':username},'account')
+  if len(results) > 0:
+    errorHandler.throwError("User already registered")
+
+  # write
+  db.insert('users',{'id': userid, 'account': username, 'hash': userhash, 'ip': userip})
+
+else:
+  errorHandler.throwError("Unsufficient userdata to register")
+
+api.output({'status':'success'})

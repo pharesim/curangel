@@ -46,8 +46,12 @@ if switch:
     db.update('users',{switch:new},{'id':account})
   data['status'] = 'success'
 elif deleteuv:
-  db.update('upvotes',{'status':'removed by '+username},{'id':deleteuv})
-  data['status'] = 'success'
+  post = db.select('upvotes',['status'],{'id':deleteuv},'id')
+  if post[0]['status'] == 'in queue':
+    db.update('upvotes',{'status':'removed by '+username},{'id':deleteuv})
+    data['status'] = 'success'
+  else:
+    errorHandler.throwError('Only posts in queue can be removed from the queue. Doh!') 
 else:
   # get users
   results = db.select('users',['id','account','curator','admin','created'],'1=1','created DESC')

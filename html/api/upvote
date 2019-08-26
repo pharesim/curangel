@@ -15,9 +15,10 @@ import uuid
 
 from steem.steem import Steem
 from steem.blockchain import Blockchain
+from steem.account import Account
 
 client = Steem()
-chain = Blockchain()
+chain = Blockchain(client)
 
 # output variable
 data = {}
@@ -43,10 +44,25 @@ if postlink:
 
   post = client.get_content(link[-2][1:],link[-1])
 
-  #check if already voted
+  # check if author used bitbots
+  bidbots = ['booster','therising','smartsteem','upmewhale','minnowbooster','smartmarket','tipu','bdvoter','spydo','treeplanter']
+  account = Account(post['author'],client)
+  history = account.get_account_history(-1,500,filter_by='transfer')
+  for h in history:
+    if h['to'] in bidbots:
+      errorHandler.throwError('User has used a bid bot recently. Will not add to queue.')
+    last = h['timestamp']
+    txts = time.mktime(datetime.datetime.strptime(h['timestamp'], "%Y-%m-%dT%H:%M:%S").timetuple())
+    chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+    if chaints - txts > 60*60*24*7:
+      break
+
+  # check if already voted or if bidbot voted
   for vote in post['active_votes']:
     if vote['voter'] == 'curangel':
       errorHandler.throwError('We already voted on that post.')
+    if vote['voter'] in bidbots:
+      errorHandler.throwError('The post was voted by a bidbot. Will not add to queue.')
 
   # check if exists in queue
   results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink']},'id')

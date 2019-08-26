@@ -44,6 +44,10 @@ if postlink:
 
   post = client.get_content(link[-2][1:],link[-1])
 
+  # check if curator is author himself
+  if post['author'] == username:
+    errorHandler.throwError('Curating your own post? Are you serious?')
+
   # check if author used bitbots
   bidbots = ['booster','therising','smartsteem','upmewhale','minnowbooster','smartmarket','tipu','bdvoter','spydo','treeplanter']
   account = Account(post['author'],client)

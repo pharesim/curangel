@@ -73,7 +73,7 @@ class Voter:
         self.db.update('upvotes',{'status':'skipped voting due to payout approaching'},{'id':results[0]['id']})
         return self.next_in_queue(steem)
 
-      return uri
+      return uri, results[0]['id'];
     else:
       return False
 
@@ -85,7 +85,7 @@ class Voter:
 
     return float(weight/100)
 
-  def vote(self, uri):
+  def vote(self, uri, id):
     last_vote_time = self._get_account()["last_vote_time"]
     weight = int(self.calculate_vote_weight())
     print("\nvoting '{}' with weight of {}...".format(uri,weight))
@@ -94,4 +94,4 @@ class Voter:
       # Block until the vote is reflected on the remote node.
       # This prevents double vote attempts.
       time.sleep(1)
-    self.db.update('upvotes',{'status':'voted with '+str(weight/100)+'%'},{'link':uri})
+    self.db.update('upvotes',{'status':'voted with '+str(weight)+'%'},{'id':id})

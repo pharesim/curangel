@@ -43,12 +43,12 @@ class Curangel(Thread):
     while True:
       try:
         self.wait_for_recharge()
-        uri = self.voter.next_in_queue(self.steem)
+        uri, id = self.voter.next_in_queue(self.steem)
         if uri is False:
           print("\nqueue is empty. Sleeping for a minute.")
           sleep(60)
         else:
-          self.voter.vote(uri)
+          self.voter.vote(uri, id)
       except Exception:
         # log exception, sleep 10 seconds and retry
         print(format_exc())

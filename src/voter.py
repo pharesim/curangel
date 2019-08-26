@@ -88,7 +88,7 @@ class Voter:
 
   def vote(self, uri, id):
     last_vote_time = self._get_account()["last_vote_time"]
-    weight = int(self.calculate_vote_weight())
+    weight = self.calculate_vote_weight()
     print("\nvoting '{}' with weight of {}...".format(uri,weight))
     self.steem.commit.vote(uri, weight, self.account)
     while last_vote_time == self._get_account()["last_vote_time"]:

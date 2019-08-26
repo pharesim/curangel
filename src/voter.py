@@ -72,6 +72,12 @@ class Voter:
         print("\nskipping '{}' because payout is in less than 24 hours...".format(results[0]['link']))
         self.db.update('upvotes',{'status':'skipped voting due to payout approaching'},{'id':results[0]['id']})
         return self.next_in_queue(steem)
+      bidbots = ['booster','therising','smartsteem','upmewhale','minnowbooster','smartmarket','tipu','bdvoter','spydo','treeplanter']
+      for vote in post['active_votes']:
+        if vote['voter'] in bidbots:
+          print("\nskipping '{}' because post was voted by bidbot...".format(results[0]['link']))
+          self.db.update('upvotes',{'status':'skipped voting due to bidbot vote'},{'id':results[0]['id']})
+          return self.next_in_queue(steem)
 
       return uri, results[0]['id'];
     else:

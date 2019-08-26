@@ -90,6 +90,7 @@ class Voter:
       weight = weight / WEIGHT_FACTOR
     if weight < MIN_VOTE_WEIGHT:
       weight = MIN_VOTE_WEIGHT
+    weight = int(weight)
     return float(weight/100)
 
   def vote(self, uri, id):

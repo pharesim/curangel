@@ -64,6 +64,7 @@ class Voter:
       else:
         link = results[0]['link'].split('/')
 
+      uri = link[-2][1:]+'/'+link[-1]
       post = steem.get_content(link[-2][1:],link[-1])
       cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
       chaints = time.mktime(datetime.datetime.strptime(self.chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
@@ -72,7 +73,7 @@ class Voter:
         self.db.update('upvotes',{'status':'skipped voting due to payout approaching'},{'id':results[0]['id']})
         return self.next_in_queue(steem)
 
-      return results[0]['link']
+      return uri
     else:
       return False
 
@@ -82,7 +83,7 @@ class Voter:
     for _ in range(len(results)-1):
       weight = weight / WEIGHT_FACTOR
 
-    return weight
+    return float(weight/100)
 
   def vote(self, uri):
     last_vote_time = self._get_account()["last_vote_time"]

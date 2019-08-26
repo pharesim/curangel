@@ -46,7 +46,7 @@ class Curangel(Thread):
         uri = self.voter.next_in_queue(self.steem)
         if uri is False:
           print("\nqueue is empty. Sleeping for a minute.")
-          sleep(5)
+          sleep(60)
         else:
           self.voter.vote(uri)
       except Exception:

@@ -88,7 +88,7 @@ class Voter:
     last_vote_time = self._get_account()["last_vote_time"]
     weight = int(self.calculate_vote_weight())
     print("\nvoting '{}' with weight of {}...".format(uri,weight))
-    #self.steem.commit.vote(uri, weight, self.account)
+    self.steem.commit.vote(uri, weight, self.account)
     while last_vote_time == self._get_account()["last_vote_time"]:
       # Block until the vote is reflected on the remote node.
       # This prevents double vote attempts.

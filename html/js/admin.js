@@ -140,7 +140,7 @@ function loadAdminUserTable(users) {
       }
     }
   });
-  $('#usersTable').DataTable({'paging':false,'info':false,'retrieve':true,'order':[[5, 'desc']]});
+  $('#usersTable').DataTable({'paging':false,'info':false,'order':[]});
 }
 
 function switchUserStatus(status,id) {
@@ -244,7 +244,7 @@ function loadAdminUpvotesTable(upvotes) {
       }
     }
   });
-  $('#adminUpvotesTable').DataTable({'order':[[1, 'desc']]});
+  $('#adminUpvotesTable').DataTable({'order':[]});
 }
 
 function deleteUpvote(id) {

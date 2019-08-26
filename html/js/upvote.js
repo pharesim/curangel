@@ -115,5 +115,5 @@ function loadUpvotesTable(upvotes) {
 
    document.getElementById('upvotesTableBody').appendChild(newrow);
  });
- $('#upvotesTable').DataTable({'retrieve':true,'order':[[1, 'desc']]});
+ $('#upvotesTable').DataTable({'order':[]});
 }

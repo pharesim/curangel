@@ -113,7 +113,49 @@ function loadUpvotesTable(upvotes) {
    newcolumn.appendChild(newcontent);
    newrow.appendChild(newcolumn);
 
+   // Delete
+   newcolumn = document.createElement('td');
+   if(value.status == 'in queue') {
+     newlink = document.createElement('a');
+     newlink.setAttribute('href','#');
+     newlink.setAttribute('id','deleteUpvote'+value.id);
+     newimage = document.createElement('img');
+     newimage.setAttribute('src','img/icons/trash.svg');
+     newimage.setAttribute('height','24px');
+     newlink.appendChild(newimage);
+     newcolumn.appendChild(newlink);
+   }
+   newrow.appendChild(newcolumn);
+
    document.getElementById('upvotesTableBody').appendChild(newrow);
+
+   if(value.status == 'in queue') {
+     document.getElementById("deleteUpvote"+value.id).onclick = function() {
+       if(confirm('Delete upvote for '+value.title+'?') == true) {
+         deleteUpvote(value.id);
+       }
+     }
+   }
  });
  $('#upvotesTable').DataTable({'order':[]});
+}
+
+function deleteUpvote(id) {
+  $.ajax({
+    url: "api/upvote",
+    data: {
+      username: username,
+      userhash: userhash,
+      deleteupvote: id
+    },
+    type: "POST"
+  }).fail(function(){
+    alert('Failed deleting upvote');
+    loadAdmin();
+  }).done(function( data ) {
+    if(data['error']) {
+      alert(data['error']);
+    }
+    loadUpvote();
+  });
 }

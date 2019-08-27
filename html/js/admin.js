@@ -230,7 +230,7 @@ function loadAdminUpvotesTable(upvotes) {
     if(value.status == 'in queue') {
       newlink = document.createElement('a');
       newlink.setAttribute('href','#');
-      newlink.setAttribute('id','deleteUpvote'+value.id);
+      newlink.setAttribute('id','adminDeleteUpvote'+value.id);
       newimage = document.createElement('img');
       newimage.setAttribute('src','img/icons/trash.svg');
       newimage.setAttribute('height','24px');
@@ -242,9 +242,9 @@ function loadAdminUpvotesTable(upvotes) {
     document.getElementById('adminUpvotesTableBody').appendChild(newrow);
 
     if(value.status == 'in queue') {
-      document.getElementById("deleteUpvote"+value.id).onclick = function() {
+      document.getElementById("adminDeleteUpvote"+value.id).onclick = function() {
         if(confirm('Delete upvote for '+value.title+'?') == true) {
-          deleteUpvote(value.id);
+          adminDeleteUpvote(value.id);
         }
       }
     }
@@ -252,7 +252,7 @@ function loadAdminUpvotesTable(upvotes) {
   $('#adminUpvotesTable').DataTable({'order':[]});
 }
 
-function deleteUpvote(id) {
+function adminDeleteUpvote(id) {
   $.ajax({
     url: "api/admin",
     data: {

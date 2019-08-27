@@ -13,7 +13,12 @@ import uuid
 
 from steem.steem import Steem
 
-client = Steem()
+steemd_nodes = [
+  'https://api.steemit.com',
+  'https://gtg.steem.house:8090',
+]
+
+client = Steem(nodes=steemd_nodes)
 
 # output variable
 data = {}

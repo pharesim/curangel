@@ -17,7 +17,12 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 from steem.account import Account
 
-client = Steem()
+steemd_nodes = [
+  'https://api.steemit.com',
+  'https://gtg.steem.house:8090',
+]
+
+client = Steem(nodes=steemd_nodes)
 chain = Blockchain(client)
 
 # output variable
@@ -28,81 +33,90 @@ form     = cgi.FieldStorage()
 username = form.getvalue('username')
 userhash = form.getvalue('userhash')
 postlink = form.getvalue('postlink')
+deleteuv = form.getvalue('deleteupvote')
 
 # check permissions
 results = db.select('users',['id'],{'account':username,'hash':userhash},'id')
 if len(results) < 1:
   errorHandler.throwError('No permission')
 
-# submit new post
-if postlink:
-  link = postlink.split('#')
-  if len(link) > 1:
-    link = link[1].split('/')
-  else:
-    link = postlink.split('/')
+# delete post
+if deleteuv:
+  post = db.select('upvotes',['status'],{'account':username,'id':deleteuv},'status')
+  if len(results) < 1:
+    errorHandler.throwError('Post not found!')
+  db.update('upvotes',{'status': 'canceled'},{'id':deleteuv})
+  data['status'] = 'success'
+else:
+  # submit new post
+  if postlink:
+    link = postlink.split('#')
+    if len(link) > 1:
+      link = link[1].split('/')
+    else:
+      link = postlink.split('/')
 
-  post = client.get_content(link[-2][1:],link[-1])
+    post = client.get_content(link[-2][1:],link[-1])
 
-  # check if curator is author himself
-  if post['author'] == username:
-    errorHandler.throwError('Curating your own post? Are you serious?')
+    # check if curator is author himself
+    if post['author'] == username:
+      errorHandler.throwError('Curating your own post? Are you serious?')
 
-  # check if author used bitbots
-  bidbots = ['alfanso','appreciator','bdvoter','bid4joy','boomerang','booster','brandonfrye','buildawhale','edensgarden','inciter','joeparys','leo.voter','luckyvotes','minnowbooster','minnowhelper','minnowvotes','onlyprofitbot','postpromoter','profitvote','promobot','redlambo','rocky1','sct.voter','smartmarket','smartsteem','sneaky-ninja','sportsvoter','spydo','thebot','therising','tipu','treeplanter','triplea.bot','upmewhale','upmyvote','whalepromobot']
-  account = Account(post['author'],client)
-  history = account.get_account_history(-1,500,filter_by='transfer')
-  for h in history:
-    if h['to'] in bidbots:
-      errorHandler.throwError('User has used a bid bot recently. Will not add to queue.')
-    last = h['timestamp']
-    txts = time.mktime(datetime.datetime.strptime(h['timestamp'], "%Y-%m-%dT%H:%M:%S").timetuple())
+    # check if author used bitbots
+    bidbots = ['alfanso','appreciator','bdvoter','bid4joy','boomerang','booster','brandonfrye','buildawhale','edensgarden','inciter','joeparys','leo.voter','luckyvotes','minnowbooster','minnowhelper','minnowvotes','onlyprofitbot','postpromoter','profitvote','promobot','redlambo','rocky1','sct.voter','smartmarket','smartsteem','sneaky-ninja','sportsvoter','spydo','thebot','therising','tipu','treeplanter','triplea.bot','upmewhale','upmyvote','whalepromobot']
+    account = Account(post['author'],client)
+    history = account.get_account_history(-1,500,filter_by='transfer')
+    for h in history:
+      if h['to'] in bidbots:
+        errorHandler.throwError('User has used a bid bot recently. Will not add to queue.')
+      last = h['timestamp']
+      txts = time.mktime(datetime.datetime.strptime(h['timestamp'], "%Y-%m-%dT%H:%M:%S").timetuple())
+      chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+      if chaints - txts > 60*60*24*7:
+        break
+
+    # check if already voted or if bidbot voted
+    for vote in post['active_votes']:
+      if vote['voter'] == 'curangel':
+        errorHandler.throwError('We already voted on that post.')
+      if vote['voter'] in bidbots:
+        errorHandler.throwError('The post was voted by a bidbot. Will not add to queue.')
+
+    # check if exists in queue
+    results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink']},'id')
+    if len(results) > 0:
+      errorHandler.throwError('This post has been submitted before. Will not add to queue again.')
+
+    # check cashout time
+    cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
     chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-    if chaints - txts > 60*60*24*7:
-      break
+    if cashoutts - chaints < 60*60*24*2:
+      errorHandler.throwError('Cashout of post in less than 48 hours. Will not add to queue.')
 
-  # check if already voted or if bidbot voted
-  for vote in post['active_votes']:
-    if vote['voter'] == 'curangel':
-      errorHandler.throwError('We already voted on that post.')
-    if vote['voter'] in bidbots:
-      errorHandler.throwError('The post was voted by a bidbot. Will not add to queue.')
+    # check blacklist
+    results = db.select('blacklist',['id'],{'user':post['author']},'id')
+    if len(results) > 0:
+      errorHandler.throwError('Author blacklistet. Will not add to queue.')
 
-  # check if exists in queue
-  results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink']},'id')
-  if len(results) > 0:
-    errorHandler.throwError('This post has been submitted before. Will not add to queue again.')
+    # check previous votes for author
+    results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'created >':"datetime('now','-7 days')"},'created')
+    if len(results) > 0:
+      errorHandler.throwError('You already submitted a post of this author in the last week. Will not add to queue.')
+    results = db.select('upvotes',['created'],{'user':post['author'],'created >':"datetime('now','-1 day')"},'created')
+    if len(results) > 0:
+      errorHandler.throwError('Someone else already submitted a post of this author today. Will not add to queue.')
 
-  # check cashout time
-  cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-  chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-  if cashoutts - chaints < 60*60*24*2:
-    errorHandler.throwError('Cashout of post in less than 48 hours. Will not add to queue.')
+    post_type = 1
+    if post['parent_author']:
+      post_type = 2
+    db.insert('upvotes',{'id':uuid.uuid4().hex, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'in queue', 'reward_sbd': 0, 'reward_sp': 0})
 
-  # check blacklist
-  results = db.select('blacklist',['id'],{'user':post['author']},'id')
-  if len(results) > 0:
-    errorHandler.throwError('Author blacklistet. Will not add to queue.')
+  # get upvotes
+  upvotes = []
+  results = db.select('upvotes',['id','created','link','user','category','slug','title','type','payout','status','reward_sp','reward_sbd'],{'account':username},'created DESC')
+  for row in results:
+    upvotes.append(dict(row))
 
-  # check previous votes for author
-  results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'created >':"datetime('now','-7 days')"},'created')
-  if len(results) > 0:
-    errorHandler.throwError('You already submitted a post of this author in the last week. Will not add to queue.')
-  results = db.select('upvotes',['created'],{'user':post['author'],'created >':"datetime('now','-1 day')"},'created')
-  if len(results) > 0:
-    errorHandler.throwError('Someone else already submitted a post of this author today. Will not add to queue.')
-
-  post_type = 1
-  if post['parent_author']:
-    post_type = 2
-  db.insert('upvotes',{'id':uuid.uuid4().hex, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'in queue', 'reward_sbd': 0, 'reward_sp': 0})
-
-# get upvotes
-upvotes = []
-results = db.select('upvotes',['id','created','link','user','category','slug','title','type','payout','status','reward_sp','reward_sbd'],{'account':username},'created DESC')
-for row in results:
-  upvotes.append(dict(row))
-
-data['upvotes'] = upvotes
+  data['upvotes'] = upvotes
 
 api.output(data)

@@ -11,9 +11,14 @@ from voter import Voter
 # Print status at least once every this many seconds.
 MONITOR_INTERVAL_SEC = 300
 
+steemd_nodes = [
+  'https://api.steemit.com',
+  'https://gtg.steem.house:8090',
+]
+
 class Curangel(Thread):
   def __init__(self, user, postingKey):
-    self.steem = Steem(keys=[postingKey])
+    self.steem = Steem(keys=[postingKey],nodes=steemd_nodes)
     self.user = user
     self.voter = Voter(self.steem, user)
     self.last_update_duration = 0

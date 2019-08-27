@@ -1,0 +1,81 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
+import sys
+sys.path.append('lib')
+
+import db
+import api
+import errorHandler
+
+import cgi
+import time
+import datetime
+import uuid
+
+from steem.steem import Steem
+from steem.blockchain import Blockchain
+from steem.account import Account
+
+steemd_nodes = [
+  'https://api.steemit.com',
+  'https://gtg.steem.house:8090',
+]
+
+client = Steem(nodes=steemd_nodes)
+chain = Blockchain(client)
+
+# output variable
+data = {}
+
+# get and set variables
+form     = cgi.FieldStorage()
+username = form.getvalue('username')
+userhash = form.getvalue('userhash')
+postlink = form.getvalue('postlink')
+
+# check permissions
+results = db.select('users',['id'],{'account':username,'hash':userhash},'id')
+if len(results) < 1:
+  errorHandler.throwError('No permission')
+
+# submit new post
+if postlink:
+  link = postlink.split('#')
+  if len(link) > 1:
+    link = link[1].split('/')
+  else:
+    link = postlink.split('/')
+
+  post = client.get_content(link[-2][1:],link[-1])
+
+  # check if user has more than the limit of posts waiting
+  result = db.select('downvotes',['id'],{'account':username,'status':'waiting'},'id')
+  if len(result) > 2:
+    errorHandler.throwError('You already have '+len(result)+' posts waiting to be downvoted. Please wait until those are processed.')
+
+  # check if already voted
+  for vote in post['active_votes']:
+    if vote['voter'] == 'curangel':
+      errorHandler.throwError('We already voted on that post.')
+
+  # check cashout time
+  cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+  chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+  if cashoutts - chaints < 60*60*36:
+    errorHandler.throwError('Cashout of post in less than 36 hours. Will not add to queue.')
+
+  post_type = 1
+  if post['parent_author']:
+    post_type = 2
+  db.insert('downvotes',{'id':uuid.uuid4().hex, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'wait', 'reward': post['pending_payout_value'], 'cashout': 0})
+
+# get downvotes
+downvotes = []
+results = db.select('downvotes',['id','created','link','user','category','slug','title','type','payout','status','reward','cashout'],{'account':username},'created DESC')
+for row in results:
+  downvotes.append(dict(row))
+
+data['downvotes'] = downvotes
+
+api.output(data)

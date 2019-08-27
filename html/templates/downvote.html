@@ -1,3 +1,27 @@
 <div id="downvote" class="hidden jumbotron page">
-  downvote page
+  <div>
+    <h2>Mark a post of comment for downvote</h2>
+    <input type="text" id="newDownvote" size="100%" placeholder="full link to post or comment"/><br />
+    <button class="btn" id="sendNewDownvote">Send</button>
+  </div>
+  <div>
+    <h2>History of your downvotes</h2>
+    <table class="table table-hover table-sm" id="downvotesTable">
+      <thead class="thead-dark">
+        <tr>
+          <th>Date</th>
+          <th>User</th>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Payout</th>
+          <th>Reward</th>
+          <th>Status</th>
+          <th>Cashout</th>
+          <th>Delete</th>
+      </thead>
+      <tbody id="downvotesTableBody">
+
+      </tbody>
+    </table>
+  </div>
 </div>

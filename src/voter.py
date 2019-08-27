@@ -5,6 +5,7 @@ import datetime
 import sqlite3
 from db import DB
 
+from steem.steem import Steem
 from steem.blockchain import Blockchain
 
 # Maximum VP allowed.
@@ -25,10 +26,16 @@ MIN_VOTE_WEIGHT = 50;
 # FACTOR FOR VOTE WEIGHT BY QUEUE LENGTH
 WEIGHT_FACTOR = 1.1;
 
+steemd_nodes = [
+  'https://api.steemit.com',
+  'https://gtg.steem.house:8090',
+]
+
 class Voter:
   def __init__(self, steem, account):
     self.db = DB('curangel.sqlite3')
-    self.chain = Blockchain()
+    steem = Steem(nodes=steemd_nodes)
+    self.chain = Blockchain(steem)
     self.steem = steem
     self.account = account
 

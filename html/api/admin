@@ -14,13 +14,9 @@ import uuid
 from steem.steem import Steem
 
 steemd_nodes = [
+  'https://anyx.io',
   'https://api.steemit.com',
-  'https://gtg.steem.house:8090',
-  'https://api.steem.house',
   'https://steemd.minnowsupportproject.org',
-  'https://steemd.privex.io',
-  'https://rpc.usesteem.com',
-  'https://anyx.to'
 ]
 
 client = Steem(nodes=steemd_nodes)

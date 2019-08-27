@@ -12,13 +12,9 @@ from voter import Voter
 MONITOR_INTERVAL_SEC = 300
 
 steemd_nodes = [
+  'https://anyx.io',
   'https://api.steemit.com',
-  'https://gtg.steem.house:8090',
-  'https://api.steem.house',
   'https://steemd.minnowsupportproject.org',
-  'https://steemd.privex.io',
-  'https://rpc.usesteem.com',
-  'https://anyx.to'
 ]
 
 class Curangel(Thread):

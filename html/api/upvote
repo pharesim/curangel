@@ -76,12 +76,10 @@ else:
       if chaints - txts > 60*60*24*7:
         break
 
-    # check if already voted or if bidbot voted
+    # check if already voted
     for vote in post['active_votes']:
       if vote['voter'] == 'curangel':
         errorHandler.throwError('We already voted on that post.')
-      if vote['voter'] in bidbots:
-        errorHandler.throwError('The post was voted by a bidbot. Will not add to queue.')
 
     # check if exists in upvote queue
     results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink'],'status !': 'canceled'},'id')
@@ -105,10 +103,10 @@ else:
       errorHandler.throwError('Author blacklistet. Will not add to queue.')
 
     # check previous votes for author
-    results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'created >':"datetime('now','-7 days')"},'created')
+    results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'status !':'canceled','created >':"datetime('now','-7 days')"},'created')
     if len(results) > 0:
       errorHandler.throwError('You already submitted a post of this author in the last week. Will not add to queue.')
-    results = db.select('upvotes',['created'],{'user':post['author'],'created >':"datetime('now','-1 day')",'status !':'canceled'},'created')
+    results = db.select('upvotes',['created'],{'user':post['author'],'status !':'canceled','created >':"datetime('now','-1 day')",'status !':'canceled'},'created')
     if len(results) > 0:
       errorHandler.throwError('Someone else already submitted a post of this author today. Will not add to queue.')
 

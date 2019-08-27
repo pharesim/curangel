@@ -118,7 +118,7 @@ else:
   downvotes = []
   results = db.select('downvotes',['id','created','account','reason','link','user','category','slug','title','type','payout','status'],'1=1','created DESC')
   for row in results:
-    downvotes.append(dict.row())
+    downvotes.append(dict(row))
 
   data['downvotes'] = downvotes
 

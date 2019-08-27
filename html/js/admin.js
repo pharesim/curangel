@@ -376,7 +376,7 @@ function deleteBlacklist(id) {
   });
 }
 
-function loadAdminDownvotesTable(upvotes) {
+function loadAdminDownvotesTable(downvotes) {
   if ($.fn.DataTable.isDataTable('#adminDownvotesTable')) {
     $('#adminDownvotesTable').DataTable().destroy();
   }

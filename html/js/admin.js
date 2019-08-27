@@ -9,22 +9,22 @@ function loadAdmin() {
   userhash = localStorage.userhash;
 
   $.ajax({
-     url: "api/admin",
-     data: {
-       username: username,
-       userhash: userhash
-     },
-     type: "POST"
-   }).fail(function(){
-     alert('Error loading admin data');
-   }).done(function( data ) {
-     if(data['error']) {
-       alert(data['error']);
-     } else {
-       loadAdminUserTable(data['users']);
-       loadAdminUpvotesTable(data['upvotes']);
-       loadAdminBlacklistTable(data['blacklist']);
-     }
+    url: "api/admin",
+    data: {
+      username: username,
+      userhash: userhash
+    },
+    type: "POST"
+  }).fail(function(){
+    alert('Error loading admin data');
+  }).done(function( data ) {
+    if(data['error']) {
+      alert(data['error']);
+    } else {
+      loadAdminUserTable(data['users']);
+      loadAdminUpvotesTable(data['upvotes']);
+      loadAdminBlacklistTable(data['blacklist']);
+    }
   });
 }
 

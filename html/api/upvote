@@ -49,7 +49,7 @@ if len(results) < 1:
 if deleteuv:
   post = db.select('upvotes',['status'],{'account':username,'id':deleteuv},'status')
   if len(results) < 1:
-    errorHandler.throwError('Post not found!')
+    errorHandler.throwError('Upvote not found!')
   db.update('upvotes',{'status': 'canceled'},{'id':deleteuv})
   data['status'] = 'success'
 else:
@@ -87,10 +87,15 @@ else:
       if vote['voter'] in bidbots:
         errorHandler.throwError('The post was voted by a bidbot. Will not add to queue.')
 
-    # check if exists in queue
+    # check if exists in upvote queue
     results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink']},'id')
     if len(results) > 0:
       errorHandler.throwError('This post has been submitted before. Will not add to queue again.')
+
+    # check if exists in downvote queue
+    result = db.select('downvotes',['account'],{'slug':post['permlink']},'id')
+    if len(result) > 0:
+      errorHandler.throwError('Post was already marked for downvote by '+result[0]['account'])
 
     # check cashout time
     cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())

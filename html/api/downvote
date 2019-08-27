@@ -38,49 +38,63 @@ form     = cgi.FieldStorage()
 username = form.getvalue('username')
 userhash = form.getvalue('userhash')
 postlink = form.getvalue('postlink')
+reason   = form.getvalue('reason')
+deletedv = form.getvalue('deletedownvote')
 
 # check permissions
 results = db.select('users',['id'],{'account':username,'hash':userhash},'id')
 if len(results) < 1:
   errorHandler.throwError('No permission')
 
-# submit new post
-if postlink:
-  link = postlink.split('#')
-  if len(link) > 1:
-    link = link[1].split('/')
-  else:
-    link = postlink.split('/')
+if deletedv:
+  post = db.select('downvotes',['status'],{'account':username,'id':deletedv},'status')
+  if len(results) < 1:
+    errorHandler.throwError('Downvote not found!')
+  db.update('downvotes',{'status': 'canceled'},{'id':deletedv})
+  data['status'] = 'success'
+else:
+  # submit new post
+  if postlink:
+    link = postlink.split('#')
+    if len(link) > 1:
+      link = link[1].split('/')
+    else:
+      link = postlink.split('/')
 
-  post = client.get_content(link[-2][1:],link[-1])
+    post = client.get_content(link[-2][1:],link[-1])
 
-  # check if user has more than the limit of posts waiting
-  result = db.select('downvotes',['id'],{'account':username,'status':'waiting'},'id')
-  if len(result) > 2:
-    errorHandler.throwError('You already have '+len(result)+' posts waiting to be downvoted. Please wait until those are processed.')
+    # check if user has more than the limit of posts waiting
+    result = db.select('downvotes',['id'],{'account':username,'status':'waiting'},'id')
+    if len(result) > 2:
+      errorHandler.throwError('You already have '+len(result)+' posts waiting to be downvoted. Please wait until those are processed.')
 
-  # check if already voted
-  for vote in post['active_votes']:
-    if vote['voter'] == 'curangel':
-      errorHandler.throwError('We already voted on that post.')
+    # check if post is in upvote queue
+    result = db.select('upvotes',['account'],{'slug':post['permlink']},'id')
+    if len(result) > 0:
+      errorHandler.throwError('Post was already curated by '+result[0]['account'])
 
-  # check cashout time
-  cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-  chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-  if cashoutts - chaints < 60*60*36:
-    errorHandler.throwError('Cashout of post in less than 36 hours. Will not add to queue.')
+    # check if already voted
+    for vote in post['active_votes']:
+      if vote['voter'] == 'curangel':
+        errorHandler.throwError('We already voted on that post.')
 
-  post_type = 1
-  if post['parent_author']:
-    post_type = 2
-  db.insert('downvotes',{'id':uuid.uuid4().hex, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'wait', 'reward': post['pending_payout_value'], 'cashout': 0})
+    # check cashout time
+    cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+    chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+    if cashoutts - chaints < 60*60*36:
+      errorHandler.throwError('Cashout of post in less than 36 hours. Will not add to queue.')
 
-# get downvotes
-downvotes = []
-results = db.select('downvotes',['id','created','link','user','category','slug','title','type','payout','status','reward','cashout'],{'account':username},'created DESC')
-for row in results:
-  downvotes.append(dict(row))
+    post_type = 1
+    if post['parent_author']:
+      post_type = 2
+    db.insert('downvotes',{'id':uuid.uuid4().hex, 'account': username, 'reason': reason, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'wait', 'reward': post['pending_payout_value'], 'cashout': 0})
 
-data['downvotes'] = downvotes
+  # get downvotes
+  downvotes = []
+  results = db.select('downvotes',['id','created','reason','link','user','category','slug','title','type','payout','status','reward','cashout'],{'account':username},'created DESC')
+  for row in results:
+    downvotes.append(dict(row))
+
+  data['downvotes'] = downvotes
 
 api.output(data)

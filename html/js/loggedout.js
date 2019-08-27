@@ -37,45 +37,45 @@ document.getElementById('loginNow').onclick = function() {
 
 function login() {
   $.ajax({
-     url: "api/login",
-     data: {
-       username: username,
-       userhash: userhash
-     },
-     type: "POST"
-   }).fail(function(){
-     loginError('Login failed, please try again');
-   }).done(function( data ) {
-     if(data['error']) {
-       username = '';
-       userhash = '';
-       loginError(data['error']);
-     } else {
-       localStorage.setItem("username", username);
-       localStorage.setItem("userhash", userhash);
-       hideById('loginError');
-       hideByClass('page');
-       hideByClass('loggedOut');
-       showByClass('loggedIn');
-       if(data['admin'] == 1) {
-         showById('adminNav');
-         loadAdmin();
-         showById('admin');
-       }
-       if(data['curator'] == 1) {
-         showById('upvoteNav');
-         if(data['admin'] != 1) {
-           showById('upvote');
-         }
-       }
-       if(data['delegator'] == 1) {
-         showById('downvoteNav');
-         if(data['admin'] != 1 && data['curator'] != 1) {
-           showById('downvote');
-         }
-       }
-     }
-   });
+    url: "api/login",
+    data: {
+      username: username,
+      userhash: userhash
+    },
+    type: "POST"
+  }).fail(function(){
+    loginError('Login failed, please try again');
+  }).done(function( data ) {
+    if(data['error']) {
+      username = '';
+      userhash = '';
+      loginError(data['error']);
+    } else {
+      localStorage.setItem("username", username);
+      localStorage.setItem("userhash", userhash);
+      hideById('loginError');
+      hideByClass('page');
+      hideByClass('loggedOut');
+      showByClass('loggedIn');
+      if(data['admin'] == 1) {
+        showById('adminNav');
+        loadAdmin();
+        showById('admin');
+      }
+      if(data['curator'] == 1) {
+        showById('upvoteNav');
+        if(data['admin'] != 1) {
+          showById('upvote');
+        }
+      }
+      if(data['delegator'] == 1) {
+        showById('downvoteNav');
+        if(data['admin'] != 1 && data['curator'] != 1) {
+          showById('downvote');
+        }
+      }
+    }
+  });
 }
 
 function loginError(message) {

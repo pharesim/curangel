@@ -8,6 +8,14 @@ CREATE TABLE users (
   curator BOOLEAN
 );
 
+CREATE TABLE blacklist (
+  id TEXT PRIMARY KEY,
+  user TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  account TEXT NOT NULL
+);
+
 CREATE TABLE upvotes (
   id TEXT PRIMARY KEY,
   account TEXT NOT NULL,
@@ -28,6 +36,7 @@ CREATE TABLE downvotes (
   id TEXT PRIMARY KEY,
   account TEXT NOT NULL,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  reason TEXT NOT NULL,
   link TEXT NOT NULL,
   user TEXT NOT NULL,
   category TEXT NOT NULL,
@@ -38,12 +47,4 @@ CREATE TABLE downvotes (
   status TEXT NOT NULL,
   reward TEXT NOT NULL,
   cashout TEXT NOT NULL
-);
-
-CREATE TABLE blacklist (
-  id TEXT PRIMARY KEY,
-  user TEXT NOT NULL,
-  reason TEXT NOT NULL,
-  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  account TEXT NOT NULL
 );

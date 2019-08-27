@@ -34,25 +34,25 @@ document.getElementById('loginFromRegister').onclick = function() {
 
 function register() {
   $.ajax({
-     url: "api/register",
-     data: {
-       username: username,
-       userhash: userhash
-     },
-     type: "POST"
-   }).fail(function(){
-     registerError('Registration failed, please try again');
-   }).done(function( data ) {
-     if(data['error']) {
-       registerError(data['error']);
-     } else {
-       hideById('registerError');
-       hideById('registerForm');
-       showById('registerSuccess');
-     }
-   });
+    url: "api/register",
+    data: {
+      username: username,
+      userhash: userhash
+    },
+    type: "POST"
+  }).fail(function(){
+    registerError('Registration failed, please try again');
+  }).done(function( data ) {
+    if(data['error']) {
+      registerError(data['error']);
+    } else {
+      hideById('registerError');
+      hideById('registerForm');
+      showById('registerSuccess');
+    }
+  });
 
-   userhash = '';
+  userhash = '';
 }
 
 function registerError(message) {

@@ -20,9 +20,11 @@ document.getElementById('sendNewDownvote').onclick = function() {
     if(data['error']) {
       alert(data['error']);
       setValueById('newDownvote','');
+      setValueById('newDownvoteReason','');
     } else {
       alert('Post will be downvoted soon!');
       setValueById('newDownvote','');
+      setValueById('newDownvoteReason','');
       setContentById('downvotesTableBody','');
       loadDownvotesTable(data['downvotes']);
     }

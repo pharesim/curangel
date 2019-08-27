@@ -48,7 +48,7 @@ def getDownvotes():
     for slug, shares in downvotes.items():
       pct = shares*100/total_shares
       vote_weight = pct*1.25
-      downvotes[slug] = vote_weight
+      downvotes[slug] = int(vote_weight*100)/100
     downvotes = distributeRest(downvotes)
   return downvotes
 

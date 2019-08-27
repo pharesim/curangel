@@ -13,10 +13,4 @@ loadTemplate('admin','content');
 loadTemplate('upvote','content');
 loadTemplate('downvote','content');
 loadTemplate('about','content');
-loadTemplate('blacklist','content');
-/* loadTemplate('index/loggedin','content');
-loadTemplate('index/modals/freeclaim','body');
-loadTemplate('index/modals/botclaim','body');
-loadTemplate('index/modals/paidclaim','body');
-loadTemplate('index/modals/invite','body');
-loadTemplate('index/modals/create','body'); */
+//loadTemplate('blacklist','content');

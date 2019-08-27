@@ -7,7 +7,7 @@ function appstart() {
     userhash = localStorage.userhash;
     login();
   } else {
-    showById('loggedOut');
+    showById('about');
     hideByClass('loggedIn');
   }
 }

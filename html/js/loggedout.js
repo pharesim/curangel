@@ -1,3 +1,14 @@
+document.getElementById('loginNav').onclick = function() {
+  hideByClass('page');
+  showById('loggedOut');
+}
+
+document.getElementById('logoutNav').onclick = function() {
+  localStorage.removeItem('username');
+  localStorage.removeItem('userhash');
+  window.location.href = '/';
+}
+
 document.getElementById('loginNow').onclick = function() {
   let loginUser = getValueById('loginUsername');
   let loginKey  = getValueById('loginPostingKey');

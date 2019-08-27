@@ -29,6 +29,15 @@ WEIGHT_FACTOR = 1.1;
 steemd_nodes = [
   'https://api.steemit.com',
   'https://gtg.steem.house:8090',
+  'https://appbasetest.timcliff.com',
+  'https://appbase.buildteam.io',
+  'https://api.steem.house',
+  'https://rpc.curiesteem.com',
+  'https://rpc.steemliberator.com',
+  'https://rpc.steemviz.com',
+  'https://steemd.minnowsupportproject.org',
+  'https://steemd.privex.io',
+  'https://rpc.usesteem.com',
 ]
 
 class Voter:

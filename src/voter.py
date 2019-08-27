@@ -81,7 +81,7 @@ class Voter:
 
       return uri, results[0]['id'];
     else:
-      return False
+      return False, False;
 
   def calculate_vote_weight(self):
     results = self.db.select('upvotes',['link'],{'status':'in queue'},'created ASC','9999')

@@ -88,7 +88,7 @@ else:
         errorHandler.throwError('The post was voted by a bidbot. Will not add to queue.')
 
     # check if exists in upvote queue
-    results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink']},'id')
+    results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink'],'status !': 'canceled'},'id')
     if len(results) > 0:
       errorHandler.throwError('This post has been submitted before. Will not add to queue again.')
 

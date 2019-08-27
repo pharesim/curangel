@@ -80,7 +80,7 @@ if postlink:
     errorHandler.throwError('Cashout of post in less than 48 hours. Will not add to queue.')
 
   # check blacklist
-  results = db.select('blacklist',['id'],{'account':post['author']},'id')
+  results = db.select('blacklist',['id'],{'user':post['author']},'id')
   if len(results) > 0:
     errorHandler.throwError('Author blacklistet. Will not add to queue.')
 

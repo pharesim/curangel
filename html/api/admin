@@ -9,6 +9,7 @@ import api
 import errorHandler
 
 import cgi
+import uuid
 
 from steem.steem import Steem
 
@@ -18,12 +19,15 @@ client = Steem()
 data = {}
 
 # get and set variables
-form     = cgi.FieldStorage()
-username = form.getvalue('username')
-userhash = form.getvalue('userhash')
-switch   = form.getvalue('switch')
-account  = form.getvalue('account')
-deleteuv = form.getvalue('deleteupvote')
+form      = cgi.FieldStorage()
+username  = form.getvalue('username')
+userhash  = form.getvalue('userhash')
+switch    = form.getvalue('switch')
+account   = form.getvalue('account')
+deleteuv  = form.getvalue('deleteupvote')
+blacklist = form.getvalue('blacklist')
+reason    = form.getvalue('reason')
+deletebl  = form.getvalue('deleteblacklist')
 
 # check permissions
 results = db.select('users',['admin'],{'account':username,'hash':userhash},'account')
@@ -51,7 +55,16 @@ elif deleteuv:
     db.update('upvotes',{'status':'removed by '+username},{'id':deleteuv})
     data['status'] = 'success'
   else:
-    errorHandler.throwError('Only posts in queue can be removed from the queue. Doh!') 
+    errorHandler.throwError('Only posts in queue can be removed from the queue. Doh!')
+elif blacklist:
+  bl = db.select('blacklist',['user'],{'user':blacklist},'id')
+  if len(bl) > 0:
+    errorHandler.throwError('User is already blacklisted.')
+  db.insert('blacklist',{'id':uuid.uuid4().hex,'user':blacklist,'reason':reason,'account':username})
+  data['status'] = 'success'
+elif deletebl:
+  db.delete('blacklist',{'id':deletebl})
+  data['status'] = 'success'
 else:
   # get users
   results = db.select('users',['id','account','curator','admin','created'],'1=1','created DESC')
@@ -73,5 +86,13 @@ else:
     upvotes.append(dict(row))
 
   data['upvotes'] = upvotes
+
+  # get blacklist
+  blacklist = []
+  results = db.select('blacklist',['id','user','reason','created','account'],'1=1','user')
+  for row in results:
+    blacklist.append(dict(row))
+
+  data['blacklist'] = blacklist
 
 api.output(data)

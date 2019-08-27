@@ -23,6 +23,7 @@ function loadAdmin() {
      } else {
        loadAdminUserTable(data['users']);
        loadAdminUpvotesTable(data['upvotes']);
+       loadAdminBlacklistTable(data['blacklist']);
      }
   });
 }
@@ -262,6 +263,109 @@ function deleteUpvote(id) {
     type: "POST"
   }).fail(function(){
     alert('Failed deleting upvote');
+    loadAdmin();
+  }).done(function( data ) {
+    if(data['error']) {
+      alert(data['error']);
+    }
+    loadAdmin();
+  });
+}
+
+document.getElementById('sendNewBlacklist').onclick = function() {
+  $.ajax({
+    url: "api/admin",
+    data: {
+      username: username,
+      userhash: userhash,
+      blacklist: getValueById('newBlacklist'),
+      reason: getValueById('newBlacklistReason')
+    },
+    type: "POST"
+  }).fail(function(){
+    alert('Failed adding to blacklist');
+    loadAdmin();
+  }).done(function( data ) {
+    if(data['error']) {
+      alert(data['error']);
+    }
+    setValueById('newBlacklist','');
+    setValueById('newBlacklistReason','');
+    loadAdmin();
+  });
+}
+
+function loadAdminBlacklistTable(blacklist) {
+  if ($.fn.DataTable.isDataTable('#adminBlacklistTable')) {
+    $('#adminBlacklistTable').DataTable().destroy();
+  }
+  setContentById('adminBlacklistTableBody','');
+  $.each(blacklist,function(index,value) {
+    let newrow = document.createElement('tr');
+    newrow.setAttribute('id','adminblacklist'+value.id);
+
+    // User
+    let newcolumn = document.createElement('td');
+    let newlink = document.createElement('a');
+    newlink.setAttribute('href','https://steemit.com/@'+value.user);
+    newlink.setAttribute('target','_blank');
+    let newcontent = document.createTextNode(value.user);
+    newlink.appendChild(newcontent);
+    newcolumn.appendChild(newlink);
+    newrow.appendChild(newcolumn);
+
+    // Created
+    newcolumn = document.createElement('td');
+    newcontent = document.createTextNode(value.created);
+    newcolumn.appendChild(newcontent);
+    newrow.appendChild(newcolumn);
+
+    // Reason
+    newcolumn = document.createElement('td');
+    newcontent = document.createTextNode(value.reason);
+    newcolumn.appendChild(newcontent);
+    newrow.appendChild(newcolumn);
+
+    // Added by
+    newcolumn = document.createElement('td');
+    newcontent = document.createTextNode(value.account);
+    newcolumn.appendChild(newcontent);
+    newrow.appendChild(newcolumn);
+
+    // Delete
+    newcolumn = document.createElement('td');
+    newlink = document.createElement('a');
+    newlink.setAttribute('href','#');
+    newlink.setAttribute('id','deleteBlacklist'+value.id);
+    newimage = document.createElement('img');
+    newimage.setAttribute('src','img/icons/trash.svg');
+    newimage.setAttribute('height','24px');
+    newlink.appendChild(newimage);
+    newcolumn.appendChild(newlink);
+    newrow.appendChild(newcolumn);
+
+    document.getElementById('adminBlacklistTableBody').appendChild(newrow);
+
+    document.getElementById("deleteBlacklist"+value.id).onclick = function() {
+      if(confirm('Delete blacklist entry '+value.user+'?') == true) {
+        deleteBlacklist(value.id);
+      }
+    }
+  });
+  $('#adminBlacklistTable').DataTable({'order':[]});
+}
+
+function deleteBlacklist(id) {
+  $.ajax({
+    url: "api/admin",
+    data: {
+      username: username,
+      userhash: userhash,
+      deleteblacklist: id
+    },
+    type: "POST"
+  }).fail(function(){
+    alert('Failed deleting blacklist entry');
     loadAdmin();
   }).done(function( data ) {
     if(data['error']) {

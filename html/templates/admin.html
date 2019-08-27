@@ -67,7 +67,28 @@
         </div>
         <div id="admin-accordion-collapseTwo" class="collapse" aria-labelledby="admin-accordion-headingTwo" data-parent="#admin-accordion">
           <div class="card-body">
+            <div>
+              <h2>Add a user to the blacklist</h2>
+              <div><input type="text" id="newBlacklist" size="80%" placeholder="username without @"/></div>
+              <div><input type="text" id="newBlacklistReason" size="80%" placeholder="reason for blacklisting" /></div>
+              <button class="btn" id="sendNewBlacklist">Send</button>
+            </div>
+            <div>
+              <h2>Blacklist</h2>
+              <table class="table table-hover table-sm" id="adminBlacklistTable">
+                <thead class="thead-dark">
+                  <tr>
+                    <th>User</th>
+                    <th>Added</th>
+                    <th>Reason</th>
+                    <th>Added by</th>
+                    <th>Delete</th>
+                  </thead>
+                <tbody id="adminBlacklistTableBody">
 
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

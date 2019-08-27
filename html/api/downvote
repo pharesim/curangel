@@ -65,7 +65,7 @@ else:
       errorHandler.throwError('You already have '+len(result)+' posts waiting to be downvoted. Please wait until those are processed.')
 
     # check if post is in upvote queue
-    result = db.select('upvotes',['account'],{'slug':post['permlink']},'id')
+    result = db.select('upvotes',['account'],{'slug':post['permlink'],'status':'in queue'},'id')
     if len(result) > 0:
       errorHandler.throwError('Post was already curated by '+result[0]['account'])
 

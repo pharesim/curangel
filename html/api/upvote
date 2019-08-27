@@ -89,7 +89,7 @@ else:
       errorHandler.throwError('This post has been submitted before. Will not add to queue again.')
 
     # check if exists in downvote queue
-    result = db.select('downvotes',['account'],{'slug':post['permlink']},'id')
+    result = db.select('downvotes',['account'],{'slug':post['permlink'],'status':'wait'},'id')
     if len(result) > 0:
       errorHandler.throwError('Post was already marked for downvote by '+result[0]['account'])
 

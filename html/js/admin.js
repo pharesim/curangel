@@ -24,6 +24,7 @@ function loadAdmin() {
       loadAdminUserTable(data['users']);
       loadAdminUpvotesTable(data['upvotes']);
       loadAdminBlacklistTable(data['blacklist']);
+      loadAdminDownvotesTable(data['downvotes']);
     }
   });
 }
@@ -366,6 +367,119 @@ function deleteBlacklist(id) {
     type: "POST"
   }).fail(function(){
     alert('Failed deleting blacklist entry');
+    loadAdmin();
+  }).done(function( data ) {
+    if(data['error']) {
+      alert(data['error']);
+    }
+    loadAdmin();
+  });
+}
+
+function loadAdminDownvotesTable(upvotes) {
+  if ($.fn.DataTable.isDataTable('#adminDownvotesTable')) {
+    $('#adminDownvotesTable').DataTable().destroy();
+  }
+  setContentById('adminDownvotesTableBody','');
+  $.each(downvotes,function(index,value) {
+    let newrow = document.createElement('tr');
+    newrow.setAttribute('id','admindownvote'+value.id);
+
+    // Created
+    let newcolumn = document.createElement('td');
+    let newcontent = document.createTextNode(value.created);
+    newcolumn.appendChild(newcontent);
+    newrow.appendChild(newcolumn);
+
+    // Account
+    newcolumn = document.createElement('td');
+    newcontent = document.createTextNode(value.account);
+    newcolumn.appendChild(newcontent);
+    newrow.appendChild(newcolumn);
+
+    // Reason
+    newcolumn = document.createElement('td');
+    newcontent = document.createTextNode(value.reason);
+    newcolumn.appendChild(newcontent);
+    newrow.appendChild(newcolumn);
+
+    // User
+    newcolumn = document.createElement('td');
+    let newlink = document.createElement('a');
+    newlink.setAttribute('href','https://steemit.com/@'+value.user);
+    newlink.setAttribute('target','_blank');
+    newcontent = document.createTextNode(value.user);
+    newlink.appendChild(newcontent);
+    newcolumn.appendChild(newlink);
+    newrow.appendChild(newcolumn);
+
+    // Title
+    newcolumn = document.createElement('td');
+    newlink = document.createElement('a');
+    newlink.setAttribute('href','https://steemit.com'+value.link);
+    newlink.setAttribute('target','_blank');
+    if(value.title == '') {
+      value.title = 'None';
+    }
+    newcontent = document.createTextNode(value.title);
+    newlink.appendChild(newcontent);
+    newcolumn.appendChild(newlink);
+    newrow.appendChild(newcolumn);
+
+    // Type
+    newcolumn = document.createElement('td');
+    let type = 'comment'
+    if(value.type == 1) {
+      type = 'post';
+    }
+    newcontent = document.createTextNode(type);
+    newcolumn.appendChild(newcontent);
+    newrow.appendChild(newcolumn);
+
+    // Status
+    newcolumn = document.createElement('td');
+    newcontent = document.createTextNode(value.status);
+    newcolumn.appendChild(newcontent);
+    newrow.appendChild(newcolumn);
+
+    // Delete
+    newcolumn = document.createElement('td');
+    if(value.status == 'wait') {
+      newlink = document.createElement('a');
+      newlink.setAttribute('href','#');
+      newlink.setAttribute('id','adminDeleteDownvote'+value.id);
+      newimage = document.createElement('img');
+      newimage.setAttribute('src','img/icons/trash.svg');
+      newimage.setAttribute('height','24px');
+      newlink.appendChild(newimage);
+      newcolumn.appendChild(newlink);
+    }
+    newrow.appendChild(newcolumn);
+
+    document.getElementById('adminDownvotesTableBody').appendChild(newrow);
+
+    if(value.status == 'wait') {
+      document.getElementById("adminDeleteDownvote"+value.id).onclick = function() {
+        if(confirm('Delete downvote for '+value.title+'?') == true) {
+          adminDeleteDownvote(value.id);
+        }
+      }
+    }
+  });
+  $('#adminDownvotesTable').DataTable({'order':[]});
+}
+
+function adminDeleteDownvote(id) {
+  $.ajax({
+    url: "api/admin",
+    data: {
+      username: username,
+      userhash: userhash,
+      deletedownvote: id
+    },
+    type: "POST"
+  }).fail(function(){
+    alert('Failed deleting downvote');
     loadAdmin();
   }).done(function( data ) {
     if(data['error']) {

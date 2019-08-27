@@ -38,6 +38,8 @@ deleteuv  = form.getvalue('deleteupvote')
 blacklist = form.getvalue('blacklist')
 reason    = form.getvalue('reason')
 deletebl  = form.getvalue('deleteblacklist')
+deletedv  = form.getvalue('deletedownvote')
+
 
 # check permissions
 results = db.select('users',['admin'],{'account':username,'hash':userhash},'account')
@@ -65,7 +67,7 @@ elif deleteuv:
     db.update('upvotes',{'status':'removed by '+username},{'id':deleteuv})
     data['status'] = 'success'
   else:
-    errorHandler.throwError('Only posts in queue can be removed from the queue. Doh!')
+    errorHandler.throwError('Only posts in queue can be removed from the queue. Duh!')
 elif blacklist:
   bl = db.select('blacklist',['user'],{'user':blacklist},'id')
   if len(bl) > 0:
@@ -75,6 +77,13 @@ elif blacklist:
 elif deletebl:
   db.delete('blacklist',{'id':deletebl})
   data['status'] = 'success'
+elif deletedv:
+  post = db.select('downvotes',['status'],{'id':deleteuv},'id')
+  if post[0]['status'] == 'wait':
+    db.update('downvotes',{'status':'removed by '+username},{'id':deletedv})
+    data['status'] = 'success'
+  else:
+    errorHandler.throwError('Only posts that are waiting for a downvote can be removed. Duh!')
 else:
   # get users
   results = db.select('users',['id','account','curator','admin','created'],'1=1','created DESC')
@@ -104,5 +113,13 @@ else:
     blacklist.append(dict(row))
 
   data['blacklist'] = blacklist
+
+  # get downvotes
+  downvotes = []
+  results = db.select('downvotes',['id','created','account','reason','link','user','category','slug','title','type','payout','status'],'1=1','created DESC')
+  for row in results:
+    downvotes.append(dict.row())
+
+  data['downvotes'] = downvotes
 
 api.output(data)

@@ -112,7 +112,7 @@ else:
     results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'created >':"datetime('now','-7 days')"},'created')
     if len(results) > 0:
       errorHandler.throwError('You already submitted a post of this author in the last week. Will not add to queue.')
-    results = db.select('upvotes',['created'],{'user':post['author'],'created >':"datetime('now','-1 day')"},'created')
+    results = db.select('upvotes',['created'],{'user':post['author'],'created >':"datetime('now','-1 day')",'status !':'canceled'},'created')
     if len(results) > 0:
       errorHandler.throwError('Someone else already submitted a post of this author today. Will not add to queue.')
 

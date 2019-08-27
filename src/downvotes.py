@@ -32,11 +32,17 @@ def getCurrentVP():
   current_power = int(since_vote * vp_per_second + base_vp)
 
 def getDownvotes():
-  pending = db.select('downvotes',['slug','account'],{'status': 'wait'},'slug','9999')
+  pending = db.select('downvotes',['id','slug','user','account'],{'status': 'wait'},'slug','9999')
   downvotes = {}
   if len(pending) > 0:
     total_shares = 0
     for post in pending:
+      postdata = steem.get_content(post['user'],post['slug'])
+      cashoutts = time.mktime(datetime.datetime.strptime(postdata['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+      chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+      if cashoutts - chaints < 60*60*24:
+        db.update('downvotes',{'status':'skipped due to payout approaching'},{'id':post['id']})
+        continue
       delegations = steem.get_vesting_delegations(post['account'],'curangel',1)
       if len(delegations) > 0 and delegations[0]['delegatee'] == 'curangel':
         vesting_shares = float(delegations[0]['vesting_shares'][:-6])

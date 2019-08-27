@@ -56,7 +56,7 @@ def getDownvotes():
       if len(delegations) > 0 and delegations[0]['delegatee'] == 'curangel':
         vesting_shares = float(delegations[0]['vesting_shares'][:-6])
         total_shares += vesting_shares
-        if post['slug'] in downvotes:
+        if post['user']+'/'+post['slug'] in downvotes:
           downvotes[post['user']+'/'+post['slug']] += vesting_shares
         else:
           downvotes[post['user']+'/'+post['slug']] = vesting_shares

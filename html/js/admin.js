@@ -46,7 +46,7 @@ function loadAdminUserTable(users) {
 
     // Curator
     newcolumn = document.createElement('td');
-    newColumn.setAttribute('data-sort',value.curator);
+    newcolumn.setAttribute('data-sort',value.curator);
     let icon = '';
     let modicon = '';
     if(value.curator == 1) {
@@ -72,7 +72,7 @@ function loadAdminUserTable(users) {
 
     // Delegator
     newcolumn = document.createElement('td');
-    newColumn.setAttribute('data-sort',value.delegator);
+    newcolumn.setAttribute('data-sort',value.delegator);
     if(value.delegator == 1) {
       icon = 'check';
     } else {
@@ -86,7 +86,7 @@ function loadAdminUserTable(users) {
 
     // Admin
     newcolumn = document.createElement('td');
-    newColumn.setAttribute('data-sort',value.admin);
+    newcolumn.setAttribute('data-sort',value.admin);
     if(value.admin == 1) {
       icon = 'check';
       modicon = 'chevron-bottom';

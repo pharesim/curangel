@@ -37,7 +37,7 @@ postlink = form.getvalue('postlink')
 deleteuv = form.getvalue('deleteupvote')
 
 # check permissions
-results = db.select('users',['id'],{'account':username,'hash':userhash},'id')
+results = db.select('users',['id'],{'account':username,'hash':userhash,'curator':1},'id')
 if len(results) < 1:
   errorHandler.throwError('No permission')
 

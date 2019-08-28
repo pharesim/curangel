@@ -38,7 +38,7 @@ deletedv  = form.getvalue('deletedownvote')
 
 
 # check permissions
-results = db.select('users',['admin'],{'account':username,'hash':userhash},'account')
+results = db.select('users',['admin'],{'account':username,'hash':userhash,'admin':1},'account')
 if len(results) < 1 or results[0]['admin'] == 0:
   errorHandler.throwError('No permission')
 

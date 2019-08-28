@@ -39,7 +39,11 @@ deletedv = form.getvalue('deletedownvote')
 
 # check permissions
 results = db.select('users',['id'],{'account':username,'hash':userhash},'id')
-if len(results) < 1:
+delegator = 0
+delegations = client.get_vesting_delegations(username,'curangel',1)
+if len(delegations) > 0 and delegations[0]['delegatee'] == 'curangel':
+  delegator = 1
+if len(results) < 1 or delegator == 0:
   errorHandler.throwError('No permission')
 
 if deletedv:

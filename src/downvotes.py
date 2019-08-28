@@ -99,7 +99,7 @@ def adjustByValue(downvotes, vote_value):
     post = slug.split('/')
     post = steem.get_content(post[0],post[1])
     pending = float(post['pending_payout_value'][:-4])
-    expected = weight * vote_value / 100
+    expected = weight * vote_value / 10000
     if expected > pending:
       new_weight = pending * 100 / vote_value
       downvotes[slug] = new_weight

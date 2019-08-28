@@ -46,6 +46,11 @@ def getDownvotes():
   if len(pending) > 0:
     total_shares = 0
     for post in pending:
+      delegator = 0
+      delegations = client.get_vesting_delegations(post['account'],'curangel',1)
+      if len(delegations) == 0 or delegations[0]['delegatee'] != 'curangel':
+        db.update('downvotes',{'status': 'undelegated'},{'id':post['id']})
+        continue
       postdata = steem.get_content(post['user'],post['slug'])
       cashoutts = time.mktime(datetime.datetime.strptime(postdata['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
       chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())

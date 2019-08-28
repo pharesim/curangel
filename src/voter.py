@@ -75,8 +75,8 @@ class Voter:
       post = steem.get_content(link[-2][1:],link[-1])
       cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
       chaints = time.mktime(datetime.datetime.strptime(self.chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-      if cashoutts - chaints < 60*60*24:
-        print("\nskipping '{}' because payout is in less than 24 hours...".format(results[0]['link']))
+      if cashoutts - chaints < 60*60*12:
+        print("\nskipping '{}' because payout is in less than 12 hours...".format(results[0]['link']))
         self.db.update('upvotes',{'status':'skipped voting due to payout approaching'},{'id':results[0]['id']})
         return self.next_in_queue(steem)
 

@@ -94,8 +94,8 @@ else:
     # check cashout time
     cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
     chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-    if cashoutts - chaints < 60*60*24*2:
-      errorHandler.throwError('Cashout of post in less than 48 hours. Will not add to queue.')
+    if cashoutts - chaints < 60*60*36:
+      errorHandler.throwError('Cashout of post in less than 36 hours. Will not add to queue.')
 
     # check blacklist
     results = db.select('blacklist',['id'],{'user':post['author']},'id')

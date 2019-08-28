@@ -49,7 +49,7 @@ def getDownvotes():
       postdata = steem.get_content(post['user'],post['slug'])
       cashoutts = time.mktime(datetime.datetime.strptime(postdata['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
       chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-      if cashoutts - chaints < 60*60*24:
+      if cashoutts - chaints < 60*60*12:
         db.update('downvotes',{'status':'skipped due to payout approaching'},{'id':post['id']})
         continue
       delegations = steem.get_vesting_delegations(post['account'],'curangel',1)

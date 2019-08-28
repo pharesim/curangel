@@ -19,7 +19,7 @@ db    = DB('curangel.sqlite3')
 steem = Steem(nodes=steemd_nodes)
 chain = Blockchain(steem)
 
-def getCurrentVote():
+def getCurrentVoteValue():
   account = steem.get_account('curangel')
   total_vests = float(account['received_vesting_shares'][:-6]) + float(account['vesting_shares'][:-6])
   base_mana = int(total_vests*1000000)
@@ -36,9 +36,9 @@ def getCurrentVote():
   median_price = steem.get_current_median_history_price()
   rshares = base_mana * 0.02
   median = float(median_price['base'][:-4]) / float(median_price['quote'][:-6])
-  estimate = rshares / float(reward_fund['recent_claims']) * float(reward_fund['reward_balance'][:-6]) * median
+  estimate = rshares / float(reward_fund['recent_claims']) * float(reward_fund['reward_balance'][:-6]) * median * current_power / 100
 
-  return current_power, estimate;
+  return estimate;
 
 def getDownvotes():
   pending = db.select('downvotes',['id','slug','user','account'],{'status': 'wait'},'slug','9999')
@@ -117,7 +117,7 @@ def adjustByValue(downvotes, vote_value):
     return downvotes
 
 def downvote():
-  current_power, vote_value = getCurrentVote()
+  vote_value = getCurrentVoteValue()
   downvotes = getDownvotes()
   downvotes = adjustByValue(downvotes, vote_value)
   print(downvotes)

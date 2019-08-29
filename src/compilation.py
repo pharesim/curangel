@@ -37,7 +37,7 @@ def compilation():
       content += '| --- | --- | --- | ---: |'+"\n"
     if post['title'] == '' and post['type'] == 2:
       post['title'] = 'Comment'
-      vote = post['status'].split('/')[-1]
+    vote = post['status'].split('/')[-1]
     content += '| <a href="'+post['link']+'"><img src="'+metadata['image'][0]+'" height="100px"/></a> | '
     content +post['user']+' | <a href="'+post['link']+'">'+post['title']+'</a> | '+vote+' |'+"\n"
 

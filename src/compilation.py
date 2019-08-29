@@ -42,7 +42,7 @@ def getPostContent():
   #content += 'Come and join our discord at -discordlink-!'+"\n"
 
   content += 'https://i.imgur.com/Ra4kD4o.png'
-  
+
   content += 'The Curangel project is brought to you by witness <a href="http://pharesim.me">@pharesim</a>'+"\n"
   content += 'vote for your witnesses <a href="https://steemit.com/~witnesses">here</a>'+"\n"
 
@@ -66,7 +66,11 @@ def getVotesTable(posts):
     if post['title'] == '' and post['type'] == 2:
       post['title'] = 'Comment'
     vote = post['status'].split('/')[-1]
-    content += '| <center><a href="'+post['link']+'"><img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" height="100px"/></a></center> | <center>@'
+    image = 'none'
+    if 'image' in metadata:
+      image = '<img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" height="100px"/>'
+      image = metadata[0]['image']
+    content += '| <center><a href="'+post['link']+'">'+image'</a></center> | <center>@'
     content += post['user']+'</center> | <center><a href="'+post['link']+'">'+post['title']+'</a></center> |'+"\n"
   return content
 

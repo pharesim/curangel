@@ -24,9 +24,9 @@ def getVotedPosts():
 
 def getPostContent():
   content = '<center>'+"\n"
-  content += '# Welcome to the daily compilation post of the Curangel project (beta test)!'+"\n<br />\n"
+  content += '# Welcome to the daily compilation post of the Curangel project (beta test)'+"\n<br />\n"
   content += 'https://i.imgur.com/NI4bwBx.png<br />'+"\n"
-  content += 'Here we highlight the posts picked by our curators, and give you a resource to discover content worth your time, and maybe even your vote!'+"\n"
+  content += 'Here we highlight the posts picked by our curators, providing you with a resource to discover content worth your time, and maybe even your vote!'+"\n"
   content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
 
   content += getVotesTable(getVotedPosts())
@@ -41,9 +41,11 @@ def getPostContent():
   #content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
   #content += 'Come and join our discord at -discordlink-!'+"\n"
 
-  content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
+  content += 'https://i.imgur.com/Ra4kD4o.png'
+  
+  content += 'The Curangel project is brought to you by witness <a href="http://pharesim.me">@pharesim</a>'+"\n"
+  content += 'vote for your witnesses <a href="https://steemit.com/~witnesses">here</a>'+"\n"
 
-  content += 'The Curangel project is brought to you by witness @pharesim - vote for your witnesses at https://steemit.com/~witnesses'
   content += '</center>'
   return content
 
@@ -70,8 +72,19 @@ def getVotesTable(posts):
 
 def compilation():
   date = datetime.date.today().strftime("%B %d, %Y")
-  title = 'Curangel curation compilation '+date
 
-  content = getPostContent()
-  print(content)
+  title  = 'Curangel curation compilation '+date
+  body   = getPostContent()
+  author = 'curangel'
+  tags   = ['curangel','curation','palnet','neoxian']
+
+  print(title)
+  print(body)
+  last_post_time = steem.get_account('curangel')['last_post_time']
+  account = steem.get_account('curangel')
+  #steem.commit.post(title, body, author, tags=tags)
+  #while last_post_time == steem.get_account('curangel')['last_post_tíme']:
+  #  time.sleep(1)
+  print('Posted!')
+
 compilation()

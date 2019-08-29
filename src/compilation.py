@@ -26,7 +26,7 @@ def compilation():
   content = '<center>'+"\n"
   content += '# Welcome to the daily compilation post of the Curangel project (beta test)!'+"\n<br/>\n"
   content += 'https://i.imgur.com/z2fbtrQ.png<br />'+"\n"
-  content += 'Here we highlight the posts picked by our curators, and give you a resource to discover content worth your time, and maybe even your vote!'+"\n---"
+  content += 'Here we highlight the posts picked by our curators, and give you a resource to discover content worth your time, and maybe even your vote!'+"\n"
 
   last_account = ''
   posts = getVotedPosts()
@@ -34,7 +34,7 @@ def compilation():
     metadata = json.loads(steem.get_content(post['user'],post['slug'])['json_metadata'])
     if post['account'] != last_account:
       last_account = post['account']
-      content += "\n\n"+'*Curator @'+post['account']+"*\n"
+      content += "---\n"+'*Curator @'+post['account']+"*\n"
       content += '| <center>Thumb</center> | <center>User</center> | <center>Post</center> |'+"\n"
       content += '| --- | --- | --- |'+"\n"
     if post['title'] == '' and post['type'] == 2:

@@ -45,6 +45,7 @@ def getPostContent():
 
   content += 'The Curangel project is brought to you by witness @pharesim - vote for your witnesses at https://steemit.com/~witnesses'
   content += '</center>'
+  return content
 
 def getVotesTable(posts):
   content = ''

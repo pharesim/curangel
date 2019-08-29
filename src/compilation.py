@@ -63,16 +63,17 @@ def getVotesTable(posts):
       content += "\n"+'*Curator @'+post['account']+"*\n"
       content += '| <center>Thumb</center> | <center>User</center> | <center>Post</center> |'+"\n"
       content += '| --- | --- | --- |'+"\n"
+    title = ''
     if post['title'] == '' and post['type'] == 2:
-      post['title'] = 'Comment'
+      title = 'Comment'
     else:
-      post['title'] = post['title'].replace('|','&#124;') 
+      title = post['title'].replace('|','&#124;')
     vote = post['status'].split('/')[-1]
     image = 'no preview'
     if 'image' in metadata:
       image = '<img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" height="100px"/>'
     content += '| <center><a href="'+post['link']+'">'+image+'</a></center> | <center>@'
-    content += post['user']+'</center> | <center><a href="'+post['link']+'">'+post['title']+'</a></center> |'+"\n"
+    content += post['user']+'</center> | <center><a href="'+post['link']+'">'+title+'</a></center> |'+"\n"
   return content
 
 def compilation():

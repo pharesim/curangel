@@ -20,7 +20,7 @@ steem = Steem(nodes=steemd_nodes)
 chain = Blockchain(steem)
 
 def getVotedPosts():
-  return db.select('upvotes',['account','user','link','slug','title','type'],{'status LIKE':'voted%','vote_time >':"datetime('now','-1 day')"},'account','9999')
+  return db.select('upvotes',['account','user','link','slug','title','status','type'],{'status LIKE':'voted%','vote_time >':"datetime('now','-1 day')"},'account','9999')
 
 def compilation():
   content = '<center>'+"\n"

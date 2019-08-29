@@ -53,7 +53,7 @@ def getVotesTable(posts):
   for post in posts:
     metadata = json.loads(steem.get_content(post['user'],post['slug'])['json_metadata'])
     if post['account'] != last_account:
-      n++
+      n = n + 1
       last_account = post['account']
       if n > 1:
         content += '---'

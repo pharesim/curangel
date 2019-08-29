@@ -77,7 +77,7 @@ def getVotesTable(posts):
   return content
 
 def compilation():
-  date = datetime.date.today().strftime("%B %d, %Y")
+  date = datetime.datetime.utcnow().strftime("%B %d, %Y")
 
   title  = 'Curangel (beta) curation compilation '+date
   body   = getPostContent()
@@ -89,6 +89,6 @@ def compilation():
   steem.commit.post(title, body, author, tags=tags)
   while last_post_time == steem.get_account('curangel')['last_post']:
     time.sleep(1)
-  print('Posted!')
+  print(date+' posted!')
 
 compilation()

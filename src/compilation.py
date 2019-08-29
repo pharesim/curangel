@@ -43,5 +43,3 @@ def compilation():
 
   print(content)
 compilation()
-
-'json_metadata': "image":["https://res.cloudinary.com/dmuksl47x/image/upload/v1566997389/DSC_0017_tkoo0t.jpg","

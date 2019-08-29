@@ -25,8 +25,8 @@ def getVotedPosts():
 def compilation():
   content = '<center>'+"\n"
   content += '# Welcome to the daily compilation post of the Curangel project (beta test)!'+"\n<br/>\n"
-  content += 'https://i.imgur.com/z2fbtrQ.png'+"\n"
-  content += 'Here we highlight the posts picked by our curators, and give you a resource to discover content worth your time, and maybe even your vote!'+"\n\n"
+  content += 'https://i.imgur.com/z2fbtrQ.png<br />'+"\n"
+  content += 'Here we highlight the posts picked by our curators, and give you a resource to discover content worth your time, and maybe even your vote!'+"\n---"
 
   last_account = ''
   posts = getVotedPosts()
@@ -35,13 +35,13 @@ def compilation():
     if post['account'] != last_account:
       last_account = post['account']
       content += "\n\n"+'*Curator @'+post['account']+"*\n"
-      content += '| Thumb | User | Post |'+"\n"
+      content += '| <center>Thumb</center> | <center>User</center> | <center>Post</center> |'+"\n"
       content += '| --- | --- | --- |'+"\n"
     if post['title'] == '' and post['type'] == 2:
       post['title'] = 'Comment'
     vote = post['status'].split('/')[-1]
-    content += '| <a href="'+post['link']+'"><img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" height="100px"/></a> | '
-    content += post['user']+' | <a href="'+post['link']+'">'+post['title']+'</a> |'+"\n"
+    content += '| <center><a href="'+post['link']+'"><img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" height="100px"/></a></center> | <center>@'
+    content += post['user']+'</center> | <center><a href="'+post['link']+'">'+post['title']+'</a></center> |'+"\n"
 
   content += 'Thank you for your interest in the Curangel project! If you want to help us supporting a wide range of valuable community members, consider sending us a delegation. '
   content += 'By doing so, you will also receive the possibility to help us move rewards from overrated posts back to the pool as soon as we are out of beta.'

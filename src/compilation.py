@@ -24,8 +24,8 @@ def getVotedPosts():
 
 def getPostContent():
   content = '<center>'+"\n"
-  content += '# Welcome to the daily compilation post of the Curangel project (beta test)!'+"\n<br/>\n"
-  content += 'https://i.imgur.com/uzcD9D4.png<br />'+"\n"
+  content += '# Welcome to the daily compilation post of the Curangel project (beta test)!'+"\n<br />\n"
+  content += 'https://i.imgur.com/NI4bwBx.png<br />'+"\n"
   content += 'Here we highlight the posts picked by our curators, and give you a resource to discover content worth your time, and maybe even your vote!'+"\n"
   content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
 
@@ -57,7 +57,7 @@ def getVotesTable(posts):
       n = n + 1
       last_account = post['account']
       if n > 1:
-        content += '---'
+        content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'
       content += "\n"+'*Curator @'+post['account']+"*\n"
       content += '| <center>Thumb</center> | <center>User</center> | <center>Post</center> |'+"\n"
       content += '| --- | --- | --- |'+"\n"

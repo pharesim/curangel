@@ -2,6 +2,8 @@
 
 import time
 import datetime
+import json
+
 from db import DB
 
 from steem.steem import Steem
@@ -27,8 +29,7 @@ def compilation():
   last_account = ''
   posts = getVotedPosts()
   for post in posts:
-    postdata = steem.get_content(post['user'],post['slug'])
-    print(postdata['json_metadata']['image'][0])
+    metadata = json.loads(steem.get_content(post['user'],post['slug'])['json_metadata'])
     if post['account'] != last_account:
       last_account = post['account']
       content += "\n\n"+'*Curator @'+post['account']+"*\n"
@@ -37,8 +38,10 @@ def compilation():
     if post['title'] == '' and post['type'] == 2:
       post['title'] = 'Comment'
       vote = post['status'].split('/')[-1]
-    content += '| <a href="'+post['link']+'"><img src="'+postdata['json_metadata']['image'][0]+'" height="100px"/></a> | '
+    content += '| <a href="'+post['link']+'"><img src="'+metadata['image'][0]+'" height="100px"/></a> | '
     content +post['user']+' | <a href="'+post['link']+'">'+post['title']+'</a> | '+vote+' |'+"\n"
 
   print(content)
 compilation()
+
+'json_metadata': "image":["https://res.cloudinary.com/dmuksl47x/image/upload/v1566997389/DSC_0017_tkoo0t.jpg","

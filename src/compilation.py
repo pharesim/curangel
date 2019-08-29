@@ -28,7 +28,7 @@ def compilation():
   posts = getVotedPosts()
   for post in posts:
     postdata = steem.get_content(post['user'],post['slug'])
-    print()
+    print(postdata['json_metadata']['image'][0])
     if post['account'] != last_account:
       last_account = post['account']
       content += "\n\n"+'*Curator @'+post['account']+"*\n"
@@ -37,7 +37,8 @@ def compilation():
     if post['title'] == '' and post['type'] == 2:
       post['title'] = 'Comment'
       vote = post['status'].split('/')[-1]
-    content += '| <a href="'+post['link']+'"><img src="'+postdata['json_metadata']['image'][0]+'" height="100px"/></a> | '+post['user']+' | <a href="'+post['link']+'">'+post['title']+'</a> | '+vote+' |'+"\n"
+    content += '| <a href="'+post['link']+'"><img src="'+postdata['json_metadata']['image'][0]+'" height="100px"/></a> | '
+    content +post['user']+' | <a href="'+post['link']+'">'+post['title']+'</a> | '+vote+' |'+"\n"
 
   print(content)
 compilation()

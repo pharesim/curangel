@@ -31,7 +31,7 @@ def compilation():
     print()
     if post['account'] != last_account:
       last_account = post['account']
-      content += "\n\n"+'*Curator @'+posts['account']+"*\n"
+      content += "\n\n"+'*Curator @'+post['account']+"*\n"
       content += '| Thumb | User | Post | Vote weight |'+"\n"
       content += '| --- | --- | --- | ---: |'+"\n"
     if post['title'] == '' and post['type'] == 2:

@@ -25,6 +25,8 @@ class DB:
           query = query+key+' '+value
         elif key[-1:] == '<' or key[-1:] == '>':
           query = query+key+' '+value
+        elif key[-4:] == 'LIKE':
+          query = query+key+" '"+value+"'"
         else:
           query = query+key+'=?'
           t = t + (value,)

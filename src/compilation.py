@@ -34,7 +34,7 @@ def getPostContent():
   content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
 
   content += 'Thank you for your interest in the Curangel project! If you want to help us supporting a wide range of valuable community members and at the same time receive a share of the generated curation rewards, consider sending us a delegation. '
-  content += 'By doing so, you will also receive the possibility to help us move rewards from overrated posts back to the pool as soon as we are out of beta.'+"\n"
+  content += 'By doing so, you will also receive the possibility to help us move rewards from overrated posts back to the pool (as soon as we are out of beta).'+"\n"
   #content += 'For more info, check out our '
   #content += '<a href="https://steemit.com/curangel/@curangel/officially-introducing-the-curangel-project-help-us-making-steem-a-better-place">introduction post</a>'+"\n"
 
@@ -79,18 +79,16 @@ def getVotesTable(posts):
 def compilation():
   date = datetime.date.today().strftime("%B %d, %Y")
 
-  title  = 'Curangel curation compilation '+date
+  title  = 'Curangel (beta) curation compilation '+date
   body   = getPostContent()
   author = 'curangel'
   tags   = ['curangel','curation','palnet','neoxian']
 
-  print(title)
-  print(body)
   last_post_time = steem.get_account('curangel')['last_post']
   account = steem.get_account('curangel')
-  #steem.commit.post(title, body, author, tags=tags)
-  #while last_post_time == steem.get_account('curangel')['last_post']:
-  #  time.sleep(1)
+  steem.commit.post(title, body, author, tags=tags)
+  while last_post_time == steem.get_account('curangel')['last_post']:
+    time.sleep(1)
   print('Posted!')
 
 compilation()

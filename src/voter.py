@@ -103,4 +103,4 @@ class Voter:
       # Block until the vote is reflected on the remote node.
       # This prevents double vote attempts.
       time.sleep(1)
-    self.db.update('upvotes',{'status':'voted with '+str(weight)+'%'},{'id':id})
+    self.db.update('upvotes',{'status':'voted with '+str(weight)+'%','vote_time':"datetime('now')"},{'id':id})

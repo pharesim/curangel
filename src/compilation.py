@@ -69,7 +69,6 @@ def getVotesTable(posts):
     image = 'none'
     if 'image' in metadata:
       image = '<img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" height="100px"/>'
-      image = metadata['image'][0]
     content += '| <center><a href="'+post['link']+'">'+image+'</a></center> | <center>@'
     content += post['user']+'</center> | <center><a href="'+post['link']+'">'+post['title']+'</a></center> |'+"\n"
   return content
@@ -84,6 +83,7 @@ def compilation():
 
   print(title)
   print(body)
+  print(steem.get_account('curangel'))
   last_post_time = steem.get_account('curangel')['last_post_time']
   account = steem.get_account('curangel')
   #steem.commit.post(title, body, author, tags=tags)

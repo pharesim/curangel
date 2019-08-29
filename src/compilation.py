@@ -71,7 +71,7 @@ def getVotesTable(posts):
     vote = post['status'].split('/')[-1]
     image = 'no preview'
     if 'image' in metadata:
-      image = '<img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" height="100px"/>'
+      image = '<img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" />'
     content += '| <center><a href="'+post['link']+'">'+image+'</a></center> | <center>@'
     content += post['user']+'</center> | <center><a href="'+post['link']+'">'+title+'</a></center> |'+"\n"
   return content

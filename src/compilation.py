@@ -65,6 +65,8 @@ def getVotesTable(posts):
       content += '| --- | --- | --- |'+"\n"
     if post['title'] == '' and post['type'] == 2:
       post['title'] = 'Comment'
+    else:
+      post['title'] = post['title'].replace('|','&#124;') 
     vote = post['status'].split('/')[-1]
     image = 'no preview'
     if 'image' in metadata:

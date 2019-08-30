@@ -15,8 +15,11 @@ steemd_nodes = [
   'https://steemd.minnowsupportproject.org',
 ]
 
+credfile = open("credentials.txt")
+key = credfile.readline().strip()
+
 db    = DB('curangel.sqlite3')
-steem = Steem(nodes=steemd_nodes)
+steem = Steem(keys=[key],nodes=steemd_nodes)
 chain = Blockchain(steem)
 
 def getVotedPosts():
@@ -81,13 +84,12 @@ def compilation():
 
   title  = 'Curangel (beta) curation compilation '+date
   body   = getPostContent()
-  author = 'curangel'
+  author = user
   tags   = ['curangel','curation','palnet','neoxian']
 
-  last_post_time = steem.get_account('curangel')['last_post']
-  account = steem.get_account('curangel')
+  last_post_time = steem.get_account(user)['last_post']
   steem.commit.post(title, body, author, tags=tags)
-  while last_post_time == steem.get_account('curangel')['last_post']:
+  while last_post_time == steem.get_account(user)['last_post']:
     time.sleep(1)
   print(date+' posted!')
 

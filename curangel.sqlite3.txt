@@ -52,13 +52,13 @@ CREATE TABLE downvotes (
 CREATE TABLE delegators (
   account TEXT PRIMARY KEY,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-)
+);
 
 CREATE TABLE rewards(
   account TEXT PRIMARY KEY,
   sp NUMERIC NOT NULL
-)
+);
 
 CREATE TABLE last_check (
   rewards_block TEXT NOT NULL
-)
+);

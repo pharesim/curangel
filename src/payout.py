@@ -47,7 +47,7 @@ def getRewards():
     else:
       vests = float(r['reward'][:-6])
       sp = round((vests / 1000000 * steem_per_mvests),3)
-      vote = db.select('upvotes',['id','account'],{'user':r['author'],'slug':r['permlink'],'status LIKE':'voted%'},'vote_time',1)
+      vote = db.select('upvotes',['id','account'],{'user':r['comment_author'],'slug':r['comment_permlink'],'status LIKE':'voted%'},'vote_time',1)
       if len(vote) > 0:
         if 'delegators' in rewards:
           rewards['delegators'] = rewards['delegators'] + (sp*0.8)

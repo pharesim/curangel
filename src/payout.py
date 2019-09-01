@@ -79,7 +79,7 @@ def getDelegators():
 def addReward(account,amount):
   existing = db.select('rewards',['sp'],{'account':account},'account',1)
   if len(existing) == 0:
-    db.insert('rewards',{'account':account,'sp':amount},{'account':account})
+    db.insert('rewards',{'account':account,'sp':amount})
   else:
     db.update('rewards',{'amount':existing[0]['sp']+amount,'account':account})
 

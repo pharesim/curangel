@@ -89,7 +89,7 @@ def assignRewards(rewards,delegators):
       addReward(account,amount)
     else:
       for account, pct in delegators.items():
-        amount = amount * pct
-        addReward(account,amount)
+        part = amount * pct
+        addReward(account,part)
 
 assignRewards(getRewards(),getDelegators())

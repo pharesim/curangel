@@ -27,7 +27,7 @@ account = Account(bot,steem)
 
 def getRewards():
   rewards = {}
-  last_block = db.select('last_check',['rewards_block'],'1=1','rewards_block',1)[0]['last_block']
+  last_block = db.select('last_check',['rewards_block'],'1=1','rewards_block',1)[0]['rewards_block']
   steem_per_mvests = converter.steem_per_mvests()
   received = account.get_account_history(-1,2500,filter_by=['curation_reward','delegate_vesting_shares'])
   i = 0

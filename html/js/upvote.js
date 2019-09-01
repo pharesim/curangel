@@ -109,7 +109,7 @@ function loadUpvotesTable(upvotes) {
 
     // Reward
     newcolumn = document.createElement('td');
-    newcontent = document.createTextNode(value.reward_sp+' SP; '+value.reward_sbd+' SBD');
+    newcontent = document.createTextNode(value.reward_sp+' SP');
     newcolumn.appendChild(newcontent);
     newrow.appendChild(newcolumn);
 

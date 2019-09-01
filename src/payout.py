@@ -59,7 +59,7 @@ def getRewards():
           rewards[vote[0]['account']] = (sp*0.2)
         db.update('upvotes',{'reward_sp':str(sp)},{'id':vote[0]['id']})
 
-    return rewards
+  return rewards
 
 def getDelegators():
   delegators = {}
@@ -73,6 +73,8 @@ def getDelegators():
       delegators[delegator['account']] = vesting_shares
   for account, delegation in delegators.items():
     delegators[account] = delegation / total_delegations
+
+  return delegators
 
 def addReward(account,amount):
   existing = db.select('rewards',['sp'],{'account':account},'account',1)

@@ -84,7 +84,7 @@ def addReward(account,amount):
     db.update('rewards',{'amount':existing[0]['sp']+amount})
 
 def assignRewards(rewards,delegators):
-  for account, amount in rewards:
+  for account, amount in rewards.items():
     if account != 'delegators':
       addReward(account,amount)
     else:

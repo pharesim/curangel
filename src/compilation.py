@@ -23,6 +23,8 @@ db    = DB('curangel.sqlite3')
 steem = Steem(keys=[key],nodes=steemd_nodes)
 chain = Blockchain(steem)
 
+mentions = []
+
 def getVotedPosts():
   return db.select('upvotes',['account','user','link','slug','title','status','type'],{'status LIKE':'voted%','vote_time >':"datetime('now','-1 day')"},'account','9999')
 
@@ -71,6 +73,7 @@ def getVotesTable(posts):
       if n > 1:
         content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'
       content += "\n"+'*Curator @'+post['account']+"*\n"
+      mentions.append(post['account'])
       content += '| <center>Thumb</center> | <center>User</center> | <center>Post</center> |'+"\n"
       content += '| --- | --- | --- |'+"\n"
     title = ''
@@ -84,6 +87,7 @@ def getVotesTable(posts):
       image = '<img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" />'
     content += '| <center><a href="'+post['link']+'">'+image+'</a></center> | <center>@'
     content += post['user']+'</center> | <center><a href="'+post['link']+'">'+title+'</a></center> |'+"\n"
+    mentions.append(post['user'])
   return content
 
 def compilation():
@@ -93,9 +97,10 @@ def compilation():
   body   = getPostContent()
   author = user
   tags   = ['curangel','curation','palnet','neoxian']
+  json_metadata = {'users':mentions,'image':['https://i.imgur.com/NI4bwBx.png']}
 
   last_post_time = steem.get_account(user)['last_post']
-  steem.commit.post(title, body, author, tags=tags)
+  steem.commit.post(title, body, author, tags=tags, json_metadata=json_metadata)
   while last_post_time == steem.get_account(user)['last_post']:
     time.sleep(1)
   print(date+' posted!')

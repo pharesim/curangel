@@ -65,11 +65,14 @@ elif deleteuv:
   else:
     errorHandler.throwError('Only posts in queue can be removed from the queue. Duh!')
 elif blacklist:
-  bl = db.select('blacklist',['user'],{'user':blacklist},'id')
-  if len(bl) > 0:
-    errorHandler.throwError('User is already blacklisted.')
-  db.insert('blacklist',{'id':uuid.uuid4().hex,'user':blacklist,'reason':reason,'account':username})
-  data['status'] = 'success'
+  if reason:
+    bl = db.select('blacklist',['user'],{'user':blacklist},'id')
+    if len(bl) > 0:
+      errorHandler.throwError('User is already blacklisted.')
+    db.insert('blacklist',{'id':uuid.uuid4().hex,'user':blacklist,'reason':reason,'account':username})
+    data['status'] = 'success'
+  else:
+    errorHandler.throwError('You need to give a reason for blacklisting')
 elif deletebl:
   db.delete('blacklist',{'id':deletebl})
   data['status'] = 'success'

@@ -1,13 +1,15 @@
-<div id="loggedOut" class="hidden jumbotron page">
+<div id="loggedOut" class="hidden page">
   <h1>Welcome to Curangel!<h1>
   <div class="lead">
-    <div class="form-group row col-4">
-      <input class="form-control" type="text" id="loginUsername" placeholder="Your steem username" />
-    </div>
-    <div class="form-group row col-4">
-      <input class="form-control" type="password" id="loginPostingKey" placeholder="Your posting key" />
-    </div>
-    <div id="loginError" class="hidden">Login error</div>
-    <a id="loginNow" class="btn btn-primary btn-lg" href="#">Login</a>
+    <form>
+      <div class="form-group">
+        <input class="form-control" type="text" id="loginUsername" placeholder="Your steem username" />
+      </div>
+      <div class="form-group">
+        <input class="form-control" type="password" id="loginPostingKey" placeholder="Your posting key" />
+      </div>
+      <div id="loginError" class="hidden">Login error</div>
+      <button id="loginNow" class="btn" href="#">Login</button>
+    </form>
   </div>
 </div>

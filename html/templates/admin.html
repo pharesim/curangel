@@ -1,4 +1,4 @@
-<div id="admin" class="hidden jumbotron page">
+<div id="admin" class="hidden row page">
   <h1>Curangel administration interface<h1>
   <div class="lead">
     <div class="accordion" id="admin-accordion">
@@ -11,7 +11,7 @@
           </h2>
         </div>
         <div id="admin-accordion-collapseThree" class="collapse" aria-labelledby="admin-accordion-headingThree" data-parent="#admin-accordion">
-          <div class="card-body">
+          <div class="card-body table-responsive">
             <table class="table table-hover table-sm" id="adminUpvotesTable">
               <thead class="thead-dark">
                 <tr>
@@ -39,7 +39,7 @@
           </h2>
         </div>
         <div id="admin-accordion-collapseOne" class="collapse" aria-labelledby="admin-accordion-headingOne" data-parent="#admin-accordion">
-          <div class="card-body">
+          <div class="card-body table-responsive">
             <table class="table table-hover" id="usersTable">
               <thead class="thead-dark">
                 <tr>
@@ -69,11 +69,18 @@
           <div class="card-body">
             <div>
               <h2>Add a user to the blacklist</h2>
-              <div><input type="text" id="newBlacklist" size="80%" placeholder="username without @"/></div>
-              <div><input type="text" id="newBlacklistReason" size="80%" placeholder="reason for blacklisting" /></div>
-              <button class="btn" id="sendNewBlacklist">Send</button>
+              <form>
+                <div class="form-group">
+                  <input type="text" id="newBlacklist" class="form-control" placeholder="username without @"/>
+                </div>
+                <div class="form-group">
+                  <input type="text" id="newBlacklistReason" class="form-control" placeholder="reason for blacklisting" />
+                </div>
+                <button class="btn" id="sendNewBlacklist">Send</button>
+              </form>
             </div>
-            <div>
+            <br />
+            <div class="table-responsive">
               <h2>Blacklist</h2>
               <table class="table table-hover table-sm" id="adminBlacklistTable">
                 <thead class="thead-dark">
@@ -101,7 +108,7 @@
           </h2>
         </div>
         <div id="admin-accordion-collapseFour" class="collapse" aria-labelledby="admin-accordion-headingFour" data-parent="#admin-accordion">
-          <div class="card-body">
+          <div class="card-body table-responsive">
             <table class="table table-hover table-sm" id="adminDownvotesTable">
               <thead class="thead-dark">
                 <tr>

@@ -1,12 +1,19 @@
-<div id="downvote" class="hidden jumbotron page">
+<div id="downvote" class="hidden page">
   <h1>Downvotes are not active yet, the list will be cleared when we go public.</h1>
   <div>
     <h2>Mark a post or comment for downvote</h2>
-    <div><input type="text" id="newDownvote" size="100%" placeholder="full link to post or comment"/></div>
-    <div><input type="text" id="newDownvoteReason" size="100%" placeholder="reason for downvote" /></div>
-    <button class="btn" id="sendNewDownvote">Send</button>
+    <form>
+      <div class="form-group">
+        <input type="text" id="newDownvote" class="form-control" placeholder="full link to post or comment"/>
+      </div>
+      <div class="form-group">
+        <input type="text" id="newDownvoteReason" class="form-control" placeholder="reason for downvote" />
+      </div>
+      <button class="btn" id="sendNewDownvote">Send</button>
+    </form>
   </div>
-  <div>
+  <br />
+  <div class="table-responsive">
     <h2>History of your downvotes</h2>
     <table class="table table-hover table-sm" id="downvotesTable">
       <thead class="thead-dark">

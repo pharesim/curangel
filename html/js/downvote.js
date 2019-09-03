@@ -4,6 +4,10 @@ document.getElementById('downvoteNav').onclick = function() {
   loadDownvote();
 }
 
+document.getElementById('downvoteForm').onsubmit = function() {
+  return false;
+}
+
 document.getElementById('sendNewDownvote').onclick = function() {
   $.ajax({
     url: "api/downvote",

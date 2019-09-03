@@ -4,6 +4,10 @@ document.getElementById('adminNav').onclick = function() {
   loadAdmin();
 }
 
+document.getElementById('blacklistForm').onsubmit = function() {
+  return false;
+}
+
 function loadAdmin() {
   username = localStorage.username;
   userhash = localStorage.userhash;

@@ -74,7 +74,7 @@ def getDelegators():
   total_delegations = 0
   delegations = db.select('delegators',['account','created'],"1=1",'account',9999)
   for delegator in delegations:
-    created = datetime.strptime(delegator['created'], "%Y-%m-%d %H:%M:%S")
+    created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
     now = datetime.utcnow()
     duration = now - created
     if duration.days >= 1:

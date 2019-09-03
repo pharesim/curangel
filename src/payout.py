@@ -29,7 +29,6 @@ converter = Converter(steem)
 account = Account(bot,steem)
 
 def getRewards():
-  steem.claim_reward_balance(bot)
   rewards = {}
   last_block = db.select('last_check',['rewards_block'],'1=1','rewards_block',1)[0]['rewards_block']
   steem_per_mvests = converter.steem_per_mvests()
@@ -74,7 +73,7 @@ def getRewards():
 
 def getDelegators():
   delegators = {}
-  total_delegations = 0
+  total_delegations = float(steem.get_account(bot)['vesting_shares'][:-6])
   delegations = db.select('delegators',['account','created'],"1=1",'account',9999)
   for delegator in delegations:
     created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
@@ -127,6 +126,6 @@ def payout():
         db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
         db.insert('reward_payouts',{'account':reward['account'],'amount':amount})
 
-
 assignRewards(getRewards(),getDelegators())
 payout()
+steem.claim_reward_balance(bot)

@@ -46,10 +46,10 @@ def getRewards():
           if len(delegator) == 0:
             db.insert('delegators',{'account':r['delegator'],'created':r['timestamp']})
           else:
-            created = datetime.strptime(delegator[0]['created'], "%Y-%m-%d %H:%M:%S")
+            created = datetime.strptime(delegator[0]['created'], "%Y-%m-%dT%H:%M:%S")
             new     = datetime.strptime(r['timestamp'], "%Y-%m-%dT%H:%M:%S")
             if new < created:
-              db.update('delegators',{'created':new},{'account':r['delegator']})
+              db.update('delegators',{'created':r['timestamp']},{'account':r['delegator']})
         else:
           db.delete('delegators',{'account':r['delegator']})
     else:

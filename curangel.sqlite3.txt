@@ -59,6 +59,12 @@ CREATE TABLE rewards(
   sp NUMERIC NOT NULL
 );
 
+CREATE TABLE reward_payouts(
+  account TEXT NOT NULL,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  amount NUMERIC NOT NULL
+);
+
 CREATE TABLE last_check (
   rewards_block TEXT NOT NULL
 );

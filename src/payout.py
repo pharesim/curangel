@@ -128,4 +128,4 @@ def payout():
 
 assignRewards(getRewards(),getDelegators())
 payout()
-steem.claim_reward_balance(bot)
+steem.claim_reward_balance(account=bot)

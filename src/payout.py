@@ -108,20 +108,21 @@ def payout():
   rewards = db.select('rewards',['account','sp'])
   for reward in rewards:
     balance = float(steem.get_account(bot)['balance'][:-6])
-      if balance > reward['sp']:
-        amount = math.floor(reward['sp']*1000)/1000
-        if amount >= 0.001:
-          try:
-            steem.transfer(reward['account'], amount, 'STEEM', 'Thank you for being a part of @curangel!', bot)
-            print('Sending transfer of '+str(amount)+' STEEM to '+reward['account'])
-          except:
-            pass
-          else:
-            while float(steem.get_account(bot)['balance'][:-6]) == balance:
-              print('Waiting for transfer...')
-              sleep(3)
-            db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
-            db.insert('reward_payouts',{'account':reward['account'],'amount':amount})
+    if balance > reward['sp']:
+      amount = math.floor(reward['sp']*1000)/1000
+      print('Next: '+str(amount)+' for '+reward['account'])
+      if amount >= 0.001:
+        try:
+          steem.transfer(reward['account'], amount, 'STEEM', 'Thank you for being a part of @curangel!', bot)
+          print('Sending transfer of '+str(amount)+' STEEM to '+reward['account'])
+        except:
+          pass
+        else:
+          while float(steem.get_account(bot)['balance'][:-6]) == balance:
+            print('Waiting for transfer...')
+            sleep(3)
+          db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
+          db.insert('reward_payouts',{'account':reward['account'],'amount':amount})
 
 
 assignRewards(getRewards(),getDelegators())

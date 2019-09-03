@@ -35,7 +35,7 @@ def getRewards():
     if i < 1:
       i = i+1
       db.update('last_check',{'rewards_block':r['block']},{'rewards_block':last_block})
-    if r['block'] == last_block:
+    if r['block'] <= int(last_block):
       break
 
     if 'delegatee' in r:
@@ -91,5 +91,8 @@ def assignRewards(rewards,delegators):
       for account, pct in delegators.items():
         part = amount * pct
         addReward(account,part)
+
+def payout():
+  rewards = db.select('rewards',['account','sp'])
 
 assignRewards(getRewards(),getDelegators())

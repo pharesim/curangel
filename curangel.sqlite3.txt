@@ -51,7 +51,7 @@ CREATE TABLE downvotes (
 
 CREATE TABLE delegators (
   account TEXT PRIMARY KEY,
-  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+  created TIMESTAMP NOT NULL
 );
 
 CREATE TABLE rewards(

@@ -1,6 +1,7 @@
 #! /bin/env python3
 
 import math
+from datetime import datetime
 
 from db import DB
 
@@ -41,7 +42,14 @@ def getRewards():
     if 'delegatee' in r:
       if r['delegatee'] == bot:
         if float(r['vesting_shares'][:-6]) > 0:
-          db.insert('delegators',{'account':r['delegator']})
+          delegator = db.select('delegators',['account','created'],{'account':r['delegator']},'account',1)
+          if len(delegator) == 0:
+            db.insert('delegators',{'account':r['delegator']})
+          else:
+            created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
+            new     = datetime.strptime(r['timestamp'], "%Y-%m-%dT%H:%M:%S")
+            if new < created:
+              db.update('delegators',{'created':new},{'account':r['delegator']})
         else:
           db.delete('delegators',{'account':r['delegator']})
     else:

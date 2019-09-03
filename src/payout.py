@@ -18,6 +18,7 @@ steemd_nodes = [
 
 credfile = open("credentials.txt")
 bot = credfile.readline().strip()
+postkey = credfile.readline().strip()
 key = credfile.readline().strip()
 
 db    = DB('curangel.sqlite3')

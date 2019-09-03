@@ -74,11 +74,15 @@ def getDelegators():
   total_delegations = 0
   delegations = db.select('delegators',['account'],"1=1",'account',9999)
   for delegator in delegations:
-    delegation = steem.get_vesting_delegations(delegator['account'],bot,1)
-    if len(delegation) > 0 and delegation[0]['delegatee'] == bot:
-      vesting_shares = float(delegation[0]['vesting_shares'][:-6])
-      total_delegations = total_delegations + vesting_shares
-      delegators[delegator['account']] = vesting_shares
+    created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
+    now = datetime.utcnow()
+    duration = now - created
+    if duration.days >= 1:
+      delegation = steem.get_vesting_delegations(delegator['account'],bot,1)
+      if len(delegation) > 0 and delegation[0]['delegatee'] == bot:
+        vesting_shares = float(delegation[0]['vesting_shares'][:-6])
+        total_delegations = total_delegations + vesting_shares
+        delegators[delegator['account']] = vesting_shares
   for account, delegation in delegators.items():
     delegators[account] = delegation / total_delegations
 

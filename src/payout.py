@@ -2,6 +2,7 @@
 
 import math
 from datetime import datetime
+from time import sleep
 
 from db import DB
 
@@ -28,6 +29,7 @@ converter = Converter(steem)
 account = Account(bot,steem)
 
 def getRewards():
+  steem.claim_reward_balance(bot)
   rewards = {}
   last_block = db.select('last_check',['rewards_block'],'1=1','rewards_block',1)[0]['rewards_block']
   steem_per_mvests = converter.steem_per_mvests()

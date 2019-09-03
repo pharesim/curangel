@@ -130,7 +130,7 @@ def downvote():
   for slug, weight in downvotes.items():
     print('Downvoting '+slug+' with '+str(weight)+'%')
     try:
-      steem.commit.vote('@'+slug,float(weight),bot)
+      steem.commit.vote('@'+slug,float(weight)*-1,bot)
     except:
       pass
     else:

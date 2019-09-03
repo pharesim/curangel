@@ -74,6 +74,9 @@ function login() {
           showById('downvote');
         }
       }
+      if(data['delegator'] != 1 && data['curator'] != 1 && data['admin'] != 1) {
+        showById('about');
+      }
     }
   });
 }

@@ -3,6 +3,14 @@ document.getElementById('loginNav').onclick = function() {
   showById('loggedOut');
 }
 
+document.getElementById('loginForm').onsubmit = function() {
+  return false;
+}
+
+document.getElementById('registerForm').onsubmit = function() {
+  return false;
+}
+
 document.getElementById('logoutNav').onclick = function() {
   localStorage.removeItem('username');
   localStorage.removeItem('userhash');

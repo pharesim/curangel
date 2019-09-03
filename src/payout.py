@@ -44,9 +44,9 @@ def getRewards():
         if float(r['vesting_shares'][:-6]) > 0:
           delegator = db.select('delegators',['account','created'],{'account':r['delegator']},'account',1)
           if len(delegator) == 0:
-            db.insert('delegators',{'account':r['delegator']})
+            db.insert('delegators',{'account':r['delegator'],'created':r['timestamp']})
           else:
-            created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
+            created = datetime.strptime(delegator[0]['created'], "%Y-%m-%d %H:%M:%S")
             new     = datetime.strptime(r['timestamp'], "%Y-%m-%dT%H:%M:%S")
             if new < created:
               db.update('delegators',{'created':new},{'account':r['delegator']})
@@ -72,9 +72,9 @@ def getRewards():
 def getDelegators():
   delegators = {}
   total_delegations = 0
-  delegations = db.select('delegators',['account'],"1=1",'account',9999)
+  delegations = db.select('delegators',['account','created'],"1=1",'account',9999)
   for delegator in delegations:
-    created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
+    created = datetime.strptime(delegator['created'], "%Y-%m-%d %H:%M:%S")
     now = datetime.utcnow()
     duration = now - created
     if duration.days >= 1:

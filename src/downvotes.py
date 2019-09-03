@@ -15,12 +15,16 @@ steemd_nodes = [
   'https://steemd.minnowsupportproject.org',
 ]
 
+credfile = open("credentials.txt")
+bot = credfile.readline().strip()
+key = credfile.readline().strip()
+
 db    = DB('curangel.sqlite3')
-steem = Steem(nodes=steemd_nodes)
+steem = Steem(keys=[key],nodes=steemd_nodes)
 chain = Blockchain(steem)
 
 def getCurrentVoteValue():
-  account = steem.get_account('curangel')
+  account = steem.get_account(bot)
   total_vests = float(account['received_vesting_shares'][:-6]) + float(account['vesting_shares'][:-6])
   base_mana = int(total_vests*1000000)
   downvote_mana = base_mana / 4
@@ -47,8 +51,8 @@ def getDownvotes():
     total_shares = 0
     for post in pending:
       delegator = 0
-      delegations = client.get_vesting_delegations(post['account'],'curangel',1)
-      if len(delegations) == 0 or delegations[0]['delegatee'] != 'curangel':
+      delegations = steem.get_vesting_delegations(post['account'],bot,1)
+      if len(delegations) == 0 or delegations[0]['delegatee'] != bot:
         db.update('downvotes',{'status': 'undelegated'},{'id':post['id']})
         continue
       postdata = steem.get_content(post['user'],post['slug'])
@@ -57,8 +61,8 @@ def getDownvotes():
       if cashoutts - chaints < 60*60*12:
         db.update('downvotes',{'status':'skipped due to payout approaching'},{'id':post['id']})
         continue
-      delegations = steem.get_vesting_delegations(post['account'],'curangel',1)
-      if len(delegations) > 0 and delegations[0]['delegatee'] == 'curangel':
+      delegations = steem.get_vesting_delegations(post['account'],bot,1)
+      if len(delegations) > 0 and delegations[0]['delegatee'] == bot:
         vesting_shares = float(delegations[0]['vesting_shares'][:-6])
         total_shares += vesting_shares
         if post['user']+'/'+post['slug'] in downvotes:
@@ -122,10 +126,16 @@ def adjustByValue(downvotes, vote_value):
     return downvotes
 
 def downvote():
-  vote_value = getCurrentVoteValue()
-  downvotes = getDownvotes()
-  downvotes = adjustByValue(downvotes, vote_value)
-  print(downvotes)
+  downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())
+  for slug, weight in downvotes.items():
+    print('Downvoting '+slug+' with '+str(weight)+'%')
+    try:
+      steem.commit.vote('@'+slug,float(weight),bot)
+    except:
+      pass
+    else:
+      slug = slug.split('/')
+      db.update('downvotes',{'status':'downvoted with '+str(weight)+'%'},{'user':slug[0],'slug':slug[1]})
 
 
 downvote()

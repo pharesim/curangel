@@ -30,7 +30,7 @@ def getVotedPosts():
 
 def getPostContent():
   content = '<center>'+"\n"
-  content += '# Welcome to the daily compilation post of the Curangel project (beta test)'+"\n<br />\n"
+  content += '# Welcome to the daily compilation post of the Curangel project'+"\n<br />\n"
   content += 'https://i.imgur.com/NI4bwBx.png<br />'+"\n"
   content += 'Here we highlight the posts picked by our curators, providing you with a resource to discover content worth your time, and maybe even your vote!'+"\n"
   content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
@@ -40,17 +40,17 @@ def getPostContent():
   content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
 
   content += 'Thank you for your interest in the Curangel project! If you want to help us supporting a wide range of valuable community members and at the same time receive a share of the generated curation rewards, consider sending us a delegation. '
-  content += 'By doing so, you will also receive the possibility to help us move rewards from overrated posts back to the pool (as soon as we are out of beta).'+"\n"
-  #content += 'For more info, check out our '
-  #content += '<a href="https://steemit.com/curangel/@curangel/officially-introducing-the-curangel-project-help-us-making-steem-a-better-place">introduction post</a>'+"\n"
+  content += 'By doing so, you will also receive the possibility to help us move rewards from overrated posts back to the pool.'+"\n"
+  content += 'For more info, check out our '
+  content += '<a href="https://steemit.com/curangel/@curangel/announcing-the-curangel-project-curation-serving-everyone">introduction post</a>'+"\n"
 
-  #content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
-  #content += 'Come and join our discord at -discordlink-!'+"\n"
+  content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
+  content += 'Come and join our <a href="https://discord.gg/yrzAZqS">Discord</a>!'+"\n"
 
   content += 'https://i.imgur.com/Ra4kD4o.png'
 
   content += 'The Curangel project is brought to you by witness <a href="http://pharesim.me">@pharesim</a>'+"\n"
-  content += 'vote for your witnesses <a href="https://steemit.com/~witnesses">here</a>'+"\n"
+  content += 'Vote for your witnesses <a href="https://steemit.com/~witnesses">here</a>'+"\n"
 
   content += '</center>'
   return content
@@ -93,7 +93,7 @@ def getVotesTable(posts):
 def compilation():
   date = datetime.datetime.utcnow().strftime("%B %d, %Y")
 
-  title  = 'Curangel (beta) curation compilation '+date
+  title  = 'Curangel curation compilation '+date
   body   = getPostContent()
   author = user
   tags   = ['curangel','curation','palnet','neoxian']

@@ -105,9 +105,10 @@ def assignRewards(rewards,delegators):
         addReward(account,part)
 
 def payout():
-  rewards = db.select('rewards',['account','sp'])
+  rewards = db.select('rewards',['account','sp'],'1=1','account',9999)
   for reward in rewards:
     balance = float(steem.get_account(bot)['balance'][:-6])
+    print('Current balance: '+str(balance))
     if balance > reward['sp']:
       amount = math.floor(reward['sp']*1000)/1000
       print('Next: '+str(amount)+' for '+reward['account'])

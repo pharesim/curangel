@@ -77,7 +77,7 @@ elif deletebl:
   db.delete('blacklist',{'id':deletebl})
   data['status'] = 'success'
 elif deletedv:
-  post = db.select('downvotes',['status'],{'id':deleteuv},'id')
+  post = db.select('downvotes',['status'],{'id':deletedv},'id')
   if post[0]['status'] == 'wait':
     db.update('downvotes',{'status':'removed by '+username},{'id':deletedv})
     data['status'] = 'success'

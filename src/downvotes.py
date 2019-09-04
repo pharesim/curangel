@@ -110,7 +110,7 @@ def adjustByValue(downvotes, vote_value):
     pending = float(post['pending_payout_value'][:-4])
     expected = weight * vote_value / 10000
     if expected > pending:
-      new_weight = pending * 100 / vote_value
+      new_weight = pending * 10000 / vote_value
       downvotes[slug] = new_weight
       rest += weight - new_weight
     else:

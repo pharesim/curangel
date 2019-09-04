@@ -90,6 +90,8 @@ class DB:
       count = count + 1
       if count < length:
         query = query+', '
+    length = len(condition)
+    count = 0
     query = query+' WHERE '
     for key,value in condition.items():
       query = query+key+'=?'

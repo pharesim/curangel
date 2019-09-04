@@ -85,6 +85,8 @@ def update(table,values,condition):
     if count < length:
       query = query+', '
   query = query+' WHERE '
+  length = len(condition)
+  count = 0
   for key,value in condition.items():
     query = query+key+'=?'
     t = t + (value,)

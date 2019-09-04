@@ -128,6 +128,7 @@ def adjustByValue(downvotes, vote_value):
 def downvote():
   downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())
   for slug, weight in downvotes.items():
+    weight = round(weight,2)
     print('Downvoting '+slug+' with '+str(weight)+'%')
     try:
       steem.commit.vote('@'+slug,float(weight)*-1,bot)

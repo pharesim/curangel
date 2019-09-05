@@ -123,7 +123,7 @@ def adjustByValue(downvotes, vote_value):
       downvotes[slug] += pct*rest/100
     return adjustByValue(downvotes,vote_value)
   else:
-    return downvotes
+    return distributeRest(downvotes)
 
 def downvote():
   downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())

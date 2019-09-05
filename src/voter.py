@@ -6,6 +6,7 @@ from db import DB
 
 from steem.steem import Steem
 from steem.blockchain import Blockchain
+from steem.account import Account
 
 # Maximum VP allowed.
 MAX_VP = 10000
@@ -73,12 +74,29 @@ class Voter:
 
       uri = link[-2][1:]+'/'+link[-1]
       post = steem.get_content(link[-2][1:],link[-1])
+
+      # check payout time
       cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
       chaints = time.mktime(datetime.datetime.strptime(self.chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
       if cashoutts - chaints < 60*60*12:
         print("\nskipping '{}' because payout is in less than 12 hours...".format(results[0]['link']))
         self.db.update('upvotes',{'status':'skipped voting due to payout approaching'},{'id':results[0]['id']})
         return self.next_in_queue(steem)
+
+      # check if author used bitbots
+      bidbots = ['alfanso','appreciator','bdvoter','bid4joy','boomerang','booster','brandonfrye','buildawhale','edensgarden','inciter','joeparys','leo.voter','luckyvotes','minnowbooster','minnowhelper','minnowvotes','onlyprofitbot','postpromoter','profitvote','promobot','qustodian','redlambo','rocky1','sct.voter','smartmarket','smartsteem','sneaky-ninja','sportsvoter','spydo','thebot','therising','tipu','treeplanter','triplea.bot','upmewhale','upmyvote','whalepromobot']
+      postaccount = Account(post['author'],steem)
+      history = postaccount.get_account_history(-1,2500,filter_by='transfer')
+      for h in history:
+        if h['to'] in bidbots:
+          print("\nskipping '{}' because author bought vote...".format(results[0]['link']))
+          self.db.update('upvotes',{'status':'skipped voting due to vote buying'},{'id':results[0]['id']})
+          return self.next_in_queue(steem)
+        last = h['timestamp']
+        txts = time.mktime(datetime.datetime.strptime(h['timestamp'], "%Y-%m-%dT%H:%M:%S").timetuple())
+        chaints = time.mktime(datetime.datetime.strptime(self.chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+        if chaints - txts > 60*60*24*7:
+          break
 
       return uri, results[0]['id'];
     else:

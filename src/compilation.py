@@ -47,7 +47,7 @@ def getPostContent():
   content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi?format=match&mode=fit&width=640" />'+"\n"
   content += 'Come and join our <a href="https://discord.gg/yrzAZqS">Discord</a>!'+"\n"
 
-  content += 'https://i.imgur.com/Ra4kD4o.png'
+  content += 'https://i.imgur.com/1TgMmfZ.png'
 
   content += 'The Curangel project is brought to you by witness <a href="http://pharesim.me">@pharesim</a>'+"\n"
   content += 'Vote for your witnesses <a href="https://steemit.com/~witnesses">here</a>'+"\n"

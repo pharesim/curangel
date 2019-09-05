@@ -68,7 +68,7 @@ else:
       errorHandler.throwError('You need to give a reason for the downvote.')
 
     # check if user has more than the limit of posts waiting
-    result = db.select('downvotes',['id'],{'account':username,'status':'waiting'},'id')
+    result = db.select('downvotes',['id'],{'account':username,'status':'wait'},'id')
     if len(result) > 2:
       errorHandler.throwError('You already have '+len(result)+' posts waiting to be downvoted. Please wait until those are processed.')
 

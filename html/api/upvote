@@ -81,6 +81,10 @@ else:
       if vote['voter'] == 'curangel':
         errorHandler.throwError('We already voted on that post.')
 
+    # check if post has a lot of rewards already
+    if float(post['pending_payout_value'][:-4]) >= 10:
+      errorHandler.throwError('This post has quite a bit of recognition already. Please curate content which really needs a boost, there are many posts which receive next to nothing!')
+
     # check if exists in upvote queue
     results = db.select('upvotes',['id'],{'user':post['author'],'slug':post['permlink'],'status !': 'canceled'},'id')
     if len(results) > 0:

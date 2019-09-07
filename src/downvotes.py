@@ -126,21 +126,25 @@ def adjustByValue(downvotes, vote_value):
   else:
     return distributeRest(downvotes)
 
+def sendVote(slug,weight):
+  last_vote_time = steem.get_account(bot)["last_vote_time"]
+  try:
+    steem.commit.vote('@'+slug,float(weight)*-1,bot)
+  except:
+    time.sleep(3)
+    sendVote(slug,weight)
+  else:
+    slug = slug.split('/')
+    db.update('downvotes',{'status':'downvoted with '+str(weight)+'%'},{'user':slug[0],'slug':slug[1]})
+    while last_vote_time == steem.get_account(bot)["last_vote_time"]:
+      time.sleep(1)
+
 def downvote():
   downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())
   for slug, weight in downvotes.items():
     weight = round(weight,2)
     print('Downvoting '+slug+' with '+str(weight)+'%')
-    last_vote_time = steem.get_account(bot)["last_vote_time"]
-    try:
-      steem.commit.vote('@'+slug,float(weight)*-1,bot)
-    except:
-      pass
-    else:
-      slug = slug.split('/')
-      db.update('downvotes',{'status':'downvoted with '+str(weight)+'%'},{'user':slug[0],'slug':slug[1]})
-      while last_vote_time == steem.get_account(bot)["last_vote_time"]:
-        time.sleep(1)
+    sendVote(slug,weight)
 
 
 downvote()

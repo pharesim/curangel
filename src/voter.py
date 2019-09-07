@@ -112,13 +112,22 @@ class Voter:
     weight = int(weight)
     return float(weight/100)
 
+  def sendVote(self,uri,weight,id):
+    try:
+      self.steem.commit.vote(uri, weight, self.account)
+    except:
+      time.sleep(3)
+      sendVote(self,uri,weight,id)
+    else:
+      self.db.update('upvotes',{'status':'voted with '+str(weight)+'%','vote_time':datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')},{'id':id})
+      while last_vote_time == self._get_account()["last_vote_time"]:
+        # Block until the vote is reflected on the remote node.
+        # This prevents double vote attempts.
+        time.sleep(1)
+
+
   def vote(self, uri, id):
     last_vote_time = self._get_account()["last_vote_time"]
     weight = self.calculate_vote_weight()
     print("\nvoting '{}' with weight of {}...".format(uri,weight))
-    self.steem.commit.vote(uri, weight, self.account)
-    while last_vote_time == self._get_account()["last_vote_time"]:
-      # Block until the vote is reflected on the remote node.
-      # This prevents double vote attempts.
-      time.sleep(1)
-    self.db.update('upvotes',{'status':'voted with '+str(weight)+'%','vote_time':datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')},{'id':id})
+    sendVote(self,uri,weight,id)

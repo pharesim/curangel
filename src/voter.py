@@ -117,7 +117,7 @@ class Voter:
       self.steem.commit.vote(uri, weight, self.account)
     except:
       time.sleep(3)
-      self.sendVote(self,uri,weight,id)
+      self.sendVote(uri,weight,id)
     else:
       self.db.update('upvotes',{'status':'voted with '+str(weight)+'%','vote_time':datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')},{'id':id})
       while last_vote_time == self._get_account()["last_vote_time"]:
@@ -130,4 +130,4 @@ class Voter:
     last_vote_time = self._get_account()["last_vote_time"]
     weight = self.calculate_vote_weight()
     print("\nvoting '{}' with weight of {}...".format(uri,weight))
-    self.sendVote(self,uri,weight,id)
+    self.sendVote(uri,weight,id)

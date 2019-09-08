@@ -129,6 +129,7 @@ def adjustByValue(downvotes, vote_value):
 def sendVote(slug,weight):
   last_vote_time = steem.get_account(bot)["last_vote_time"]
   if weight == 0:
+    slug = slug.split('/')
     db.update('downvotes',{'status':'no vote cast'},{'user':slug[0],'slug':slug[1]})
     return True
   try:

@@ -130,6 +130,7 @@ def sendVote(slug,weight):
   last_vote_time = steem.get_account(bot)["last_vote_time"]
   if weight == 0:
     db.update('downvotes',{'status':'no vote cast'},{'user':slug[0],'slug':slug[1]})
+    return True
   try:
     steem.commit.vote('@'+slug,float(weight)*-1,bot)
   except:
@@ -140,6 +141,7 @@ def sendVote(slug,weight):
     db.update('downvotes',{'status':'downvoted with '+str(weight)+'%'},{'user':slug[0],'slug':slug[1]})
     while last_vote_time == steem.get_account(bot)["last_vote_time"]:
       time.sleep(1)
+    return True
 
 def downvote():
   downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())

@@ -3,6 +3,7 @@
 import time
 import datetime
 import json
+import rfc3987
 
 from db import DB
 
@@ -55,6 +56,19 @@ def getPostContent():
   content += '</center>'
   return content
 
+def getThumbnailContent(metadata):
+  if 'image' not in metadata:
+    return 'no preview'
+  images = metadata['image']
+  if len(images) < 1:
+    return 'no preview'
+  try:
+    img_uri = images[0]
+    rfc3987.parse(img_uri, "URI")
+    return f'<img src="https://steemitimages.com/128x256/{img_uri}" />'
+  except Exception:
+    return 'no preview'
+
 def getVotesTable(posts):
   content = ''
   last_account = ''
@@ -82,9 +96,7 @@ def getVotesTable(posts):
     else:
       title = post['title'].replace('|','&#124;')
     vote = post['status'].split('/')[-1]
-    image = 'no preview'
-    if 'image' in metadata and metadata['image'][0] != '':
-      image = '<img src="https://steemitimages.com/128x256/'+metadata['image'][0]+'" />'
+    image = getThumbnailContent(metadata)
     content += '| <center><a href="'+post['link']+'">'+image+'</a></center> | <center>@'
     content += post['user']+'</center> | <center><a href="'+post['link']+'">'+title+'</a></center> |'+"\n"
     mentions.append(post['user'])

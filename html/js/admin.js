@@ -296,6 +296,8 @@ document.getElementById('sendNewBlacklist').onclick = function() {
   }).done(function( data ) {
     if(data['error']) {
       alert(data['error']);
+    } else {
+      alert('User added to blacklist')
     }
     setValueById('newBlacklist','');
     setValueById('newBlacklistReason','');

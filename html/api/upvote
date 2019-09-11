@@ -106,9 +106,9 @@ else:
       errorHandler.throwError('Cashout of post in less than 36 hours. Will not add to queue.')
 
     # check blacklist
-    results = db.select('blacklist',['id'],{'user':post['author']},'id')
+    results = db.select('blacklist',['reason'],{'user':post['author']},'id')
     if len(results) > 0:
-      errorHandler.throwError('Author blacklistet. Will not add to queue.')
+      errorHandler.throwError('Author blacklistet. Reason: '+results[0]['reason']+'. Will not add to queue.')
 
     # check previous votes for author
     results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'status !':'canceled','created >':"datetime('now','-7 days')"},'created')

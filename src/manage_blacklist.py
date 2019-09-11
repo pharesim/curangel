@@ -24,4 +24,4 @@ removeOld = db.select('blacklist',['user'],{'reason': 'holder of spi'},'user',99
 for user in removeOld:
   if user['user'] not in spiusers:
     db.delete('blacklist',{'user':user['user']})
-    print('removed '+user+' because not holding spi any more')
+    print('removed '+user['user']+' because not holding spi any more')

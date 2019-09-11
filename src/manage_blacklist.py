@@ -4,7 +4,7 @@ import uuid
 
 db = DB('curangel.sqlite3')
 
-# spi steem-engine token, list available at
+# spi steem-engine token, list available at https://steem-engine.rocks/tokens/SPI/richlist
 spifile = open("spi.txt")
 spiusers = []
 user = spifile.readline().strip()

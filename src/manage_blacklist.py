@@ -1,17 +1,7 @@
 #! /bin/env python3
 from db import DB
 
-from steem.steem import Steem
-from steem.blockchain import Blockchain
-
-FULL_VP_RECHARGE_TIME = 432000
-
-steemd_nodes = [
-  'https://anyx.io',
-  'https://api.steemit.com',
-  'https://steemd.minnowsupportproject.org',
-]
-
+db    = DB('curangel.sqlite3')
 
 # spi steem-engine token, list available at
 spifile = open("spi.txt")

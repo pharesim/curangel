@@ -8,7 +8,7 @@ db = DB('curangel.sqlite3')
 spifile = open("spi.txt")
 spiusers = []
 user = spifile.readline().strip()
-while user != '-endoflist-':
+while user != '':
   spiusers.append(user)
   user = spifile.readline().strip()
 

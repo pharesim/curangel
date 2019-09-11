@@ -12,10 +12,12 @@ steemd_nodes = [
   'https://steemd.minnowsupportproject.org',
 ]
 
+
+# spi steem-engine token, list available at
 spifile = open("spi.txt")
 spiusers = []
 user = spifile.readline().strip()
-while user != '':
+while user != '-endoflist-':
   spiusers.append(user)
 
 for user in spiusers:

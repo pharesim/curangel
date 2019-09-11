@@ -63,7 +63,7 @@ def getThumbnailContent(metadata):
   if len(images) < 1:
     return 'no preview'
   try:
-    img_uri = images[0]
+    img_uri = images[0].strip()
     rfc3987.parse(img_uri, "URI")
     return '<img src="https://steemitimages.com/128x256/{img_uri}" />'.format(**locals())
   except Exception:

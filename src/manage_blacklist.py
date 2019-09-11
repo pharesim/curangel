@@ -19,6 +19,7 @@ spiusers = []
 user = spifile.readline().strip()
 while user != '-endoflist-':
   spiusers.append(user)
+  user = spifile.readline().strip()
 
 for user in spiusers:
   exists = db.select('blacklist',['user'],{'user':user},'user',1)

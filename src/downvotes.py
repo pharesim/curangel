@@ -103,13 +103,17 @@ def distributeRest(downvotes):
 def adjustByValue(downvotes, vote_value):
   notMax = 0
   rest   = 0
+  total_expected = 0
+  total_pending  = 0
   distribute_rest  = {}
   distribute_total = 0
   for slug, weight in downvotes.items():
     post = slug.split('/')
     post = steem.get_content(post[0],post[1])
     pending = float(post['pending_payout_value'][:-4])
+    total_pending = total_pending + pending
     expected = weight * vote_value / 10000
+    total_expected = total_expected + pending
     if expected > pending:
       new_weight = pending * 10000 / vote_value
       downvotes[slug] = new_weight
@@ -118,7 +122,7 @@ def adjustByValue(downvotes, vote_value):
       distribute_rest[slug] = weight
       distribute_total += weight
       notMax += 1
-  if rest > 0 and notMax > 0:
+  if rest > 0 and notMax > 0 and total_expected < total_pending:
     for slug, weight in distribute_rest.items():
       pct = weight*100/distribute_total
       downvotes[slug] += pct*rest/100

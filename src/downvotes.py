@@ -122,7 +122,12 @@ def adjustByValue(downvotes, vote_value):
       distribute_rest[slug] = weight
       distribute_total += weight
       notMax += 1
-  if rest > 0 and notMax > 0 and total_expected < total_pending:
+  if total_expected > total_pending:
+    for slug, weight in distribute_rest.items():
+      pct = weight*100/distribute_total
+      downvotes[slug] += pct*rest/100
+    return distributeRest(downvotes)
+  elif rest > 0 and notMax > 0:
     for slug, weight in distribute_rest.items():
       pct = weight*100/distribute_total
       downvotes[slug] += pct*rest/100

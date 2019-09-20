@@ -17,6 +17,9 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 from steem.account import Account
 
+from ratelimit import Enforcer, RateLimitError
+from db_util import QueueDBHelper
+
 steemd_nodes = [
   'https://anyx.io',
   'https://api.steemit.com',
@@ -118,10 +121,28 @@ else:
     if len(results) > 0:
       errorHandler.throwError('Someone else already submitted a post of this author today. Will not add to queue.')
 
+
+    # get queue length
+    db_path = db.config.config.db.file
+    with QueueDBHelper(db_path) as qdbh:
+      queue_length = qdbh.query_queue_length()
+
+    # check mana
+    try:
+      enforcer = Enforcer.from_database_user(db_path, username)
+      allowed_strength, *_ = enforcer.curate(queue_length)
+      enforcer.write_to_database(db_path, username)
+    except RateLimitError as e:
+      errorHandler.throwError(e.fmt(username))
+
+    upvote_id = uuid.uuid4().hex
+
     post_type = 1
     if post['parent_author']:
       post_type = 2
-    db.insert('upvotes',{'id':uuid.uuid4().hex, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'in queue', 'reward_sbd': 0, 'reward_sp': 0})
+    db.insert('upvotes',{'id':upvote_id, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'in queue', 'reward_sbd': 0, 'reward_sp': 0})
+
+    qdbh.upsert_upvote_strength(upvote_id, allowed_strength)
 
   # get upvotes
   upvotes = []

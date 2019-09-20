@@ -1,0 +1,3 @@
+SELECT strength
+FROM upvote_strength
+WHERE upvote_id=?;

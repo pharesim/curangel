@@ -22,12 +22,20 @@ class NoManabarError(DBError):
         return "No manabar data for curator: '{}'".format(self.curator)
 
 
-class ManaDBHelper:
+class NoVoteStrengthError(DBError):
+    def __init__(self, vote_id):
+        self.vote_id = vote_id
+
+    def __str__(self):
+        return "No strength was specified for vote '{}'".format(self.vote_id)
+
+
+class DBHelper:
     def __init__(self, db_file):
         self.db_file = db_file
         self.conn = None
         with self:
-            self.cine_mana_table()
+            self._setup()
 
     def __enter__(self):
         self.conn = sqlite3.connect(self.db_file)
@@ -44,6 +52,11 @@ class ManaDBHelper:
         query_path = os.path.join(dirname, "sql", query_name)
         with open(query_path, "r") as f:
             return f.read()
+
+
+class ManaDBHelper(DBHelper):
+    def _setup(self):
+        self.cine_mana_table()
 
     def query_user_id(self, curator):
         cursor = self.conn.cursor()
@@ -85,3 +98,38 @@ class ManaDBHelper:
             insert = self._load("insert_manabar")
             insert_args = [curator_id] + common_args
             cursor.execute(insert, insert_args)
+
+
+class QueueDBHelper(DBHelper):
+    def _setup(self):
+        self.cine_upvote_strength()
+
+    def cine_upvote_strength(self):
+        cursor = self.conn.cursor()
+        query = self._load("cine_upvote_strength")
+        cursor.execute(query)
+
+    def query_upvote_strength(self, upvote_id):
+        cursor = self.conn.cursor()
+        query = self._load("query_upvote_strength")
+        cursor.execute(query, [upvote_id])
+        row = cursor.fetchone()
+        if row is None:
+            raise NoVoteStrengthError(upvote_id)
+        else:
+            return float(row["strength"])
+
+    def upsert_upvote_strength(self, upvote_id, strength):
+        cursor = self.conn.cursor()
+        update = self._load("update_upvote_strength")
+        insert = self._load("insert_upvote_strength")
+        cursor.execute(update, [strength, upvote_id])
+        if cursor.rowcount < 1:
+            cursor.execute(insert, [upvote_id, strength])
+
+    def query_queue_length(self):
+        cursor = self.conn.cursor()
+        query = self._load("query_queue_length")
+        cursor.execute(query)
+        row = cursor.fetchone()
+        return row[0]

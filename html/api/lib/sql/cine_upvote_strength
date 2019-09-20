@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS upvote_strength (
+  upvote_id TEXT PRIMARY KEY,
+  strength REAL,
+  FOREIGN KEY(upvote_id) REFERENCES upvotes(id)
+)

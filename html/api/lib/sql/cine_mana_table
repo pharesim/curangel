@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS mana (
+  account_id TEXT PRIMARY KEY,
+  last_curation_block INTEGER,
+  last_stamina_step INTEGER,
+  last_stamina_magnitude REAL,
+  last_mana_magnitude TEXT,
+  FOREIGN KEY(account_id) REFERENCES users(id)
+);

@@ -17,7 +17,7 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 from steem.account import Account
 
-from ratelimit import Enforcer, RateLimitError
+from rate_limit import Enforcer, RateLimitError
 from db_util import QueueDBHelper
 
 steemd_nodes = [

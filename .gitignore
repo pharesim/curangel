@@ -2,3 +2,6 @@
 *.db
 *.sqlite
 *.sqlite3
+*.pyc
+*.ini
+credentials.txt

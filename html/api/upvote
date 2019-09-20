@@ -61,6 +61,7 @@ else:
       link = postlink.split('/')
 
     post = client.get_content(link[-2][1:],link[-1])
+    chaininfo = chain.info()
 
     # check if curator is author himself
     if post['author'] == username:
@@ -79,7 +80,7 @@ else:
         errorHandler.throwError('User has used a bid bot recently. Will not add to queue.')
       last = h['timestamp']
       txts = time.mktime(datetime.datetime.strptime(h['timestamp'], "%Y-%m-%dT%H:%M:%S").timetuple())
-      chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+      chaints = time.mktime(datetime.datetime.strptime(chaininfo['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
       if chaints - txts > 60*60*24*7:
         break
 
@@ -104,7 +105,7 @@ else:
 
     # check cashout time
     cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-    chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+    chaints = time.mktime(datetime.datetime.strptime(chaininfo['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
     if cashoutts - chaints < 60*60*36:
       errorHandler.throwError('Cashout of post in less than 36 hours. Will not add to queue.')
 
@@ -129,9 +130,9 @@ else:
 
     # check mana
     try:
-      enforcer = Enforcer.from_database_user(db_path, username)
+      enforcer = Enforcer.from_database_user(db_path, username, chaininfo['head_block_number'])
       allowed_strength, *_ = enforcer.curate(queue_length)
-      enforcer.write_to_database(db_path, username)
+      enforcer.write_to_database(db_path, username, chaininfo['head_block_number'])
     except RateLimitError as e:
       errorHandler.throwError(e.fmt(username))
 

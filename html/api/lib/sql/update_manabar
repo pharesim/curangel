@@ -1,0 +1,6 @@
+UPDATE mana SET
+  last_curation_block=?,
+  last_stamina_step=?,
+  last_stamina_magnitude=?,
+  last_mana_magnitude=?
+WHERE mana.account_id=?;

@@ -1,0 +1,8 @@
+INSERT INTO mana (
+  account_id,
+  last_curation_block,
+  last_stamina_step,
+  last_stamina_magnitude,
+  last_mana_magnitude
+)
+VALUES (?, ?, ?, ?, ?);

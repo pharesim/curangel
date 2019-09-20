@@ -1,0 +1,3 @@
+UPDATE upvote_strength SET
+  strength=?
+WHERE upvote_strength.upvote_id=?;

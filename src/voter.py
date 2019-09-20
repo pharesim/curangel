@@ -1,5 +1,15 @@
 #! /bin/env python3
 
+# TODO: this can probably be cleaned up
+import sys
+import os
+sys.path.append(
+  os.path.join(
+    os.path.split(__file__)[0],
+    "../html/api/lib"))
+
+from db_util import QueueDBHelper, NoVoteStrengthError
+
 import time
 import datetime
 from db import DB
@@ -103,10 +113,20 @@ class Voter:
       return False, False;
 
   def calculate_vote_weight(self):
-    results = self.db.select('upvotes',['link'],{'status':'in queue'},'created ASC','9999')
+    results = self.db.select('upvotes',['id'],{'status':'in queue'},'created ASC','9999')
     weight = MAX_VOTE_WEIGHT
-    for _ in range(len(results)-1):
-      weight = weight / WEIGHT_FACTOR
+
+    with QueueDBHelper('test.db') as qdbh:
+      for result in results:
+        try:
+          strength = qdbh.query_upvote_strength(result["id"])
+        except NoVoteStrengthError:
+          strength = 1
+        diff = weight - (weight / (WEIGHT_FACTOR))
+        weight = weight - diff * strength
+
+    weight *= strength
+
     if weight < MIN_VOTE_WEIGHT:
       weight = MIN_VOTE_WEIGHT
     weight = int(weight)
@@ -125,7 +145,6 @@ class Voter:
         # Block until the vote is reflected on the remote node.
         # This prevents double vote attempts.
         time.sleep(1)
-
 
   def vote(self, uri, id):
     weight = self.calculate_vote_weight()

@@ -1,0 +1,3 @@
+SELECT count(id)
+FROM upvotes
+WHERE status='in queue';

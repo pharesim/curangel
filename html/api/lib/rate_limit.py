@@ -109,7 +109,7 @@ class Mana:
         penalty = calculate_penalty(queue_length)
         cost = TARGET_MANA_COST * penalty
         if self.value >= cost:
-            self.value -= cost
+            self.value -= cost * strength
             return self.value
         else:
             raise ManaError(self.value, TARGET_MANA_COST)

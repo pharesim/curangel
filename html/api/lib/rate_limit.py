@@ -145,7 +145,7 @@ class Enforcer:
             return cls(sta_obj, mana_obj)
 
     def write_to_database(self, db_file, username, current_block):
-        with db_util.ManaDBHelper(db_file) as db:
+        with db_util.ManaDBHelper(db_file, read_only=False) as db:
             db.upsert_manabar(username,
                               current_block,
                               self.stamina.step,

@@ -31,14 +31,15 @@ class NoVoteStrengthError(DBError):
 
 
 class DBHelper:
-    def __init__(self, db_file):
-        self.db_file = db_file
+    def __init__(self, db_filepath, *, read_only=True):
+        mode_qs = "?mode=ro" if read_only else ""
+        self.uri = "file:{db_filepath}{mode_qs}".format(**locals())
         self.conn = None
         with self:
             self._setup()
 
     def __enter__(self):
-        self.conn = sqlite3.connect(self.db_file)
+        self.conn = sqlite3.connect(self.uri, uri=True)
         self.conn.row_factory = sqlite3.Row
         return self
 

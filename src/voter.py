@@ -116,7 +116,7 @@ class Voter:
     results = self.db.select('upvotes',['id'],{'status':'in queue'},'created ASC','9999')
     weight = MAX_VOTE_WEIGHT
 
-    with QueueDBHelper(self.db.config.config.db.file) as qdbh:
+    with QueueDBHelper('curangel.sqlite3') as qdbh:
       for result in results:
         try:
           strength = qdbh.query_upvote_strength(result["id"])

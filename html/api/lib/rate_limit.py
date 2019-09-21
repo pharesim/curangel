@@ -19,7 +19,7 @@ TARGET_MANA_COST = DAILY_MANA / TARGET_DAILY_VOTES
 
 
 def calculate_penalty(queue_length):
-    if queue_length < TARGET_QUEUE_LENGTH:
+    if queue_length < TARGET_QUEUE_LENGTH or True:
         return 1
     return ((queue_length - (TARGET_QUEUE_LENGTH - 1))
             **

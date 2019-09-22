@@ -29,6 +29,13 @@ mentions = []
 def getVotedPosts():
   return db.select('upvotes',['account','user','link','slug','title','status','type'],{'status LIKE':'voted%','vote_time >':"datetime('now','-1 day')"},'account','9999')
 
+def escape(text):
+  escaped = ""
+  for character in text:
+    codepoint = ord(character)
+    escaped += "&#{codepoint};".format(**locals())
+  return escaped
+
 def getPostContent():
   content = '<center>'+"\n"
   content += '# Welcome to the daily compilation post of the Curangel project'+"\n<br />\n"
@@ -95,7 +102,7 @@ def getVotesTable(posts):
     if post['title'] == '' and post['type'] == 2:
       title = 'Comment'
     else:
-      title = post['title'].replace('|','&#124;')
+      title = escape(post['title'])
     vote = post['status'].split('/')[-1]
     image = getThumbnailContent(metadata)
     content += '| <center><a href="'+post['link']+'">'+image+'</a></center> | <center>@'
@@ -118,4 +125,5 @@ def compilation():
     time.sleep(1)
   print(date+' posted!')
 
-compilation()
+if __name__ == "__main__":
+  compilation()

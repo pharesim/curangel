@@ -5,8 +5,9 @@ name = "pypi"
 
 [packages]
 steem = "*"
-iniparse = "*"
 rfc3987 = "*"
+pyyaml = "*"
+munch = "*"
 
 [dev-packages]
 jedi = "*"

@@ -82,6 +82,7 @@ class Account:
                                                    head_block)
             self._stamina = enforcer.stamina
             self._mana = enforcer.mana
+            self._last_block = head_block
 
     @property
     def mana(self):

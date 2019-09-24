@@ -118,10 +118,12 @@ class Voter:
           strength = qdbh.query_upvote_strength(result["id"])
         except NoVoteStrengthError:
           strength = 1
-        diff = weight - (weight / (WEIGHT_FACTOR))
-        weight = weight - diff * strength
 
-    weight *= strength
+        if result['id'] != id:
+          diff = weight - (weight / (WEIGHT_FACTOR))
+          weight = weight - diff * strength
+        else:
+          weight *= strength
 
     if weight < MIN_VOTE_WEIGHT:
       weight = MIN_VOTE_WEIGHT

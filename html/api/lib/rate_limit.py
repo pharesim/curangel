@@ -1,4 +1,6 @@
-import db_util
+from . import db_util
+from . import errors
+
 
 BLOCKS_PER_HOUR = 1200
 MANA_FULL_RECHARGE_HOURS = 36
@@ -26,22 +28,8 @@ def calculate_penalty(queue_length):
             (queue_length / PENALTY_SOFTNESS))
 
 
-class RateLimitError(RuntimeError):
-    def __str__(self):
-        return self.fmt()
-
-    def __repr__(self):
-        name = self.__class__.__name__
-        desc = self.fmt()
-        return "<{}: {}>".format(name, desc)
-        return self.__class__.__name__
-
-    def fmt(self, user=None):
-        if user is None:
-            user = "User"
-        else:
-            user = "User '{}'".format(user)
-        return self._fmt.strip().format(user=user, **vars(self))
+class RateLimitError(errors.CurangelError):
+    pass
 
 
 class ManaError(RateLimitError):
@@ -145,7 +133,7 @@ class Enforcer:
             return cls(sta_obj, mana_obj)
 
     def write_to_database(self, db_file, username, current_block):
-        with db_util.ManaDBHelper(db_file) as db:
+        with db_util.ManaDBHelper(db_file, read_only=False) as db:
             db.upsert_manabar(username,
                               current_block,
                               self.stamina.step,

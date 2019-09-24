@@ -1,8 +1,10 @@
 import sqlite3
 import os
 
+from . import errors
 
-class DBError(RuntimeError):
+
+class DBError(errors.CurangelError):
     pass
 
 
@@ -10,35 +12,36 @@ class NoSuchCuratorError(DBError):
     def __init__(self, curator):
         self.curator = curator
 
-    def __str__(self):
-        return "No such curator: '{}'".format(self.curator)
+    def _fmt(self):
+        return "no such curator: '{curator}'"
 
 
 class NoManabarError(DBError):
     def __init__(self, curator):
         self.curator = curator
 
-    def __str__(self):
-        return "No manabar data for curator: '{}'".format(self.curator)
+    def _fmt(self):
+        return "no manabar data for curator: '{curator}'"
 
 
 class NoVoteStrengthError(DBError):
     def __init__(self, vote_id):
         self.vote_id = vote_id
 
-    def __str__(self):
-        return "No strength was specified for vote '{}'".format(self.vote_id)
+    def _fmt(self):
+        return "no strength was specified for vote '{vote_id}'"
 
 
 class DBHelper:
-    def __init__(self, db_file):
-        self.db_file = db_file
+    def __init__(self, db_filepath, *, read_only=True):
+        mode_qs = "?mode=ro" if read_only else ""
+        self.uri = "file:{db_filepath}{mode_qs}".format(**locals())
         self.conn = None
         with self:
             self._setup()
 
     def __enter__(self):
-        self.conn = sqlite3.connect(self.db_file)
+        self.conn = sqlite3.connect(self.uri, uri=True)
         self.conn.row_factory = sqlite3.Row
         return self
 
@@ -53,11 +56,6 @@ class DBHelper:
         with open(query_path, "r") as f:
             return f.read()
 
-
-class ManaDBHelper(DBHelper):
-    def _setup(self):
-        self.cine_mana_table()
-
     def query_user_id(self, curator):
         cursor = self.conn.cursor()
         query = self._load("query_user_id")
@@ -66,6 +64,11 @@ class ManaDBHelper(DBHelper):
             raise NoSuchCuratorError(curator)
         else:
             return row["id"]
+
+
+class ManaDBHelper(DBHelper):
+    def _setup(self):
+        self.cine_mana_table()
 
     def cine_mana_table(self):
         cursor = self.conn.cursor()
@@ -133,3 +136,26 @@ class QueueDBHelper(DBHelper):
         cursor.execute(query)
         row = cursor.fetchone()
         return row[0]
+
+
+class AccountDBHelper(DBHelper):
+    def _setup(self):
+        pass
+
+    def query_permissions(self, username):
+        user_id = self.query_user_id(username)
+        cursor = self.conn.cursor()
+        query = self._load("query_permissions")
+        cursor.execute(query, [user_id])
+        row = cursor.fetchone()
+        if row is not None:
+            return row["admin"], row["curator"]
+
+    def query_hash(self, username):
+        user_id = self.query_user_id(username)
+        cursor = self.conn.cursor()
+        query = self._load("query_hash")
+        cursor.execute(query, [user_id])
+        row = cursor.fetchone()
+        if row is not None:
+            return row["hash"]

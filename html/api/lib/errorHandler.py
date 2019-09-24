@@ -2,7 +2,8 @@
 # -*- coding: UTF-8 -*-
 
 import sys
-import api
+
+from . import api
 
 def throwError(errorMessage):
   api.output({"error":errorMessage})

@@ -1,13 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-import sys
-sys.path.append('lib')
-
-import db
-import api
-import errorHandler
-
 import cgi
 import time
 import datetime
@@ -17,8 +10,13 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 from steem.account import Account
 
+from lib import db
+from lib import api
+from lib import errorHandler
+
 from rate_limit import Enforcer, RateLimitError
 from db_util import QueueDBHelper
+
 
 steemd_nodes = [
   'https://anyx.io',
@@ -143,7 +141,7 @@ else:
       post_type = 2
     db.insert('upvotes',{'id':upvote_id, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'in queue', 'reward_sbd': 0, 'reward_sp': 0})
 
-    with QueueDBHelper(db_path) as qdbh:
+    with QueueDBHelper(db_path, read_only=False) as qdbh:
       qdbh.upsert_upvote_strength(upvote_id, allowed_strength)
 
   # get upvotes

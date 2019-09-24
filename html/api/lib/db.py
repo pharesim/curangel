@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-import errorHandler
 import sqlite3
-import config
 
-conn = sqlite3.connect(config.config.db.file)
+from . import errorHandler
+
+from .config import config
+
+conn = sqlite3.connect(config.db.file)
 conn.row_factory = sqlite3.Row
 
 def select(table,fields,condition,order):

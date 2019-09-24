@@ -1,4 +1,4 @@
-import db_util
+from . import db_util
 
 BLOCKS_PER_HOUR = 1200
 MANA_FULL_RECHARGE_HOURS = 36

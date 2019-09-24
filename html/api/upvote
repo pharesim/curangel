@@ -1,13 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-import sys
-sys.path.append('lib')
-
-import db
-import api
-import errorHandler
-
 import cgi
 import time
 import datetime
@@ -17,8 +10,13 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 from steem.account import Account
 
+from .lib import db
+from .lib import api
+from .lib import errorHandler
+
 from rate_limit import Enforcer, RateLimitError
 from db_util import QueueDBHelper
+
 
 steemd_nodes = [
   'https://anyx.io',

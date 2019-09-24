@@ -1,22 +1,18 @@
 #! /bin/env python3
 
 # TODO: this can probably be cleaned up
-import sys
-import os
-sys.path.append(
-  os.path.join(
-    os.path.split(__file__)[0],
-    "../html/api/lib"))
-
-from db_util import QueueDBHelper, NoVoteStrengthError
-
 import time
 import datetime
-from db import DB
 
 from steem.steem import Steem
 from steem.blockchain import Blockchain
 from steem.account import Account
+
+import _cgi_path # noqa: F401
+
+from lib.db_util import QueueDBHelper, NoVoteStrengthError
+from db import DB
+
 
 # Maximum VP allowed.
 MAX_VP = 10000

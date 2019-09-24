@@ -1,16 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 
-import sys
-sys.path.append('lib')
-
-import db
-import api
-import errorHandler
-
 import cgi
 import os
 import uuid
+
+from .lib import db
+from .lib import api
+from .lib import errorHandler
+
 
 # get and set variables
 userid   = uuid.uuid4().hex

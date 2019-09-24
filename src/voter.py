@@ -114,16 +114,18 @@ class Voter:
 
     with QueueDBHelper('curangel.sqlite3') as qdbh:
       for result in results:
-        try:
-          strength = qdbh.query_upvote_strength(result["id"])
-        except NoVoteStrengthError:
-          strength = 1
-
         if result['id'] != id:
+          try:
+            strength = qdbh.query_upvote_strength(result["id"])
+          except NoVoteStrengthError:
+            strength = 1
+
+
           diff = weight - (weight / (WEIGHT_FACTOR))
           weight = weight - diff * strength
-        else:
-          weight *= strength
+
+      strength = qdbh.query_upvote_strength(id)
+      weight *= strength
 
     if weight < MIN_VOTE_WEIGHT:
       weight = MIN_VOTE_WEIGHT

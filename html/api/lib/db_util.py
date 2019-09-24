@@ -1,8 +1,10 @@
 import sqlite3
 import os
 
+from . import errors
 
-class DBError(RuntimeError):
+
+class DBError(errors.CurangelError):
     pass
 
 
@@ -10,24 +12,24 @@ class NoSuchCuratorError(DBError):
     def __init__(self, curator):
         self.curator = curator
 
-    def __str__(self):
-        return "No such curator: '{}'".format(self.curator)
+    def _fmt(self):
+        return "no such curator: '{curator}'"
 
 
 class NoManabarError(DBError):
     def __init__(self, curator):
         self.curator = curator
 
-    def __str__(self):
-        return "No manabar data for curator: '{}'".format(self.curator)
+    def _fmt(self):
+        return "no manabar data for curator: '{curator}'"
 
 
 class NoVoteStrengthError(DBError):
     def __init__(self, vote_id):
         self.vote_id = vote_id
 
-    def __str__(self):
-        return "No strength was specified for vote '{}'".format(self.vote_id)
+    def _fmt(self):
+        return "no strength was specified for vote '{vote_id}'"
 
 
 class DBHelper:

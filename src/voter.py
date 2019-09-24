@@ -108,7 +108,7 @@ class Voter:
     else:
       return False, False;
 
-  def calculate_vote_weight(self):
+  def calculate_vote_weight(self, id):
     results = self.db.select('upvotes',['id'],{'status':'in queue'},'created ASC','9999')
     weight = MAX_VOTE_WEIGHT
 
@@ -145,6 +145,6 @@ class Voter:
         time.sleep(1)
 
   def vote(self, uri, id):
-    weight = self.calculate_vote_weight()
+    weight = self.calculate_vote_weight(id)
     print("\nvoting '{}' with weight of {}...".format(uri,weight))
     self.sendVote(uri,weight,id)

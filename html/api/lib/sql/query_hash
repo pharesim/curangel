@@ -1,0 +1,4 @@
+SELECT
+  hash
+FROM users
+WHERE id=?;

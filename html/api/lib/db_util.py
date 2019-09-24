@@ -56,11 +56,6 @@ class DBHelper:
         with open(query_path, "r") as f:
             return f.read()
 
-
-class ManaDBHelper(DBHelper):
-    def _setup(self):
-        self.cine_mana_table()
-
     def query_user_id(self, curator):
         cursor = self.conn.cursor()
         query = self._load("query_user_id")
@@ -69,6 +64,11 @@ class ManaDBHelper(DBHelper):
             raise NoSuchCuratorError(curator)
         else:
             return row["id"]
+
+
+class ManaDBHelper(DBHelper):
+    def _setup(self):
+        self.cine_mana_table()
 
     def cine_mana_table(self):
         cursor = self.conn.cursor()
@@ -136,3 +136,26 @@ class QueueDBHelper(DBHelper):
         cursor.execute(query)
         row = cursor.fetchone()
         return row[0]
+
+
+class AccountDBHelper(DBHelper):
+    def _setup(self):
+        pass
+
+    def query_permissions(self, username):
+        user_id = self.query_user_id(username)
+        cursor = self.conn.cursor()
+        query = self._load("query_permissions")
+        cursor.execute(query, [user_id])
+        row = cursor.fetchone()
+        if row is not None:
+            return row["admin"], row["curator"]
+
+    def query_hash(self, username):
+        user_id = self.query_user_id(username)
+        cursor = self.conn.cursor()
+        query = self._load("query_hash")
+        cursor.execute(query, [user_id])
+        row = cursor.fetchone()
+        if row is not None:
+            return row["hash"]

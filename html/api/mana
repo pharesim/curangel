@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+# -*- coding: UTF-8 -*-
+
+import cgi
+
+from lib import api
+from lib import errorHandler
+from lib.errors import CurangelError
+from lib.account_util import Account
+
+
+def get_mana(account):
+    mana = account.mana.value
+    stamina = account.stamina.value
+    step = account.stamina.step
+    return {"mana": mana,
+            "stamina": {"step": step,
+                        "value": stamina}}
+
+
+def main(username, userhash, account):
+    requester = Account(username)
+    requester.login(userhash)
+    if username == account:
+        return get_mana(requester)
+    else:
+        target = Account(account)
+        with requester.admin:
+            return get_mana(target)
+
+
+if __name__ == "__main__":
+    form = cgi.FieldStorage()
+    username = form.getvalue('username')
+    userhash = form.getvalue('userhash')
+    account = form.getvalue('account')
+    try:
+        api.output(main(username, userhash, account))
+    except CurangelError as e:
+        errorHandler.throwError(e.fmt())

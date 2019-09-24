@@ -5,9 +5,9 @@ import cgi
 import os
 import uuid
 
-from .lib import db
-from .lib import api
-from .lib import errorHandler
+from lib import db
+from lib import api
+from lib import errorHandler
 
 
 # get and set variables

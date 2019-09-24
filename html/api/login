@@ -5,9 +5,9 @@ import cgi
 
 from steem.steem import Steem
 
-from .lib import db
-from .lib import api
-from .lib import errorHandler
+from lib import db
+from lib import api
+from lib import errorHandler
 
 
 steemd_nodes = [

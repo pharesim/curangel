@@ -9,9 +9,9 @@ import uuid
 from steem.steem import Steem
 from steem.blockchain import Blockchain
 
-from .lib import db
-from .lib import api
-from .lib import errorHandler
+from lib import db
+from lib import api
+from lib import errorHandler
 
 
 steemd_nodes = [

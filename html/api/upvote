@@ -10,9 +10,9 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 from steem.account import Account
 
-from .lib import db
-from .lib import api
-from .lib import errorHandler
+from lib import db
+from lib import api
+from lib import errorHandler
 
 from rate_limit import Enforcer, RateLimitError
 from db_util import QueueDBHelper

@@ -120,7 +120,6 @@ class Voter:
           except NoVoteStrengthError:
             strength = 1
 
-
           diff = weight - (weight / (WEIGHT_FACTOR))
           weight = weight - diff * strength
 

@@ -122,7 +122,7 @@ else:
 
 
     # get queue length
-    db_path = db.config.config.db.file
+    db_path = db.config.db.file
     with QueueDBHelper(db_path) as qdbh:
       queue_length = qdbh.query_queue_length()
 

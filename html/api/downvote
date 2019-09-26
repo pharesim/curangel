@@ -79,6 +79,11 @@ else:
       if vote['voter'] == 'curangel':
         errorHandler.throwError('We already voted on that post.')
 
+    # check if user added that post already
+    result = db.select('downvotes',['id'],{'account':username,'link':post['url']},'id')
+    if len(result) > 0:
+      errorHandler.throwError('You already added this post. Re-adding it would not change anything. If you want to maximize your power on this post, do not add others in this round.')
+
     # check cashout time
     cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
     chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())

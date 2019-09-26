@@ -47,7 +47,7 @@ document.getElementById('checkMana').onclick = function() {
 
 document.getElementById('sendNewUpvote').onclick = function() {
   hideById('sendNewUpvote');
-  showById('sendingUpvote');
+  showById('sendingUpvote',1);
   $.ajax({
     url: "api/upvote",
     data: {
@@ -70,7 +70,7 @@ document.getElementById('sendNewUpvote').onclick = function() {
     }
   }).always(function() {
     hideById('sendingUpvote');
-    showById('sendNewUpvote');
+    showById('sendNewUpvote',1);
   });
 }
 

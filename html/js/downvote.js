@@ -10,7 +10,7 @@ document.getElementById('downvoteForm').onsubmit = function() {
 
 document.getElementById('sendNewDownvote').onclick = function() {
   hideById('sendNewDownvote');
-  showById('sendingDownvote');
+  showById('sendingDownvote',1);
   $.ajax({
     url: "api/downvote",
     data: {
@@ -36,7 +36,7 @@ document.getElementById('sendNewDownvote').onclick = function() {
     }
   }).always(function() {
     hideById('sendingDownvote');
-    showById('sendNewDownvote');
+    showById('sendNewDownvote',1);
   });
 }
 

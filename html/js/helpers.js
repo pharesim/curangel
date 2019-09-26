@@ -11,8 +11,12 @@ function hideByClass(classname) {
   }
 }
 
-function showById(id) {
-  document.getElementById(id).style.display = 'block';
+function showById(id, inline) {
+  if(inline === undefined) {
+    document.getElementById(id).style.display = 'block';
+  } else {
+    document.getElementById(id).style.display = 'inline-block';
+  }
 }
 
 function showByClass(classname) {

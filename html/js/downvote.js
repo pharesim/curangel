@@ -9,6 +9,8 @@ document.getElementById('downvoteForm').onsubmit = function() {
 }
 
 document.getElementById('sendNewDownvote').onclick = function() {
+  hideById('sendNewDownvote');
+  showById('sendingDownvote');
   $.ajax({
     url: "api/downvote",
     data: {
@@ -19,7 +21,7 @@ document.getElementById('sendNewDownvote').onclick = function() {
     },
     type: "POST"
   }).fail(function(){
-    alert('Error submitting post');
+    alert('Error submitting post, please try again');
   }).done(function( data ) {
     if(data['error']) {
       alert(data['error']);
@@ -32,6 +34,9 @@ document.getElementById('sendNewDownvote').onclick = function() {
       setContentById('downvotesTableBody','');
       loadDownvotesTable(data['downvotes']);
     }
+  }).always(function() {
+    hideById('sendingDownvote');
+    showById('sendNewDownvote');
   });
 }
 

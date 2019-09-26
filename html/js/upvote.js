@@ -46,6 +46,8 @@ document.getElementById('checkMana').onclick = function() {
 }
 
 document.getElementById('sendNewUpvote').onclick = function() {
+  hideById('sendNewUpvote');
+  showById('sendingUpvote');
   $.ajax({
     url: "api/upvote",
     data: {
@@ -55,7 +57,7 @@ document.getElementById('sendNewUpvote').onclick = function() {
     },
     type: "POST"
   }).fail(function(){
-    alert('Error submitting post');
+    alert('Error submitting post, please try again');
   }).done(function( data ) {
     if(data['error']) {
       alert(data['error']);
@@ -66,6 +68,9 @@ document.getElementById('sendNewUpvote').onclick = function() {
       setContentById('upvotesTableBody','');
       loadUpvotesTable(data['upvotes']);
     }
+  }).always(function() {
+    hideById('sendingUpvote');
+    showById('sendNewUpvote');
   });
 }
 

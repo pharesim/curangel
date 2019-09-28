@@ -54,14 +54,15 @@ def getDownvotes():
       if len(delegations) == 0 or delegations[0]['delegatee'] != bot:
         db.update('downvotes',{'status': 'undelegated'},{'id':post['id']})
         continue
-      postdata = steem.get_content(post['user'],post['slug'])
-      cashoutts = time.mktime(datetime.datetime.strptime(postdata['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-      chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
-      if cashoutts - chaints < 60*60*12:
-        db.update('downvotes',{'status':'skipped due to payout approaching'},{'id':post['id']})
-        continue
-      account_downvotes = db.select('downvotes',['id'],{'status': 'wait','account':post['account']},'id','3')
-      if len(delegations) > 0 and delegations[0]['delegatee'] == bot:
+      else:
+        postdata = steem.get_content(post['user'],post['slug'])
+        cashoutts = time.mktime(datetime.datetime.strptime(postdata['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+        chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
+        if cashoutts - chaints < 60*60*12:
+          db.update('downvotes',{'status':'skipped due to payout approaching'},{'id':post['id']})
+          continue
+        account_downvotes = db.select('downvotes',['id'],{'status': 'wait','account':post['account']},'id','3')
+
         vesting_shares = float(delegations[0]['vesting_shares'][:-6]) / len(account_downvotes)
         total_shares += vesting_shares
         if post['user']+'/'+post['slug'] in downvotes:

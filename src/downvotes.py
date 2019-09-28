@@ -50,7 +50,6 @@ def getDownvotes():
   if len(pending) > 0:
     total_shares = 0
     for post in pending:
-      delegator = 0
       delegations = steem.get_vesting_delegations(post['account'],bot,1)
       if len(delegations) == 0 or delegations[0]['delegatee'] != bot:
         db.update('downvotes',{'status': 'undelegated'},{'id':post['id']})
@@ -61,7 +60,6 @@ def getDownvotes():
       if cashoutts - chaints < 60*60*12:
         db.update('downvotes',{'status':'skipped due to payout approaching'},{'id':post['id']})
         continue
-      delegations = steem.get_vesting_delegations(post['account'],bot,1)
       account_downvotes = db.select('downvotes',['id'],{'status': 'wait','account':post['account']},'id','3')
       if len(delegations) > 0 and delegations[0]['delegatee'] == bot:
         vesting_shares = float(delegations[0]['vesting_shares'][:-6]) / len(account_downvotes)
@@ -95,7 +93,7 @@ def distributeRest(downvotes):
         distribute_total += weight
     for slug, weight in distribute_rest.items():
       pct = weight*100/distribute_total
-      downvotes[slug] += pct*100/rest
+      downvotes[slug] += pct/100*rest
     return distributeRest(downvotes)
   else:
     return downvotes

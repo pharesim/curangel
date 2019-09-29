@@ -49,6 +49,13 @@ CREATE TABLE downvotes (
   cashout TEXT NOT NULL
 );
 
+CREATE TABLE upvote_notifications (
+  id TEXT PRIMARY KEY,
+  user TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
 CREATE TABLE delegators (
   account TEXT PRIMARY KEY,
   created TIMESTAMP NOT NULL

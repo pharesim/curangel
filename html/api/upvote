@@ -75,7 +75,19 @@ else:
     history = account.get_account_history(-1,2500,filter_by='transfer')
     for h in history:
       if h['to'] in bidbots:
-        errorHandler.throwError('User has used a bid bot recently. Will not add to queue.')
+         notification = ''
+         notified = db.select('upvote_notifications',['user'],{'user':post['author'],'created >':"datetime('now','-7 days')"},'created')
+         if len(notified) < 1:
+           db.insert('upvote_notifications',{'id':uuid.uuid4().hex,'user':post['author'],'reason':'bidbot'})
+           notification = ' User has received a comment.'
+           permlink = ''.join(random.choices(string.digits, k=10))
+           body = "Great work! Your post was selected for curation by one of @curangel's dedicated curators for its contribution to quality!\n<br />"
+           body += "...unfortunately, it had to be excluded from curation because you recently bought a vote from a bid bot."
+           body += "In our efforts to support #newsteem, authors who participate in vote buying are not eligible for our votes.\<br />"
+           body += "But don't worry. It only takes 7 days of not buying votes to be able to receive our vote again, so maybe one of your next posts will make it!\n<br />"
+           body += "Take care and steem on!"
+           steem.commit.post('Re: '+post['title'], body, 'curangel', permlink=permlink, reply_identifier='@'+post['author']+'/'+post['permlink'])
+        errorHandler.throwError('User has used a bid bot recently. Will not add to queue.'+notification)
       last = h['timestamp']
       txts = time.mktime(datetime.datetime.strptime(h['timestamp'], "%Y-%m-%dT%H:%M:%S").timetuple())
       chaints = time.mktime(datetime.datetime.strptime(chaininfo['time'], "%Y-%m-%dT%H:%M:%S").timetuple())

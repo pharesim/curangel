@@ -5,6 +5,8 @@ import cgi
 import time
 import datetime
 import uuid
+import random
+import string
 
 from steem.steem import Steem
 from steem.blockchain import Blockchain

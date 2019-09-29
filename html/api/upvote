@@ -86,7 +86,7 @@ else:
         if len(notified) < 1:
           db.insert('upvote_notifications',{'id':uuid.uuid4().hex,'user':post['author'],'reason':'bidbot'})
           notification = ' User has received a comment.'
-          permlink = ''.join(random.sample(string.digits, k=10))
+          permlink = ''.join(random.sample(string.lowercase, k=10))
           body = "Great work! Your post was selected for curation by one of @curangel's dedicated curators for its contribution to quality!\n<br />"
           body += "...unfortunately, it had to be excluded from curation because you recently bought a vote from a bid bot."
           body += "In our efforts to support #newsteem, authors who participate in vote buying are not eligible for our votes.\n<br />"

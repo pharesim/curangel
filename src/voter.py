@@ -95,6 +95,8 @@ class Voter:
       history = postaccount.get_account_history(-1,2500,filter_by='transfer')
       for h in history:
         if h['to'] in bidbots:
+          if h['to'] == 'minnowbooster' and h['memo'][:4] != 'http':
+            continue
           print("\nskipping '{}' because author bought vote...".format(results[0]['link']))
           self.db.update('upvotes',{'status':'skipped voting due to vote buying'},{'id':results[0]['id']})
           return self.next_in_queue(steem)

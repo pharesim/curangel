@@ -8,6 +8,7 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 
 FULL_VP_RECHARGE_TIME = 432000
+ADDED_VALUE_TRAIL = 150
 
 steemd_nodes = [
   'https://anyx.io',
@@ -42,7 +43,7 @@ def getCurrentVoteValue():
   median = float(median_price['base'][:-4]) / float(median_price['quote'][:-6])
   estimate = rshares / float(reward_fund['recent_claims']) * float(reward_fund['reward_balance'][:-6]) * median * current_power / 100
 
-  return estimate;
+  return estimate + ADDED_VALUE_TRAIL;
 
 def getDownvotes():
   pending = db.select('downvotes',['id','slug','user','account'],{'status': 'wait'},'slug','9999')

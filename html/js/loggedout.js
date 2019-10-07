@@ -73,12 +73,14 @@ function login() {
       if(data['curator'] == 1) {
         showById('upvoteNav');
         if(data['admin'] != 1) {
+          loadUpvote();
           showById('upvote');
         }
       }
       if(data['delegator'] == 1) {
         showById('downvoteNav');
         if(data['admin'] != 1 && data['curator'] != 1) {
+          loadDownvote();
           showById('downvote');
         }
       }

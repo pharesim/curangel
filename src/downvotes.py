@@ -8,7 +8,7 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 
 FULL_VP_RECHARGE_TIME = 432000
-ADDED_VALUE_TRAIL = 150
+ADDED_VALUE_TRAIL = 400
 
 steemd_nodes = [
   'https://anyx.io',

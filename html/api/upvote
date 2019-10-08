@@ -81,7 +81,7 @@ else:
     history = account.get_account_history(-1,2500,filter_by='transfer')
     for h in history:
       if h['to'] in bidbots:
-        if h['to'] == 'minnowbooster' and h['memo'][:4] != 'http':
+        if (h['to'] == 'minnowbooster' or h['to'] == 'tipu') and h['memo'][:4] != 'http':
           continue
         notification = ''
         notified = db.select('upvote_notifications',['user'],{'user':post['author'],'created >':"datetime('now','-7 days')"},'created')

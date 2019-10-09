@@ -4,6 +4,7 @@ import time
 import datetime
 import json
 import rfc3987
+from string import ascii_letters, digits
 
 from db import DB
 
@@ -32,8 +33,11 @@ def getVotedPosts():
 def escape(text):
   escaped = ""
   for character in text:
-    codepoint = ord(character)
-    escaped += "&#{codepoint};".format(**locals())
+    if character not in ascii_letters + digits:
+      codepoint = ord(character)
+      escaped += "&#{codepoint};".format(**locals())
+    else:
+      escaped += character
   return escaped
 
 def getPostContent():

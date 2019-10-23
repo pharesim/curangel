@@ -80,7 +80,7 @@ else:
     account = Account(post['author'],client)
     history = account.get_account_history(-1,2500,filter_by='transfer')
     for h in history:
-      if and h['memo'][:4] == 'http' and h['to'] in bidbots:
+      if h['memo'][:4] == 'http' and h['to'] in bidbots:
         notification = ''
         notified = db.select('upvote_notifications',['user'],{'user':post['author'],'created >':"datetime('now','-7 days')"},'created')
         if len(notified) < 1:

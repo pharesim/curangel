@@ -85,13 +85,15 @@ def getVotesTable(posts):
   last_account = ''
   n = 0
   for post in posts:
-    metadata = json.loads(steem.get_content(post['user'],post['slug'])['json_metadata'])
+    metadata = steem.get_content(post['user'],post['slug'])['json_metadata']
+    if metadata != '':
+      metadata = json.loads(metadata)
 
-    # skip vimm.tv streams
-    if 'app' in metadata:
-     app = metadata['app'].split('/')
-     if app == 'vimm.tv':
-       continue
+      # skip vimm.tv streams
+      if 'app' in metadata:
+        app = metadata['app'].split('/')
+        if app == 'vimm.tv':
+          continue
 
     if post['account'] != last_account:
       n = n + 1

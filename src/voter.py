@@ -15,7 +15,7 @@ from db import DB
 
 
 # Maximum VP allowed.
-MAX_VP = 10000
+MAX_VP = 9990
 
 # Time to recharge VP from zero.
 FULL_VP_RECHARGE_TIME = 432000

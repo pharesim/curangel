@@ -31,6 +31,7 @@ form     = cgi.FieldStorage()
 username = form.getvalue('username')
 userhash = form.getvalue('userhash')
 postlink = form.getvalue('postlink')
+limit    = form.getvalue('limit')
 reason   = form.getvalue('reason')
 deletedv = form.getvalue('deletedownvote')
 
@@ -65,9 +66,9 @@ else:
       errorHandler.throwError('You need to give a reason for the downvote.')
 
     # check if user has more than the limit of posts waiting
-    result = db.select('downvotes',['id'],{'account':username,'status':'wait'},'id')
-    if len(result) > 2:
-      errorHandler.throwError('You already have '+len(result)+' posts waiting to be downvoted. Please wait until those are processed.')
+#    result = db.select('downvotes',['id'],{'account':username,'status':'wait'},'id')
+#    if len(result) > 2:
+#      errorHandler.throwError('You already have '+len(result)+' posts waiting to be downvoted. Please wait until those are processed.')
 
     # check if post is in upvote queue
     result = db.select('upvotes',['account'],{'slug':post['permlink'],'status':'in queue'},'id')
@@ -90,10 +91,16 @@ else:
     if cashoutts - chaints < 60*60*24:
       errorHandler.throwError('Cashout of post in less than 24 hours. Will not add to queue.')
 
+    # check if limit is valid
+    if limit < 10 or limit > 100:
+      errorHandler.throwError('Invalid limit for downvote weight.')
+
+    targetreward = float(post['pending_payout_value'][:-4]) * limit / 100
+
     post_type = 1
     if post['parent_author']:
       post_type = 2
-    db.insert('downvotes',{'id':uuid.uuid4().hex, 'account': username, 'reason': reason, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'wait', 'reward': post['pending_payout_value'], 'cashout': 0})
+    db.insert('downvotes',{'id':uuid.uuid4().hex, 'account': username, 'reason': reason, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'wait', 'reward': post['pending_payout_value'], 'limit': targetreward})
 
   # get downvotes
   downvotes = []

@@ -1,10 +1,21 @@
 <div id="downvote" class="hidden page">
-  <h1>Downvotes happen twice a day at 11 GMT, you can add 3 entries for each event</h1>
+  <h1>Downvotes happen twice a day at 11 GMT</h1>
   <div>
     <h2>Mark a post or comment for downvote</h2>
     <form id="downvoteForm">
       <div class="form-group">
         <input type="text" id="newDownvote" class="form-control" placeholder="full link to post or comment"/>
+      </div>
+      <div class="form-group">
+        Max downvote
+        <select class="form-control" id="newDownvoteLimit">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="75">75</option>
+          <option value="80" selected="selected">80</option>
+          <option value="100">100</option>
+        </select>
       </div>
       <div class="form-group">
         <input type="text" id="newDownvoteReason" class="form-control" placeholder="reason for downvote" />
@@ -25,9 +36,8 @@
           <th>Title</th>
           <th>Type</th>
           <th>Payout</th>
-          <th>Reward</th>
+          <th>Limit</th>
           <th>Status</th>
-          <th>Cashout</th>
           <th>Delete</th>
       </thead>
       <tbody id="downvotesTableBody">

@@ -29,7 +29,7 @@ class Curangel(Thread):
   def wait_for_recharge(self):
     while True:
       current_vp = self.voter.get_current_vp()
-      if current_vp >= 9999:
+      if current_vp >= 9990:
         return
       else:
         t = "voting power at {:0.2f}%; "

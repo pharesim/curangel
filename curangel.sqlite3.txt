@@ -44,9 +44,9 @@ CREATE TABLE downvotes (
   title TEXT NOT NULL,
   type NUMERIC,
   payout TIMESTAMP NOT NULL,
-  status TEXT NOT NULL,
-  reward TEXT NOT NULL,
-  cashout TEXT NOT NULL
+  reward NUMERIC,
+  limit NUMERIC,
+  status TEXT NOT NULL
 );
 
 CREATE TABLE upvote_notifications (

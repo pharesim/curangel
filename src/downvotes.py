@@ -45,8 +45,11 @@ def getCurrentVoteValue():
 
   return estimate + ADDED_VALUE_TRAIL;
 
+def getCurrentMaxWeight():
+  return 2.5
+
 def getDownvotes():
-  pending = db.select('downvotes',['id','slug','user','account'],{'status': 'wait'},'slug','9999')
+  pending = db.select('downvotes',['id','slug','user','account','limit'],{'status': 'wait'},'slug','9999')
   downvotes = {}
   if len(pending) > 0:
     total_shares = 0
@@ -67,73 +70,57 @@ def getDownvotes():
         vesting_shares = float(delegations[0]['vesting_shares'][:-6]) / len(account_downvotes)
         total_shares += vesting_shares
         if post['user']+'/'+post['slug'] in downvotes:
-          downvotes[post['user']+'/'+post['slug']] += vesting_shares
+          downvotes[post['user']+'/'+post['slug']]['shares'] += vesting_shares
+          if post['limit'] < downvotes[post['user']+'/'+post['slug']]['limit']:
+            downvotes[post['user']+'/'+post['slug']]['limit'] = post['limit']
         else:
-          downvotes[post['user']+'/'+post['slug']] = vesting_shares
+          downvotes[post['user']+'/'+post['slug']]['shares'] = vesting_shares
+          downvotes[post['user']+'/'+post['slug']]['limit'] = post['limit']
     for slug, shares in downvotes.items():
-      pct = shares*100/total_shares
-      vote_weight = pct*1.25
-      downvotes[slug] = round(vote_weight,2)
+      s = shares['shares']
+      pct = s*100/total_shares
+      vote_weight = pct*getCurrentMaxWeight()
+      downvotes[slug]['shares'] = round(vote_weight,2)
     downvotes = distributeRest(downvotes)
   return downvotes
-
-def distributeRest(downvotes):
-  notMax = 0
-  rest   = 0
-  distribute_rest  = {}
-  distribute_total = 0
-  for slug, weight in downvotes.items():
-    if weight >= 100:
-      rest += weight - 100
-      downvotes[slug] = 100
-    else:
-      notMax += 1
-  if rest > 0 and notMax > 0:
-    for slug, weight in downvotes.items():
-      if weight < 100:
-        distribute_rest[slug] = weight
-        distribute_total += weight
-    for slug, weight in distribute_rest.items():
-      pct = weight*100/distribute_total
-      downvotes[slug] += pct/100*rest
-    return distributeRest(downvotes)
-  else:
-    return downvotes
 
 def adjustByValue(downvotes, vote_value):
   notMax = 0
   rest   = 0
   total_expected = 0
-  total_pending  = 0
+  total_required = 0
   distribute_rest  = {}
   distribute_total = 0
   for slug, weight in downvotes.items():
     post = slug.split('/')
     post = steem.get_content(post[0],post[1])
     pending = float(post['pending_payout_value'][:-4])
-    total_pending = total_pending + pending
-    expected = weight * vote_value / 10000
-    total_expected = total_expected + expected
-    if expected > pending:
-      new_weight = pending * 10000 / vote_value
-      downvotes[slug] = new_weight
-      rest += weight - new_weight
+    required = pending - weight['limit']
+    if required > 0:
+      total_required = total_required + required
     else:
+      required = 0
+    expected = weight['shares'] * vote_value / 10000
+    total_expected = total_expected + expected
+    if expected > required:
+      new_weight = required * 10000 / vote_value
+      if new_weight > 100:
+        new_weight = 100
+      downvotes[slug]['shares'] = new_weight
+      rest += weight['shares'] - new_weight
+    elif expected < required:
       distribute_rest[slug] = weight
-      distribute_total += weight
+      distribute_total += weight['shares']
       notMax += 1
-  if total_expected > total_pending:
+  if rest > 0 and notMax > 0:
     for slug, weight in distribute_rest.items():
-      pct = weight*100/distribute_total
-      downvotes[slug] += pct*rest/100
-    return distributeRest(downvotes)
-  elif rest > 0 and notMax > 0:
-    for slug, weight in distribute_rest.items():
-      pct = weight*100/distribute_total
-      downvotes[slug] += pct*rest/100
+      pct = weight['shares']*100/distribute_total
+      downvotes[slug]['shares'] += pct*rest/100
+      if downvotes[slug]['shares'] > 100:
+        downvotes[slug]['shares'] = 100
     return adjustByValue(downvotes,vote_value)
   else:
-    return distributeRest(downvotes)
+    return downvotes
 
 def sendVote(slug,weight):
   last_vote_time = steem.get_account(bot)["last_vote_time"]
@@ -156,9 +143,9 @@ def sendVote(slug,weight):
 def downvote():
   downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())
   for slug, weight in downvotes.items():
-    weight = round(weight,2)
-    print('Downvoting '+slug+' with '+str(weight)+'%')
-    sendVote(slug,weight)
+    w = round(weight['shares'],2)
+    print('Downvoting '+slug+' with '+str(w)+'%')
+    sendVote(slug,w)
 
 
 downvote()

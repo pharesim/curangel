@@ -17,6 +17,7 @@ document.getElementById('sendNewDownvote').onclick = function() {
       username: localStorage.username,
       userhash: localStorage.userhash,
       postlink: getValueById('newDownvote'),
+      limit: getValueById('newDownvoteLimit'),
       reason: getValueById('newDownvoteReason')
     },
     type: "POST"

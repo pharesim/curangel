@@ -45,7 +45,7 @@ CREATE TABLE downvotes (
   type NUMERIC,
   payout TIMESTAMP NOT NULL,
   reward NUMERIC,
-  limit NUMERIC,
+  maxi NUMERIC,
   status TEXT NOT NULL
 );
 

@@ -49,7 +49,7 @@ def getCurrentMaxWeight():
   return 2.5
 
 def getDownvotes():
-  pending = db.select('downvotes',['id','slug','user','account','limit'],{'status': 'wait'},'slug','9999')
+  pending = db.select('downvotes',['id','slug','user','account','maxi'],{'status': 'wait'},'slug','9999')
   downvotes = {}
   if len(pending) > 0:
     total_shares = 0
@@ -71,11 +71,11 @@ def getDownvotes():
         total_shares += vesting_shares
         if post['user']+'/'+post['slug'] in downvotes:
           downvotes[post['user']+'/'+post['slug']]['shares'] += vesting_shares
-          if post['limit'] < downvotes[post['user']+'/'+post['slug']]['limit']:
-            downvotes[post['user']+'/'+post['slug']]['limit'] = post['limit']
+          if post['maxi'] < downvotes[post['user']+'/'+post['slug']]['limit']:
+            downvotes[post['user']+'/'+post['slug']]['limit'] = post['maxi']
         else:
           downvotes[post['user']+'/'+post['slug']]['shares'] = vesting_shares
-          downvotes[post['user']+'/'+post['slug']]['limit'] = post['limit']
+          downvotes[post['user']+'/'+post['slug']]['limit'] = post['maxi']
     for slug, shares in downvotes.items():
       s = shares['shares']
       pct = s*100/total_shares

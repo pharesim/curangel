@@ -100,7 +100,7 @@ else:
     post_type = 1
     if post['parent_author']:
       post_type = 2
-    db.insert('downvotes',{'id':uuid.uuid4().hex, 'account': username, 'reason': reason, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'wait', 'reward': post['pending_payout_value'], 'limit': targetreward})
+    db.insert('downvotes',{'id':uuid.uuid4().hex, 'account': username, 'reason': reason, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'wait', 'reward': post['pending_payout_value'], 'maxi': targetreward})
 
   # get downvotes
   downvotes = []

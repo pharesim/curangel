@@ -14,7 +14,7 @@ MONITOR_INTERVAL_SEC = 300
 steemd_nodes = [
   'https://anyx.io',
   'https://api.steemit.com',
-  'https://steemd.minnowsupportproject.org',
+#  'https://steemd.minnowsupportproject.org',
 ]
 
 class Curangel(Thread):

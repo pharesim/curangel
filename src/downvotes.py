@@ -13,7 +13,7 @@ ADDED_VALUE_TRAIL = 10000
 steemd_nodes = [
   'https://anyx.io',
   'https://api.steemit.com',
-  'https://steemd.minnowsupportproject.org',
+#  'https://steemd.minnowsupportproject.org',
 ]
 
 credfile = open("credentials.txt")

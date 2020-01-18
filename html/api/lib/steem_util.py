@@ -2,7 +2,7 @@ import steem.steem
 
 DEFAULT_NODES = ['https://anyx.io',
                  'https://api.steemit.com',
-                 'https://steemd.minnowsupportproject.org']
+#                 'https://steemd.minnowsupportproject.org']
 
 
 class Steem(steem.steem.Steem):

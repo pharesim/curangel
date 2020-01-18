@@ -17,7 +17,7 @@ from lib import errorHandler
 steemd_nodes = [
   'https://anyx.io',
   'https://api.steemit.com',
-  'https://steemd.minnowsupportproject.org',
+#  'https://steemd.minnowsupportproject.org',
 ]
 
 client = Steem(nodes=steemd_nodes)

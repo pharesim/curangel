@@ -35,7 +35,7 @@ WEIGHT_FACTOR = 1.15;
 steemd_nodes = [
   'https://anyx.io',
   'https://api.steemit.com',
-  'https://steemd.minnowsupportproject.org',
+#  'https://steemd.minnowsupportproject.org',
 ]
 
 class Voter:

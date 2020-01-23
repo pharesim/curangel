@@ -99,7 +99,7 @@ else:
     if limit < 10 or limit > 100:
       errorHandler.throwError('Invalid limit for downvote weight.')
 
-    targetreward = round(float(post['pending_payout_value'][:-4]) * limit / 100, 3)
+    targetreward = round(float(post['pending_payout_value'][:-4]) * (100-limit) / 100, 3)
 
     post_type = 1
     if post['parent_author']:

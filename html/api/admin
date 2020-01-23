@@ -97,7 +97,7 @@ else:
 
   # get upvotes
   upvotes = []
-  results = db.select('upvotes',['id','account','created','link','user','category','slug','title','type','payout','status','reward_sp','reward_sbd'],'1=1','created DESC')
+  results = db.select('upvotes',['id','account','created','link','user','category','slug','title','type','payout','status','reward_sp'],'1=1','created DESC')
   for row in results:
     upvotes.append(dict(row))
 
@@ -113,7 +113,7 @@ else:
 
   # get downvotes
   downvotes = []
-  results = db.select('downvotes',['id','created','account','reason','link','user','category','slug','title','type','payout','status'],'1=1','created DESC')
+  results = db.select('downvotes',['id','created','account','reason','link','user','category','slug','title','type','payout','maxi','status'],'1=1','created DESC')
   for row in results:
     downvotes.append(dict(row))
 

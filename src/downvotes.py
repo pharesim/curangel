@@ -80,7 +80,7 @@ def getDownvotes():
       pct = s*100/total_shares
       vote_weight = pct*getCurrentMaxWeight()
       downvotes[slug]['shares'] = round(vote_weight,2)
-    downvotes = adjustByValue(downvotes)
+
   return downvotes
 
 def adjustByValue(downvotes, vote_value):

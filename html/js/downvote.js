@@ -120,9 +120,9 @@ function loadDownvotesTable(downvotes) {
     newcolumn.appendChild(newcontent);
     newrow.appendChild(newcolumn);
 
-    // Reward
+    // Limit
     newcolumn = document.createElement('td');
-    newcontent = document.createTextNode(value.reward);
+    newcontent = document.createTextNode(value.maxi);
     newcolumn.appendChild(newcontent);
     newrow.appendChild(newcolumn);
 

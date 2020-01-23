@@ -132,13 +132,13 @@ def sendVote(slug,weight):
   try:
     steem.commit.vote('@'+slug,float(weight)*-1,bot)
   except:
-    time.sleep(3)
+    time.sleep(10)
     sendVote(slug,weight)
   else:
     slug = slug.split('/')
     db.update('downvotes',{'status':'downvoted with '+str(weight)+'%'},{'user':slug[0],'slug':slug[1]})
     while last_vote_time == steem.get_account(bot)["last_vote_time"]:
-      time.sleep(1)
+      time.sleep(3)
     return True
 
 def downvote():

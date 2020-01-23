@@ -31,7 +31,7 @@ form     = cgi.FieldStorage()
 username = form.getvalue('username')
 userhash = form.getvalue('userhash')
 postlink = form.getvalue('postlink')
-limit    = form.getvalue('limit')
+limit    = int(form.getvalue('limit'))
 reason   = form.getvalue('reason')
 deletedv = form.getvalue('deletedownvote')
 

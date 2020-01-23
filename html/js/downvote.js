@@ -132,12 +132,6 @@ function loadDownvotesTable(downvotes) {
     newcolumn.appendChild(newcontent);
     newrow.appendChild(newcolumn);
 
-    // Cashout
-    newcolumn = document.createElement('td');
-    newcontent = document.createTextNode(value.cashout);
-    newcolumn.appendChild(newcontent);
-    newrow.appendChild(newcolumn);
-
     // Delete
     newcolumn = document.createElement('td');
     if(value.status == 'wait') {

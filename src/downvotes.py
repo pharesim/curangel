@@ -74,8 +74,7 @@ def getDownvotes():
           if post['maxi'] < downvotes[post['user']+'/'+post['slug']]['limit']:
             downvotes[post['user']+'/'+post['slug']]['limit'] = post['maxi']
         else:
-          downvotes[post['user']+'/'+post['slug']]['shares'] = vesting_shares
-          downvotes[post['user']+'/'+post['slug']]['limit'] = post['maxi']
+          downvotes[post['user']+'/'+post['slug']] = {'shares': vesting_shares, 'limit': post['maxi']}
     for slug, shares in downvotes.items():
       s = shares['shares']
       pct = s*100/total_shares

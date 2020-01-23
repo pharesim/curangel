@@ -79,6 +79,8 @@ def getDownvotes():
       s = shares['shares']
       pct = s*100/total_shares
       vote_weight = pct*getCurrentMaxWeight()
+      if vote_weight > 100:
+        vote_weight = 100
       downvotes[slug]['shares'] = round(vote_weight,2)
 
   return downvotes

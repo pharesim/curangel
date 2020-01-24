@@ -79,11 +79,29 @@ def getDownvotes():
       s = shares['shares']
       pct = s*100/total_shares
       vote_weight = pct*getCurrentMaxWeight()
-      if vote_weight > 100:
-        vote_weight = 100
       downvotes[slug]['shares'] = round(vote_weight,2)
 
-  return downvotes
+  return distributeRest(downvotes)
+
+def distributeRest(downvotes):
+  notMax = 0
+  rest = 0
+  distribute_rest = {}
+
+  for slug, weight in downvotes.items():
+    if weight['shares'] > 100:
+      rest += weight['shares'] - 100
+      downvotes[slug]['shares'] = 100
+    elif weight['shares'] < 100:
+      distribute_rest[slug] = weight
+      notMax += 1
+
+  if rest > 0 and notMax > 0:
+    for slug, weight in distribute_rest.items():
+      downvotes[slug]['shares'] += rest/notMax
+    return distributeRest(downvotes)
+  else:
+    return downvotes
 
 def adjustByValue(downvotes, vote_value):
   notMax = 0
@@ -109,7 +127,7 @@ def adjustByValue(downvotes, vote_value):
         new_weight = 100
       downvotes[slug]['shares'] = new_weight
       rest += weight['shares'] - new_weight
-    elif expected < required:
+    elif expected <= required:
       distribute_rest[slug] = weight
       distribute_total += weight['shares']
       notMax += 1

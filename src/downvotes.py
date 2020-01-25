@@ -24,6 +24,8 @@ db    = DB('curangel.sqlite3')
 steem = Steem(keys=[key],nodes=steemd_nodes)
 chain = Blockchain(steem)
 
+doadjust = 1
+
 def getCurrentVoteValue():
   account = steem.get_account(bot)
   total_vests = float(account['received_vesting_shares'][:-6]) + float(account['vesting_shares'][:-6])
@@ -116,7 +118,7 @@ def adjustByValue(downvotes, vote_value):
     pending = float(post['pending_payout_value'][:-4])
     required = pending - weight['limit']
     if required > 0:
-      total_required = total_required + required
+      total_required += required
     else:
       required = 0
     expected = weight['shares'] * vote_value / 10000
@@ -125,18 +127,27 @@ def adjustByValue(downvotes, vote_value):
       new_weight = required * 10000 / vote_value
       if new_weight > 100:
         new_weight = 100
-      downvotes[slug]['shares'] = new_weight
       rest += weight['shares'] - new_weight
+      downvotes[slug]['shares'] = new_weight
     elif expected <= required:
       distribute_rest[slug] = weight
       distribute_total += weight['shares']
       notMax += 1
+  adjust = 0
   if rest > 0 and notMax > 0:
     for slug, weight in distribute_rest.items():
       pct = weight['shares']*100/distribute_total
       downvotes[slug]['shares'] += pct*rest/100
       if downvotes[slug]['shares'] > 100:
-        downvotes[slug]['shares'] = 100
+        if doadjust == 1:
+          adjust = 1
+        else:
+          downvotes[slug]['shares'] = 100
+
+    if adjust == 1:
+      doadjust = 0
+      downvotes = distributeRest(downvotes)
+
     return adjustByValue(downvotes,vote_value)
   else:
     return downvotes

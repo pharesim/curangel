@@ -24,8 +24,6 @@ db    = DB('curangel.sqlite3')
 steem = Steem(keys=[key],nodes=steemd_nodes)
 chain = Blockchain(steem)
 
-doadjust = 1
-
 def getCurrentVoteValue():
   account = steem.get_account(bot)
   total_vests = float(account['received_vesting_shares'][:-6]) + float(account['vesting_shares'][:-6])
@@ -124,7 +122,7 @@ def distributeRest(downvotes):
   else:
     return downvotes
 
-def adjustByValue(downvotes, vote_value):
+def adjustByValue(downvotes, vote_value, doadjust):
   notMax = 0
   rest   = 0
   total_expected = 0
@@ -164,10 +162,9 @@ def adjustByValue(downvotes, vote_value):
           downvotes[slug]['shares'] = 100
 
     if adjust == 1:
-      doadjust = 0
       downvotes = distributeRest(downvotes)
 
-    return adjustByValue(downvotes,vote_value)
+    return adjustByValue(downvotes,vote_value,0)
   else:
     return downvotes
 
@@ -190,7 +187,7 @@ def sendVote(slug,weight):
     return True
 
 def downvote():
-  downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())
+  downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue(), 1)
   for slug, weight in downvotes.items():
     w = round(weight['shares'],2)
     print('Downvoting '+slug+' with '+str(w)+'%')

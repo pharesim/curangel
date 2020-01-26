@@ -7,8 +7,6 @@ from db import DB
 from steem.steem import Steem
 from steem.blockchain import Blockchain
 
-from pprint import pprint
-
 FULL_VP_RECHARGE_TIME = 432000
 ADDED_VALUE_TRAIL = 2500
 
@@ -190,7 +188,6 @@ def sendVote(slug,weight):
     return True
 
 def downvote():
-  getCurrentMaxWeight()
   downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())
   for slug, weight in downvotes.items():
     w = round(weight['shares'],2)

@@ -175,7 +175,7 @@ def downvote():
   for slug, weight in downvotes.items():
     w = round(weight['shares'],2)
     print('Downvoting '+slug+' with '+str(w)+'%')
-#    sendVote(slug,w)
+    sendVote(slug,w)
 
 
 downvote()

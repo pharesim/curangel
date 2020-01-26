@@ -7,6 +7,8 @@ from db import DB
 from steem.steem import Steem
 from steem.blockchain import Blockchain
 
+from pprint import pprint
+
 FULL_VP_RECHARGE_TIME = 432000
 ADDED_VALUE_TRAIL = 2500
 
@@ -48,7 +50,23 @@ def getCurrentVoteValue():
   return estimate + ADDED_VALUE_TRAIL;
 
 def getCurrentMaxWeight():
-  return 2.5
+  account = steem.get_account(bot)
+  shares = float(account['vesting_shares'][:-6]) + float(account['received_vesting_shares'][:-6]) - float(account['vesting_withdraw_rate'][:-6])
+  dvpool = shares * 1000000 / 4
+  timestamp_fmt = "%Y-%m-%dT%H:%M:%S"
+  base_time = datetime.datetime.strptime(account["last_vote_time"], timestamp_fmt)
+  since_vote = (datetime.datetime.utcnow() - base_time).total_seconds()
+  vp_per_second = 1 / (432000 / dvpool)
+  current_power = since_vote * vp_per_second + int(account['downvote_manabar']['current_mana'])
+  percent = current_power * 100 / dvpool
+  if percent > 60:
+    return 2.5
+  elif percent > 28:
+    return 2
+  elif percent > 16:
+    return 1.5
+  else:
+    return 1.25
 
 def getDownvotes():
   pending = db.select('downvotes',['id','slug','user','account','maxi'],{'status': 'wait'},'slug','9999')
@@ -77,10 +95,11 @@ def getDownvotes():
             downvotes[post['user']+'/'+post['slug']]['limit'] = post['maxi']
         else:
           downvotes[post['user']+'/'+post['slug']] = {'shares': vesting_shares, 'limit': post['maxi']}
+    max_weight = getCurrentMaxWeight()
     for slug, shares in downvotes.items():
       s = shares['shares']
       pct = s*100/total_shares
-      vote_weight = pct*getCurrentMaxWeight()
+      vote_weight = pct*max_weight
       downvotes[slug]['shares'] = round(vote_weight,2)
 
   return distributeRest(downvotes)
@@ -171,6 +190,7 @@ def sendVote(slug,weight):
     return True
 
 def downvote():
+  getCurrentMaxWeight()
   downvotes = adjustByValue(getDownvotes(), getCurrentVoteValue())
   for slug, weight in downvotes.items():
     w = round(weight['shares'],2)

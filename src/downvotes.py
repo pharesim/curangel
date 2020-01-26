@@ -57,7 +57,9 @@ def getCurrentMaxWeight():
   vp_per_second = 1 / (432000 / dvpool)
   current_power = since_vote * vp_per_second + int(account['downvote_manabar']['current_mana'])
   percent = current_power * 100 / dvpool
-  if percent > 60:
+  if percent > 95:
+    return 5
+  elif percent > 60:
     return 2.5
   elif percent > 28:
     return 2

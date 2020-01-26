@@ -8,7 +8,7 @@ from steem.steem import Steem
 from steem.blockchain import Blockchain
 
 FULL_VP_RECHARGE_TIME = 432000
-ADDED_VALUE_TRAIL = 1290
+ADDED_VALUE_TRAIL = 25
 
 steemd_nodes = [
   'https://anyx.io',
@@ -175,7 +175,7 @@ def downvote():
   for slug, weight in downvotes.items():
     w = round(weight['shares'],2)
     print('Downvoting '+slug+' with '+str(w)+'%')
-    sendVote(slug,w)
+#    sendVote(slug,w)
 
 
 downvote()

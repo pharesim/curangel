@@ -146,7 +146,7 @@ def adjustByValue(downvotes, vote_value, doadjust):
         new_weight = 100
       rest += weight['shares'] - new_weight
       downvotes[slug]['shares'] = new_weight
-    elif expected <= required:
+    elif expected < required:
       distribute_rest[slug] = weight
       distribute_total += weight['shares']
       notMax += 1

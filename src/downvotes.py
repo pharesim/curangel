@@ -7,7 +7,6 @@ from db import DB
 from steem.steem import Steem
 from steem.blockchain import Blockchain
 
-FULL_VP_RECHARGE_TIME = 432000
 ADDED_VALUE_TRAIL = 3130
 
 steemd_nodes = [
@@ -28,20 +27,11 @@ def getCurrentVoteValue():
   account = steem.get_account(bot)
   total_vests = float(account['received_vesting_shares'][:-6]) + float(account['vesting_shares'][:-6])
   base_mana = int(total_vests*1000000)
-  downvote_mana = base_mana / 4
-  base_vp = int(account['downvote_manabar']['current_mana'])*10000/downvote_mana
-  timestamp_fmt = "%Y-%m-%dT%H:%M:%S"
-  base_time = datetime.datetime.strptime(account["last_vote_time"], timestamp_fmt)
-  since_vote = (datetime.datetime.utcnow() - base_time).total_seconds()
-  VP_TICK_SECONDS = FULL_VP_RECHARGE_TIME / 10000
-  vp_per_second = 1 / VP_TICK_SECONDS
-  current_power = int(since_vote * vp_per_second + base_vp)
-
   reward_fund = steem.get_reward_fund('post')
   median_price = steem.get_current_median_history_price()
   rshares = base_mana * 0.02
   median = float(median_price['base'][:-4]) / float(median_price['quote'][:-6])
-  estimate = rshares / float(reward_fund['recent_claims']) * float(reward_fund['reward_balance'][:-6]) * median * current_power / 100
+  estimate = rshares / float(reward_fund['recent_claims']) * float(reward_fund['reward_balance'][:-6]) * median * 100
 
   return estimate + ADDED_VALUE_TRAIL;
 

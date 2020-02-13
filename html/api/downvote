@@ -23,6 +23,11 @@ steemd_nodes = [
 client = Steem(nodes=steemd_nodes)
 chain = Blockchain(client)
 
+# blacklist
+blacklist = {
+  'ericet':'This is not a tool for your personal vendetta.'
+}
+
 # output variable
 data = {}
 
@@ -68,6 +73,10 @@ else:
     # check if reason was given
     if not reason:
       errorHandler.throwError('You need to give a reason for the downvote.')
+
+    # check blacklist
+    if username in blacklist:
+      errorHandler.throwError('You are blocked. '+blacklist[username])
 
     # check if user has more than the limit of posts waiting
 #    result = db.select('downvotes',['id'],{'account':username,'status':'wait'},'id')

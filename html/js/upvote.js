@@ -155,7 +155,7 @@ function loadUpvotesTable(upvotes) {
 
     // Reward
     newcolumn = document.createElement('td');
-    newcontent = document.createTextNode(value.reward_sp+' SP');
+    newcontent = document.createTextNode(value.reward_sp+' HP');
     newcolumn.appendChild(newcontent);
     newrow.appendChild(newcolumn);
 

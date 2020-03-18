@@ -56,18 +56,18 @@ def getRewards():
           db.delete('delegators',{'account':r['delegator']})
     else:
       vests = float(r['reward'][:-6])
-      sp = round((vests / 1000000 * steem_per_mvests),3)
+      hp = round((vests / 1000000 * steem_per_mvests),3)
       vote = db.select('upvotes',['id','account'],{'user':r['comment_author'],'slug':r['comment_permlink'],'status LIKE':'voted%'},'vote_time',1)
       if len(vote) > 0:
         if 'delegators' in rewards:
-          rewards['delegators'] = rewards['delegators'] + (sp*0.8)
+          rewards['delegators'] = rewards['delegators'] + (hp*0.8)
         else:
-          rewards['delegators'] = sp*0.8
+          rewards['delegators'] = hp*0.8
         if vote[0]['account'] in rewards:
-          rewards[vote[0]['account']] = rewards[vote[0]['account']] + (sp*0.2)
+          rewards[vote[0]['account']] = rewards[vote[0]['account']] + (hp*0.2)
         else:
-          rewards[vote[0]['account']] = (sp*0.2)
-        db.update('upvotes',{'reward_sp':str(sp)},{'id':vote[0]['id']})
+          rewards[vote[0]['account']] = (hp*0.2)
+        db.update('upvotes',{'reward_sp':str(hp)},{'id':vote[0]['id']})
 
   return rewards
 

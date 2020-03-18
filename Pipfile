@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-steem = "*"
+hive = "*"
 rfc3987 = "*"
 pyyaml = "*"
 munch = "*"

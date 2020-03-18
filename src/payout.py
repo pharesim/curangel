@@ -6,15 +6,14 @@ from time import sleep
 
 from db import DB
 
-from steem.steem import Steem
-from steem.account import Account
-from steem.converter import Converter
-from steem.blockchain import Blockchain
+from hive.hive import Hive
+from hive.account import Account
+from hive.converter import Converter
+from hive.blockchain import Blockchain
 
-steemd_nodes = [
-  'https://anyx.io',
-  'https://api.steemit.com',
-#  'https://steemd.minnowsupportproject.org',
+hived_nodes = [
+#  'https://anyx.io',
+  'https://api.hive.blog',
 ]
 
 credfile = open("credentials.txt")
@@ -23,15 +22,15 @@ postkey = credfile.readline().strip()
 key = credfile.readline().strip()
 
 db    = DB('curangel.sqlite3')
-steem = Steem(keys=[key],nodes=steemd_nodes)
-chain = Blockchain(steem)
-converter = Converter(steem)
-account = Account(bot,steem)
+client = Hive(keys=[key],nodes=hived_nodes)
+chain = Blockchain(client)
+converter = Converter(client)
+account = Account(bot,client)
 
 def getRewards():
   rewards = {}
   last_block = db.select('last_check',['rewards_block'],'1=1','rewards_block',1)[0]['rewards_block']
-  steem_per_mvests = converter.steem_per_mvests()
+  hive_per_mvests = converter.hive_per_mvests()
   received = account.get_account_history(-1,2500,filter_by=['curation_reward','delegate_vesting_shares'])
   i = 0
   for r in received:
@@ -56,7 +55,7 @@ def getRewards():
           db.delete('delegators',{'account':r['delegator']})
     else:
       vests = float(r['reward'][:-6])
-      hp = round((vests / 1000000 * steem_per_mvests),3)
+      hp = round((vests / 1000000 * hive_per_mvests),3)
       vote = db.select('upvotes',['id','account'],{'user':r['comment_author'],'slug':r['comment_permlink'],'status LIKE':'voted%'},'vote_time',1)
       if len(vote) > 0:
         if 'delegators' in rewards:
@@ -73,14 +72,14 @@ def getRewards():
 
 def getDelegators():
   delegators = {}
-  total_delegations = float(steem.get_account(bot)['vesting_shares'][:-6])
+  total_delegations = float(client.get_account(bot)['vesting_shares'][:-6])
   delegations = db.select('delegators',['account','created'],"1=1",'account',9999)
   for delegator in delegations:
     created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
     now = datetime.utcnow()
     duration = now - created
     if duration.days >= 1:
-      delegation = steem.get_vesting_delegations(delegator['account'],bot,1)
+      delegation = client.get_vesting_delegations(delegator['account'],bot,1)
       if len(delegation) > 0 and delegation[0]['delegatee'] == bot:
         vesting_shares = float(delegation[0]['vesting_shares'][:-6])
         total_delegations = total_delegations + vesting_shares
@@ -109,18 +108,18 @@ def assignRewards(rewards,delegators):
 def payout():
   rewards = db.select('rewards',['account','sp'],'1=1','account',9999)
   for reward in rewards:
-    balance = float(steem.get_account(bot)['balance'][:-6])
+    balance = float(client.get_account(bot)['balance'][:-6])
     print('Current balance: '+str(balance))
     amount = math.floor(reward['sp']*1000)/1000
     print('Next: '+str(amount)+' for '+reward['account'])
     if amount >= 0.001 and balance >= amount:
       try:
-        steem.transfer(reward['account'], amount, 'STEEM', 'Thank you for being a part of @curangel!', bot)
+        client.transfer(reward['account'], amount, 'STEEM', 'Thank you for being a part of @curangel!', bot)
         print('Sending transfer of '+str(amount)+' STEEM to '+reward['account'])
       except:
         pass
       else:
-        while float(steem.get_account(bot)['balance'][:-6]) == balance:
+        while float(client.get_account(bot)['balance'][:-6]) == balance:
           print('Waiting for transfer...')
           sleep(3)
         db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
@@ -128,4 +127,4 @@ def payout():
 
 assignRewards(getRewards(),getDelegators())
 payout()
-steem.claim_reward_balance(account=bot)
+client.claim_reward_balance(account=bot)

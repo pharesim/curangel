@@ -1,11 +1,12 @@
-import steem.steem
+import hive.hive
 
-DEFAULT_NODES = ['https://anyx.io',
-                 'https://api.steemit.com',
-                 'https://steemd.minnowsupportproject.org']
+DEFAULT_NODES = [
+#  'https://anyx.io',
+  'https://api.hive.blog',
+]
 
 
-class Steem(steem.steem.Steem):
+class Hive(hive.hive.Hive):
     def __init__(self, **kwargs):
         if "nodes" in kwargs:
             nodes = kwargs["nodes"]

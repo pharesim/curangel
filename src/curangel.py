@@ -4,24 +4,23 @@ from threading import Thread
 from time import sleep, time
 from traceback import format_exc
 
-from steem.steem import Steem
+from hive.hive import Hive
 
 from voter import Voter
 
 # Print status at least once every this many seconds.
 MONITOR_INTERVAL_SEC = 300
 
-steemd_nodes = [
-  'https://anyx.io',
-  'https://api.steemit.com',
-#  'https://steemd.minnowsupportproject.org',
+hived_nodes = [
+#  'https://anyx.io',
+  'https://api.hive.blog',
 ]
 
 class Curangel(Thread):
   def __init__(self, user, postingKey):
-    self.steem = Steem(keys=[postingKey],nodes=steemd_nodes)
+    self.client = Hive(keys=[postingKey],nodes=hived_nodes)
     self.user = user
-    self.voter = Voter(self.steem, user)
+    self.voter = Voter(self.client, user)
     self.last_update_duration = 0
     super().__init__(None)
     self.daemon = True
@@ -49,7 +48,7 @@ class Curangel(Thread):
     while True:
       try:
         self.wait_for_recharge()
-        uri, id = self.voter.next_in_queue(self.steem)
+        uri, id = self.voter.next_in_queue(self.client)
         if uri is False:
           print("\nqueue is empty. Sleeping for a minute.")
           sleep(60)

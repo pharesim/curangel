@@ -4,15 +4,14 @@ import time
 import datetime
 from db import DB
 
-from steem.steem import Steem
-from steem.blockchain import Blockchain
+from hive.hive import Hive
+from hive.blockchain import Blockchain
 
 ADDED_VALUE_TRAIL = 3130
 
-steemd_nodes = [
-  'https://anyx.io',
-  'https://api.steemit.com',
-#  'https://steemd.minnowsupportproject.org',
+hived_nodes = [
+#  'https://anyx.io',
+  'https://api.hive.blog',
 ]
 
 credfile = open("credentials.txt")
@@ -20,15 +19,15 @@ bot = credfile.readline().strip()
 key = credfile.readline().strip()
 
 db    = DB('curangel.sqlite3')
-steem = Steem(keys=[key],nodes=steemd_nodes)
-chain = Blockchain(steem)
+client = Hive(keys=[key],nodes=hived_nodes)
+chain = Blockchain(client)
 
 def getCurrentVoteValue():
-  account = steem.get_account(bot)
+  account = client.get_account(bot)
   total_vests = float(account['received_vesting_shares'][:-6]) + float(account['vesting_shares'][:-6])
   base_mana = int(total_vests*1000000)
-  reward_fund = steem.get_reward_fund('post')
-  median_price = steem.get_current_median_history_price()
+  reward_fund = client.get_reward_fund('post')
+  median_price = client.get_current_median_history_price()
   rshares = base_mana * 0.02
   median = float(median_price['base'][:-4]) / float(median_price['quote'][:-6])
   estimate = rshares / float(reward_fund['recent_claims']) * float(reward_fund['reward_balance'][:-6]) * median * 100
@@ -36,7 +35,7 @@ def getCurrentVoteValue():
   return estimate + ADDED_VALUE_TRAIL;
 
 def getCurrentMaxWeight():
-  account = steem.get_account(bot)
+  account = client.get_account(bot)
   shares = float(account['vesting_shares'][:-6]) + float(account['received_vesting_shares'][:-6]) - float(account['vesting_withdraw_rate'][:-6])
   dvpool = shares * 1000000 / 4
   timestamp_fmt = "%Y-%m-%dT%H:%M:%S"
@@ -62,12 +61,12 @@ def getDownvotes():
   if len(pending) > 0:
     total_shares = 0
     for post in pending:
-      delegations = steem.get_vesting_delegations(post['account'],bot,1)
+      delegations = client.get_vesting_delegations(post['account'],bot,1)
       if len(delegations) == 0 or delegations[0]['delegatee'] != bot:
         db.update('downvotes',{'status': 'undelegated'},{'id':post['id']})
         continue
       else:
-        postdata = steem.get_content(post['user'],post['slug'])
+        postdata = client.get_content(post['user'],post['slug'])
         cashoutts = time.mktime(datetime.datetime.strptime(postdata['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
         chaints = time.mktime(datetime.datetime.strptime(chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
         if cashoutts - chaints < 60*60*12:
@@ -121,7 +120,7 @@ def adjustByValue(downvotes, vote_value, doadjust):
   distribute_total = 0
   for slug, weight in downvotes.items():
     post = slug.split('/')
-    post = steem.get_content(post[0],post[1])
+    post = client.get_content(post[0],post[1])
     pending = float(post['pending_payout_value'][:-4])
     required = pending - weight['limit']
     if required > 0:
@@ -159,20 +158,20 @@ def adjustByValue(downvotes, vote_value, doadjust):
     return downvotes
 
 def sendVote(slug,weight):
-  last_vote_time = steem.get_account(bot)["last_vote_time"]
+  last_vote_time = client.get_account(bot)["last_vote_time"]
   if weight == 0:
     slug = slug.split('/')
     db.update('downvotes',{'status':'no vote cast'},{'user':slug[0],'slug':slug[1]})
     return True
   try:
-    steem.commit.vote('@'+slug,float(weight)*-1,bot)
+    client.commit.vote('@'+slug,float(weight)*-1,bot)
   except:
     time.sleep(10)
     sendVote(slug,weight)
   else:
     slug = slug.split('/')
     db.update('downvotes',{'status':'downvoted with '+str(weight)+'%'},{'user':slug[0],'slug':slug[1]})
-    while last_vote_time == steem.get_account(bot)["last_vote_time"]:
+    while last_vote_time == client.get_account(bot)["last_vote_time"]:
       time.sleep(3)
     return True
 

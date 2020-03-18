@@ -29,6 +29,7 @@ CREATE TABLE upvotes (
   payout TIMESTAMP NOT NULL,
   status TEXT NOT NULL,
   vote_time TIMESTAMP,
+  reward_sbd TEXT NOT NULL,
   reward_sp TEXT NOT NULL
 );
 

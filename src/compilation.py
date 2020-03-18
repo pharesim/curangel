@@ -8,13 +8,12 @@ from string import ascii_letters, digits
 
 from db import DB
 
-from steem.steem import Steem
-from steem.blockchain import Blockchain
+from hive.hive import Hive
+from hive.blockchain import Blockchain
 
-steemd_nodes = [
-  'https://anyx.io',
-  'https://api.steemit.com',
-#  'https://steemd.minnowsupportproject.org',
+hived_nodes = [
+#  'https://anyx.io',
+  'https://api.hive.blog',
 ]
 
 credfile = open("credentials.txt")
@@ -22,8 +21,8 @@ user = credfile.readline().strip()
 key = credfile.readline().strip()
 
 db    = DB('curangel.sqlite3')
-steem = Steem(keys=[key],nodes=steemd_nodes)
-chain = Blockchain(steem)
+client = Hive(keys=[key],nodes=hived_nodes)
+chain = Blockchain(client)
 
 mentions = []
 
@@ -85,7 +84,7 @@ def getVotesTable(posts):
   last_account = ''
   n = 0
   for post in posts:
-    metadata = steem.get_content(post['user'],post['slug'])['json_metadata']
+    metadata = client.get_content(post['user'],post['slug'])['json_metadata']
     if metadata != '':
       metadata = json.loads(metadata)
 
@@ -125,9 +124,9 @@ def compilation():
   tags   = ['curangel','curation','palnet','neoxian']
   json_metadata = {'users':mentions,'image':['https://i.imgur.com/NI4bwBx.png']}
 
-  last_post_time = steem.get_account(user)['last_post']
-  steem.commit.post(title, body, author, tags=tags, json_metadata=json_metadata)
-  while last_post_time == steem.get_account(user)['last_post']:
+  last_post_time = client.get_account(user)['last_post']
+  client.commit.post(title, body, author, tags=tags, json_metadata=json_metadata)
+  while last_post_time == client.get_account(user)['last_post']:
     time.sleep(1)
   print(date+' posted!')
 

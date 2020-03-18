@@ -1,7 +1,7 @@
 from .config import config
 from .db_util import AccountDBHelper
 from .errors import CurangelError
-from .steem_util import Steem
+from .hive_util import Hive
 from .rate_limit import Enforcer
 
 
@@ -67,15 +67,15 @@ class Account:
             if is_curator:
                 self.curator.grant()
 
-    def _get_steem(self):
+    def _get_hive(self):
         try:
-            return self.__steem
+            return self.__hive
         except AttributeError:
-            self.__steem = Steem()
-            return self.__steem
+            self.__hive = Hive()
+            return self.__hive
 
     def _update_bars(self):
-        head_block = self._get_steem().head_block_number
+        head_block = self._get_hive().head_block_number
         if self._last_block < head_block:
             enforcer = Enforcer.from_database_user(config.db.file,
                                                    self.name,

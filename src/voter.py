@@ -4,9 +4,9 @@
 import time
 import datetime
 
-from steem.steem import Steem
-from steem.blockchain import Blockchain
-from steem.account import Account
+from hive.hive import Hive
+from hive.blockchain import Blockchain
+from hive.account import Account
 
 import _cgi_path # noqa: F401
 
@@ -32,22 +32,21 @@ MIN_VOTE_WEIGHT = 100;
 # FACTOR FOR VOTE WEIGHT BY QUEUE LENGTH
 WEIGHT_FACTOR = 1.15;
 
-steemd_nodes = [
-  'https://anyx.io',
-  'https://api.steemit.com',
-#  'https://steemd.minnowsupportproject.org',
+hived_nodes = [
+#  'https://anyx.io',
+  'https://api.hive.blog',
 ]
 
 class Voter:
-  def __init__(self, steem, account):
+  def __init__(self, hive, account):
     self.db = DB('curangel.sqlite3')
-    steem = Steem(nodes=steemd_nodes)
-    self.chain = Blockchain(steem)
-    self.steem = steem
+    client = Hive(nodes=hived_nodes)
+    self.chain = Blockchain(client)
+    self.client = client
     self.account = account
 
   def _get_account(self):
-    return self.steem.get_account(self.account)
+    return self.client.get_account(self.account)
 
   def get_current_vp(self, includeWaste=False):
     account = self._get_account()
@@ -69,7 +68,7 @@ class Voter:
       seconds_to_full = 0
     return datetime.timedelta(seconds=seconds_to_full)
 
-  def next_in_queue(self,steem):
+  def next_in_queue(self,client):
     results = self.db.select('upvotes',['id,link'],{'status':'in queue'},'created ASC','1')
     if len(results) > 0:
       link = results[0]['link'].split('#')
@@ -79,7 +78,7 @@ class Voter:
         link = results[0]['link'].split('/')
 
       uri = link[-2][1:]+'/'+link[-1]
-      post = steem.get_content(link[-2][1:],link[-1])
+      post = client.get_content(link[-2][1:],link[-1])
 
       # check payout time
       cashoutts = time.mktime(datetime.datetime.strptime(post['cashout_time'], "%Y-%m-%dT%H:%M:%S").timetuple())
@@ -87,11 +86,11 @@ class Voter:
       if cashoutts - chaints < 60*60*12:
         print("\nskipping '{}' because payout is in less than 12 hours...".format(results[0]['link']))
         self.db.update('upvotes',{'status':'skipped voting due to payout approaching'},{'id':results[0]['id']})
-        return self.next_in_queue(steem)
+        return self.next_in_queue(client)
 
       # check if author used bitbots
       bidbots = ['alfanso','appreciator','bdvoter','bid4joy','boomerang','booster','brandonfrye','buildawhale','edensgarden','inciter','joeparys','leo.voter','luckyvotes','minnowbooster','minnowhelper','minnowvotes','ocdb','onlyprofitbot','postpromoter','profitvote','promobot','qustodian','redlambo','rocky1','sct.voter','smartmarket','smartsteem','sneaky-ninja','sportsvoter','spydo','steemyoda','thebot','therising','tipu','treeplanter','triplea.bot','upmewhale','upmyvote','whalepromobot']
-      postaccount = Account(post['author'],steem)
+      postaccount = Account(post['author'],client)
       history = postaccount.get_account_history(-1,2500,filter_by='transfer')
       for h in history:
         if h['to'] in bidbots:
@@ -99,7 +98,7 @@ class Voter:
             continue
           print("\nskipping '{}' because author bought vote...".format(results[0]['link']))
           self.db.update('upvotes',{'status':'skipped voting due to vote buying'},{'id':results[0]['id']})
-          return self.next_in_queue(steem)
+          return self.next_in_queue(client)
         last = h['timestamp']
         txts = time.mktime(datetime.datetime.strptime(h['timestamp'], "%Y-%m-%dT%H:%M:%S").timetuple())
         chaints = time.mktime(datetime.datetime.strptime(self.chain.info()['time'], "%Y-%m-%dT%H:%M:%S").timetuple())
@@ -136,7 +135,7 @@ class Voter:
   def sendVote(self,uri,weight,id):
     last_vote_time = self._get_account()["last_vote_time"]
     try:
-      self.steem.commit.vote(uri, weight, self.account)
+      self.client.commit.vote(uri, weight, self.account)
     except:
       time.sleep(3)
       self.sendVote(uri,weight,id)

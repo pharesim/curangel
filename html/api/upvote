@@ -8,9 +8,9 @@ import uuid
 import random
 import string
 
-from steem.steem import Steem
-from steem.blockchain import Blockchain
-from steem.account import Account
+from hive.hive import Hive
+from hive.blockchain import Blockchain
+from hive.account import Account
 
 from lib import db
 from lib import api
@@ -20,17 +20,17 @@ from lib.rate_limit import Enforcer, RateLimitError
 from lib.db_util import QueueDBHelper
 
 
-steemd_nodes = [
-  'https://anyx.io',
-  'https://api.steemit.com',
-#  'https://steemd.minnowsupportproject.org',
+hived_nodes = [
+#  'https://anyx.io',
+  'https://api.hive.blog',
 ]
+
 
 credfile = open("../../credentials.txt")
 user = credfile.readline().strip()
 key = credfile.readline().strip()
 
-client = Steem(keys=[key],nodes=steemd_nodes)
+client = Hive(keys=[key],nodes=hived_nodes)
 chain = Blockchain(client)
 
 # output variable
@@ -89,9 +89,9 @@ else:
           permlink = ''.join(random.sample(string.ascii_lowercase, k=10))
           body = "Great work! Your post was selected for curation by one of @curangel's dedicated curators for its contribution to quality!\n<br />"
           body += "...unfortunately, it had to be excluded from curation because you recently bought a vote from a bid bot ("+h['to']+")."
-          body += "In our efforts to support #newsteem, authors who participate in vote buying are not eligible for our votes.\n<br />"
+          body += "Authors who participate in vote buying are not eligible for our votes.\n<br />"
           body += "But don't worry. It only takes 7 days of not buying votes to be able to receive our vote again, so maybe one of your next posts will make it!\n<br />"
-          body += "Take care and steem on!"
+          body += "Take care and hive five!"
           client.commit.post('Re: '+post['title'], body, 'curangel', permlink=permlink, reply_identifier='@'+post['author']+'/'+post['permlink'])
         errorHandler.throwError('User has used a bid bot recently. Will not add to queue.'+notification)
       last = h['timestamp']
@@ -157,7 +157,7 @@ else:
     post_type = 1
     if post['parent_author']:
       post_type = 2
-    db.insert('upvotes',{'id':upvote_id, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'in queue', 'reward_sp': 0})
+    db.insert('upvotes',{'id':upvote_id, 'account':username, 'link': post['url'], 'user': post['author'], 'category': post['category'], 'slug': post['permlink'], 'title': post['title'], 'type': post_type, 'payout': post['cashout_time'], 'status': 'in queue', 'reward_sbd': 0, 'reward_sp': 0})
 
     with QueueDBHelper(db_path, read_only=False) as qdbh:
       qdbh.upsert_upvote_strength(upvote_id, allowed_strength)

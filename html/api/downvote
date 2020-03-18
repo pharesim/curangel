@@ -6,21 +6,20 @@ import time
 import datetime
 import uuid
 
-from steem.steem import Steem
-from steem.blockchain import Blockchain
+from hive.hive import Steem
+from hive.blockchain import Blockchain
 
 from lib import db
 from lib import api
 from lib import errorHandler
 
 
-steemd_nodes = [
-  'https://anyx.io',
-  'https://api.steemit.com',
-#  'https://steemd.minnowsupportproject.org',
+hived_nodes = [
+#  'https://anyx.io',
+  'https://api.hive.blog',
 ]
 
-client = Steem(nodes=steemd_nodes)
+client = Hive(nodes=hived_nodes)
 chain = Blockchain(client)
 
 # blacklist

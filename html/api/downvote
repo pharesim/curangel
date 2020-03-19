@@ -6,7 +6,7 @@ import time
 import datetime
 import uuid
 
-from hive.hive import Steem
+from hive.hive import Hive
 from hive.blockchain import Blockchain
 
 from lib import db

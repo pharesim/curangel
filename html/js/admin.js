@@ -447,7 +447,7 @@ function loadAdminDownvotesTable(downvotes) {
 
     // Limit
     newcolumn = document.createElement('td');
-    newcontent = document.createTextNode(value.maxi+' SBD');
+    newcontent = document.createTextNode(value.maxi+' HBD');
     newcolumn.appendChild(newcontent);
     newrow.appendChild(newcolumn);
 

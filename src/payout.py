@@ -114,8 +114,8 @@ def payout():
     print('Next: '+str(amount)+' for '+reward['account'])
     if amount >= 0.001 and balance >= amount:
       try:
-        client.transfer(reward['account'], amount, 'STEEM', 'Thank you for being a part of @curangel!', bot)
-        print('Sending transfer of '+str(amount)+' STEEM to '+reward['account'])
+        client.transfer(reward['account'], amount, 'HIVE', 'Thank you for being a part of @curangel!', bot)
+        print('Sending transfer of '+str(amount)+' HIVE to '+reward['account'])
       except:
         pass
       else:

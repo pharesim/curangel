@@ -111,7 +111,7 @@ function loadUpvotesTable(upvotes) {
     // User
     newcolumn = document.createElement('td');
     let newlink = document.createElement('a');
-    newlink.setAttribute('href','https://steempeak.com/@'+value.user);
+    newlink.setAttribute('href','https://peakd.com/@'+value.user);
     newlink.setAttribute('target','_blank');
     newcontent = document.createTextNode(value.user);
     newlink.appendChild(newcontent);

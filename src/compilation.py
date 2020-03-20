@@ -53,7 +53,7 @@ def getPostContent():
   content += 'Thank you for your interest in the Curangel project! If you want to help us supporting a wide range of valuable community members and at the same time receive a share of the generated curation rewards, consider sending us a delegation. '
   content += 'By doing so, you will also receive the possibility to help us move rewards from overrated posts back to the pool.'+"\n"
   content += 'For more info, check out our '
-  content += '<a href="https://steempeak.com/curangel/@curangel/announcing-the-curangel-project-curation-serving-everyone">introduction post</a>'+"\n"
+  content += '<a href="https://peakd.com/curangel/@curangel/announcing-the-curangel-project-curation-serving-everyone">introduction post</a>'+"\n"
 
   content += '<img src="https://steemitimages.com/p/2FFvzA2zeqoVJ2SVhDmmumdPfnVEcahMce9nMwwksSDdRvQBSJ15CK7qPMiVRw3fSP6uC94yTyYJg4N59kGHCvx92PC9z477WfXCyNByjLWaj3FvtFQchhjkQVgWi" />'+"\n"
   content += 'Come and join our <a href="https://discord.gg/yrzAZqS">Discord</a>!'+"\n"
@@ -61,7 +61,7 @@ def getPostContent():
   content += 'https://i.imgur.com/1TgMmfZ.png'
 
   content += 'The Curangel project is brought to you by witness <a href="http://pharesim.me">@pharesim</a>'+"\n"
-  content += 'Vote for your witnesses <a href="https://steempeak.com/~witnesses">here</a>'+"\n"
+  content += 'Vote for your witnesses <a href="https://peakd.com/~witnesses">here</a>'+"\n"
 
   content += '</center>'
   return content

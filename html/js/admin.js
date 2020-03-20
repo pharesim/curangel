@@ -197,7 +197,7 @@ function loadAdminUpvotesTable(upvotes) {
     // User
     newcolumn = document.createElement('td');
     let newlink = document.createElement('a');
-    newlink.setAttribute('href','https://steempeak.com/@'+value.user);
+    newlink.setAttribute('href','https://peakd.com/@'+value.user);
     newlink.setAttribute('target','_blank');
     newcontent = document.createTextNode(value.user);
     newlink.appendChild(newcontent);
@@ -207,7 +207,7 @@ function loadAdminUpvotesTable(upvotes) {
     // Title
     newcolumn = document.createElement('td');
     newlink = document.createElement('a');
-    newlink.setAttribute('href','https://steempeak.com'+value.link);
+    newlink.setAttribute('href','https://peakd.com'+value.link);
     newlink.setAttribute('target','_blank');
     if(value.title == '') {
       value.title = 'None';
@@ -317,7 +317,7 @@ function loadAdminBlacklistTable(blacklist) {
     // User
     let newcolumn = document.createElement('td');
     let newlink = document.createElement('a');
-    newlink.setAttribute('href','https://steempeak.com/@'+value.user);
+    newlink.setAttribute('href','https://peakd.com/@'+value.user);
     newlink.setAttribute('target','_blank');
     let newcontent = document.createTextNode(value.user);
     newlink.appendChild(newcontent);
@@ -415,7 +415,7 @@ function loadAdminDownvotesTable(downvotes) {
     // User
     newcolumn = document.createElement('td');
     let newlink = document.createElement('a');
-    newlink.setAttribute('href','https://steempeak.com/@'+value.user);
+    newlink.setAttribute('href','https://peakd.com/@'+value.user);
     newlink.setAttribute('target','_blank');
     newcontent = document.createTextNode(value.user);
     newlink.appendChild(newcontent);

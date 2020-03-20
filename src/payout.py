@@ -108,7 +108,7 @@ def assignRewards(rewards,delegators):
 def payout():
   rewards = db.select('rewards',['account','sp'],'1=1','account',9999)
   for reward in rewards:
-    balance = float(client.get_account(bot)['balance'][:-6])
+    balance = float(client.get_account(bot)['balance'][:-5])
     print('Current balance: '+str(balance))
     amount = math.floor(reward['sp']*1000)/1000
     print('Next: '+str(amount)+' for '+reward['account'])
@@ -119,7 +119,7 @@ def payout():
       except:
         pass
       else:
-        while float(client.get_account(bot)['balance'][:-6]) == balance:
+        while float(client.get_account(bot)['balance'][:-5]) == balance:
           print('Waiting for transfer...')
           sleep(3)
         db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})

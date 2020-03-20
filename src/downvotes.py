@@ -29,8 +29,8 @@ def getCurrentVoteValue():
   reward_fund = client.get_reward_fund('post')
   median_price = client.get_current_median_history_price()
   rshares = base_mana * 0.02
-  median = float(median_price['base'][:-4]) / float(median_price['quote'][:-6])
-  estimate = rshares / float(reward_fund['recent_claims']) * float(reward_fund['reward_balance'][:-6]) * median * 100
+  median = float(median_price['base'][:-4]) / float(median_price['quote'][:-5])
+  estimate = rshares / float(reward_fund['recent_claims']) * float(reward_fund['reward_balance'][:-5]) * median * 100
 
   return estimate + ADDED_VALUE_TRAIL;
 

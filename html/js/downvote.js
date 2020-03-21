@@ -94,7 +94,7 @@ function loadDownvotesTable(downvotes) {
     // Title
     newcolumn = document.createElement('td');
     newlink = document.createElement('a');
-    newlink.setAttribute('href','https://steemit.com'+value.link);
+    newlink.setAttribute('href','https://peakd.com'+value.link);
     newlink.setAttribute('target','_blank');
     if(value.title == '') {
       value.title = 'None';

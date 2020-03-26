@@ -29,6 +29,7 @@ class Curangel(Thread):
     while True:
       current_vp = self.voter.get_current_vp()
       if current_vp >= 9990:
+        print('VP at '+str(current_vp))
         return
       else:
         t = "voting power at {:0.2f}%; "

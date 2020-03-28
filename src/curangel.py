@@ -12,18 +12,16 @@ from voter import Voter
 MONITOR_INTERVAL_SEC = 300
 
 hived_nodes = [
-#  'https://anyx.io',
+  'https://anyx.io',
   'https://api.hive.blog',
 ]
 
-class Curangel(Thread):
+class Curangel():
   def __init__(self, user, postingKey):
     self.client = Hive(keys=[postingKey],nodes=hived_nodes)
     self.user = user
-    self.voter = Voter(self.client, user)
+    self.voter = Voter(self.client, nodes, user)
     self.last_update_duration = 0
-    super().__init__(None)
-    self.daemon = True
 
   def wait_for_recharge(self):
     while True:
@@ -69,5 +67,4 @@ if __name__ == '__main__':
 
   curangel = Curangel(user,key)
 
-  curangel.start()
-  curangel.join()
+  curangel.run()

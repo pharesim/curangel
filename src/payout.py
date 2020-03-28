@@ -12,7 +12,7 @@ from hive.converter import Converter
 from hive.blockchain import Blockchain
 
 hived_nodes = [
-#  'https://anyx.io',
+  'https://anyx.io',
   'https://api.hive.blog',
 ]
 

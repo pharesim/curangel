@@ -32,13 +32,8 @@ MIN_VOTE_WEIGHT = 100;
 # FACTOR FOR VOTE WEIGHT BY QUEUE LENGTH
 WEIGHT_FACTOR = 1.15;
 
-hived_nodes = [
-#  'https://anyx.io',
-  'https://api.hive.blog',
-]
-
 class Voter:
-  def __init__(self, hive, account):
+  def __init__(self, hive, hived_nodes, account):
     self.db = DB('curangel.sqlite3')
     client = Hive(nodes=hived_nodes)
     self.chain = Blockchain(client)

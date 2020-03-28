@@ -121,7 +121,7 @@ def compilation():
   title  = 'Curangel curation compilation '+date
   body   = getPostContent()
   author = user
-  tags   = ['curangel','curation','palnet','neoxian']
+  tags   = ['curangel','curation']
   json_metadata = {'users':mentions,'image':['https://i.imgur.com/NI4bwBx.png']}
 
   last_post_time = client.get_account(user)['last_post']

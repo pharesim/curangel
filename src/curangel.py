@@ -20,7 +20,7 @@ class Curangel():
   def __init__(self, user, postingKey):
     self.client = Hive(keys=[postingKey],nodes=hived_nodes)
     self.user = user
-    self.voter = Voter(self.client, nodes, user)
+    self.voter = Voter(self.client, hived_nodes, user)
     self.last_update_duration = 0
 
   def wait_for_recharge(self):

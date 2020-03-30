@@ -7,6 +7,7 @@ import datetime
 import uuid
 import random
 import string
+import json
 
 from hive.hive import Hive
 from hive.blockchain import Blockchain

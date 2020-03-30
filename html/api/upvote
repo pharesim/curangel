@@ -75,6 +75,14 @@ else:
     if post['author'] == 'curangel':
       errorHandler.throwError('We do not vote for ourselves :D')
 
+    # check if cross post
+    metadata = post['json_metadata']
+    if metadata != '':
+      metadata = json.loads(metadata)
+      if 'tags' in metadata:
+        if 'cross-post' in metadata['tags']:
+          errorHandler.throwError('This is a cross-post. We do not vote on those.')
+
     # check if author used bitbots
     bidbots = ['alfanso','appreciator','bdvoter','bid4joy','boomerang','booster','bot-api','brandonfrye','buildawhale','edensgarden','inciter','joeparys','leo.voter','luckyvotes','minnowbooster','minnowhelper','minnowvotes','ocdb','onlyprofitbot','postpromoter','profitvote','promobot','qustodian','redlambo','rocky1','sct.voter','smartmarket','smartsteem','sneaky-ninja','sportsvoter','spydo','steemyoda','thebot','therising','tipu','treeplanter','triplea.bot','unknownonline','upmewhale','upmyvote','whalepromobot']
     account = Account(post['author'],client)

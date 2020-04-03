@@ -10,7 +10,7 @@ from hive.blockchain import Blockchain
 ADDED_VALUE_TRAIL = 3130
 
 hived_nodes = [
-#  'https://anyx.io',
+  'https://anyx.io',
   'https://api.hive.blog',
 ]
 

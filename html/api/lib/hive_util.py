@@ -1,7 +1,7 @@
 import hive.hive
 
 DEFAULT_NODES = [
-#  'https://anyx.io',
+  'https://anyx.io',
   'https://api.hive.blog',
 ]
 

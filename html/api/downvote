@@ -15,7 +15,7 @@ from lib import errorHandler
 
 
 hived_nodes = [
-#  'https://anyx.io',
+  'https://anyx.io',
   'https://api.hive.blog',
 ]
 

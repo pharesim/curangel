@@ -7,7 +7,7 @@ from db import DB
 from hive.hive import Hive
 from hive.blockchain import Blockchain
 
-ADDED_VALUE_TRAIL = 3130
+ADDED_VALUE_TRAIL = 500
 
 hived_nodes = [
   'https://anyx.io',

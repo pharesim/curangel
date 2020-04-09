@@ -11,6 +11,7 @@ from lib import errorHandler
 
 
 hived_nodes = [
+  'https://api.pharesim.me',
   'https://anyx.io',
   'https://api.hive.blog',
   'https://api.openhive.network',

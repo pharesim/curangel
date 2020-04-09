@@ -22,8 +22,10 @@ from lib.db_util import QueueDBHelper
 
 
 hived_nodes = [
+  'https://api.pharesim.me',
   'https://anyx.io',
   'https://api.hive.blog',
+  'https://api.openhive.network',
 ]
 
 

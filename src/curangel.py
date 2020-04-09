@@ -12,8 +12,10 @@ from voter import Voter
 MONITOR_INTERVAL_SEC = 300
 
 hived_nodes = [
+  'https://api.pharesim.me',
   'https://anyx.io',
   'https://api.hive.blog',
+  'https://api.openhive.network',
 ]
 
 class Curangel():

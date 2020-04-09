@@ -12,8 +12,10 @@ from hive.converter import Converter
 from hive.blockchain import Blockchain
 
 hived_nodes = [
+  'https://api.pharesim.me',
   'https://anyx.io',
   'https://api.hive.blog',
+  'https://api.openhive.network',
 ]
 
 credfile = open("credentials.txt")

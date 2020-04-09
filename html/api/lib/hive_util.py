@@ -1,8 +1,10 @@
 import hive.hive
 
 DEFAULT_NODES = [
+  'https://api.pharesim.me',
   'https://anyx.io',
   'https://api.hive.blog',
+  'https://api.openhive.network',
 ]
 
 

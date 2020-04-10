@@ -27,7 +27,7 @@ class Curangel():
 
   def wait_for_recharge(self):
     while True:
-      time.sleep(3)
+      sleep(3)
       current_vp = self.voter.get_current_vp()
       if current_vp >= 9990:
         print('VP at '+str(current_vp))

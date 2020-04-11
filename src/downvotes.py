@@ -7,7 +7,7 @@ from db import DB
 from hive.hive import Hive
 from hive.blockchain import Blockchain
 
-ADDED_VALUE_TRAIL = 500
+ADDED_VALUE_TRAIL = 600
 
 hived_nodes = [
   'https://api.pharesim.me',

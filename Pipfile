@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-hive = "*"
+hivepy = "*"
 rfc3987 = "*"
 pyyaml = "*"
 munch = "*"
@@ -15,4 +15,4 @@ flake8 = "*"
 autopep8 = "*"
 
 [requires]
-python_version = "3.5"
+python_version = "3"

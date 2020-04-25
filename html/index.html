@@ -43,7 +43,7 @@
                 <a class="nav-link hidden" id="adminNav" href="#">ADMIN</a>
               </li>
               <li class="nav-item hidden loggedIn">
-                <a class="nav-link" id="logoutNav" href="#">LOGOUT</a>
+                <a class="nav-link hidden" id="logoutNav" href="#">LOGOUT</a>
               </li>
               <li class="nav-item loggedOut">
                 <a class="nav-link" id="loginNav" href="#">LOGIN</a>
@@ -58,7 +58,379 @@
     </header>
     <!--/header-->
 
-  <div id="content"></div>
+  <div id="content">
+
+    <!--about-->
+    <!--main-->
+    <main id="about" class="page page-content">
+      <!--section-->
+      <section class="content-block support-block">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <h1>Support <span class="style1">HIVE</span></h1>
+              <h1><span class="style2">Earn</span> interest!</h1>
+
+              <div class="text-wrap">
+                <p>Our experienced group of international curators works around
+                  the clock to support a wide range of authors on HIVE,
+                  motivating them to keep creating quality content. </p>
+
+                <p>The curation rewards paid out by the blockchain generate up
+                  to 10% APR for investors. Your HIVE never leave your wallet,
+                  where they earn another 2-4% staking rewards. That's a total of
+                  ~12% per year, completely passive, and without any counterparty
+                  risk.</p>
+              </div>
+
+              <h3>Everybody wins! What are you waiting for? <a href="https://discord.gg/WKNXyd" target="_blank"><strong>Join us now!</strong></a></h3>
+              <div class="btn-groups">
+                <form>
+                  <input id="delegateNowUser" name="delegator" class="form-group custom-field" placeholder="HIVE username"/>
+                  <input id="delegateNowAmount" name="delegatex" class="form-group custom-field" placeholder="HP to delegate"/>
+                  <a href="#" id="delegateNow" class="solid-btn">Delegate</a>
+              </form>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-center right-col">
+                <h2>Curangel lets you put your HIVE to work,
+                  without actually doing anything.</h2>
+                <div class="img-wrap">
+                  <img src="img/Group 553@2x.png" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!--./section-->
+      <!--section-->
+      <section class="content-block tab-block">
+          <div class="tab-wrap">
+            <div class="container">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" id="mission-tab" data-toggle="tab" href="#mission" role="tab" aria-controls="mission" aria-selected="true">Our Mission</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="delegate-tab" data-toggle="tab" href="#delegatet" role="tab" aria-controls="delegatet" aria-selected="false">Why delegate to us?</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="process-tab" data-toggle="tab" href="#process" role="tab" aria-controls="process" aria-selected="false">What is our curation process?</a>
+              </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+              <div class="tab-pane fade show active" id="mission" role="tabpanel" aria-labelledby="mission-tab">
+                  <p>
+                    Curangel is a curation service rewarding curators and delegators while benefitting the whole Hive community, created by the long term witness
+                    <a href="http://pharesim.me/" target="_blank">pharesim.</a>
+                  </p>
+                  <p>
+                    Our curation is a combination of the hard work of manual curators and automated distribution of the votes of delegated stake.
+                    80% of the curation rewards are given to delegators and 20% to the individual curator.
+                    Besides spreading the value and supporting creators and authors on Hive, the delegated stake is used by approved delegators to fight spam and abuse.
+                  </p>
+              </div>
+              <div class="tab-pane fade" id="delegatet" role="tabpanel" aria-labelledby="delegate-tab">
+                  <p>
+                    We strongly believe that empowering curators of Hive is the key to spreading the value,
+                    providing authors with exposure and motivation as well as increasing the quality of content on Hive.
+                    While whitelists work mostly, they are not abuse proof.
+                    With our curation model, curators ensure that only hand picked original content is is supported and promoted, and at the same time abuse cases are fought
+                    with downvotes from the combined stake of all delegators.</p>
+              </div>
+              <div class="tab-pane fade" id="process" role="tabpanel" aria-labelledby="process-tab">
+                  <p>
+                    Curators look through a variety of communities and tags on Hive for original content from authors and add it to the queue for the Curangel
+                    account to vote once it reaches upvote mana of 100%. The weight of the vote depends on the length of the queue in a way that it will never
+                    take longer than 24 hours for a post to be voted after proposal.
+                  </p>
+                </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!--./section-->
+    </main>
+    <!--/main-->
+    <!--/about-->
+
+    <!--downvote-->
+    <main id="downvote" class="hidden page page-content">
+      <section class="content-block support-block"><div class="container">
+      <h1>Downvotes happen twice a day at 11 GMT</h1>
+      <div>
+        <h2>Mark a post or comment for downvote</h2>
+        <p>You can submit as many posts as you want. The weight for a downvote depends on the amount of other submissions and the weight of your delegation.
+        The percentage you select is the absolute maximum the post will go down (except in certain circumstances you can't influence).</p>
+        <form id="downvoteForm">
+          <div class="form-group">
+            <input type="text" id="newDownvote" class="form-control" placeholder="full link to post or comment"/>
+          </div>
+          <div class="form-group">
+            Max downvote
+            <select class="form-control" id="newDownvoteLimit">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="80" selected="selected">80</option>
+              <option value="99">99</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <input type="text" id="newDownvoteReason" class="form-control" placeholder="reason for downvote" />
+          </div>
+          <button class="btn" id="sendNewDownvote">Send</button>
+          <button class="btn hidden" id="sendingDownvote">Sending...</button>
+        </form>
+      </div>
+      <br />
+      <div class="table-responsive">
+        <h2>History of your downvotes</h2>
+        <table class="table table-hover table-sm" id="downvotesTable">
+          <thead class="thead-dark">
+            <tr>
+              <th>Date</th>
+              <th>Reason</th>
+              <th>User</th>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Payout</th>
+              <th>Limit</th>
+              <th>Status</th>
+              <th>Delete</th>
+          </thead>
+          <tbody id="downvotesTableBody">
+
+          </tbody>
+        </table>
+      </div>
+    </div></section></main>
+    <!--/downvote-->
+
+    <!--upvote-->
+    <main id="upvote" class="hidden page page-content">
+      <section class="content-block support-block"><div class="container">
+      <div>
+        <h2>Suggest a post or comment to upvote</h2>
+        <form id="upvoteForm">
+          <div class="form-group">
+            <input type="text" id="newUpvote" class="form-control" placeholder="full link to post or comment"/>
+          </div>
+          <button class="btn" id="sendNewUpvote">Send</button>
+          <button class="btn hidden" id="sendingUpvote">Sending...</button>
+          <button class="btn" id="checkMana">Check Mana</button>
+        </form>
+      </div>
+      <br />
+      <div class="table-responsive">
+        <h2>History of your suggestions</h2>
+        <table class="table table-hover table-sm" id="upvotesTable">
+          <thead class="thead-dark">
+            <tr>
+              <th>Date</th>
+              <th>User</th>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Payout</th>
+              <th>Status</th>
+              <th>Reward</th>
+              <th>Delete</th>
+          </thead>
+          <tbody id="upvotesTableBody">
+
+          </tbody>
+        </table>
+      </div>
+    </div></section></main>
+    <!--/upvote-->
+
+    <!--admin-->
+    <main id="admin" class="hidden page page-content">
+      <section class="content-block support-block"><div class="container">
+      <h1>Curangel administration interface</h1>
+        <div class="accordion" id="admin-accordion">
+          <div class="card">
+            <div class="card-header" id="admin-accordion-headingThree">
+              <h2 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#admin-accordion-collapseThree" aria-expanded="true" aria-controls="admin-accordion-collapseThree">
+                  Queue
+                </button>
+              </h2>
+            </div>
+            <div id="admin-accordion-collapseThree" class="collapse" aria-labelledby="admin-accordion-headingThree" data-parent="#admin-accordion">
+              <div class="card-body table-responsive">
+                <table class="table table-hover table-sm" id="adminUpvotesTable">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th>Date</th>
+                      <th>Account</th>
+                      <th>User</th>
+                      <th>Title</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Delete</th>
+                  </thead>
+                  <tbody id="adminUpvotesTableBody">
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="admin-accordion-headingOne">
+              <h2 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#admin-accordion-collapseOne" aria-expanded="true" aria-controls="admin-accordion-collapseOne">
+                  Users
+                </button>
+              </h2>
+            </div>
+            <div id="admin-accordion-collapseOne" class="collapse" aria-labelledby="admin-accordion-headingOne" data-parent="#admin-accordion">
+              <div class="card-body table-responsive">
+                <table class="table table-hover" id="usersTable">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th>Account</th>
+                      <th>Curator</th>
+                      <th>Delegator</th>
+                      <th>Admin</th>
+                      <th>Created</th>
+                      <th>Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="admin-accordion-headingTwo">
+              <h2 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#admin-accordion-collapseTwo" aria-expanded="true" aria-controls="admin-accordion-collapseTwo">
+                  Blacklist
+                </button>
+              </h2>
+            </div>
+            <div id="admin-accordion-collapseTwo" class="collapse" aria-labelledby="admin-accordion-headingTwo" data-parent="#admin-accordion">
+              <div class="card-body">
+                <div>
+                  <h2>Add a user to the blacklist</h2>
+                  <form id="blacklistForm">
+                    <div class="form-group">
+                      <input type="text" id="newBlacklist" class="form-control" placeholder="username without @"/>
+                    </div>
+                    <div class="form-group">
+                      <input type="text" id="newBlacklistReason" class="form-control" placeholder="reason for blacklisting" />
+                    </div>
+                    <button class="btn" id="sendNewBlacklist">Send</button>
+                  </form>
+                </div>
+                <br />
+                <div class="table-responsive">
+                  <h2>Blacklist</h2>
+                  <table class="table table-hover table-sm" id="adminBlacklistTable">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th>User</th>
+                        <th>Added</th>
+                        <th>Reason</th>
+                        <th>Added by</th>
+                        <th>Delete</th>
+                      </thead>
+                    <tbody id="adminBlacklistTableBody">
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="admin-accordion-headingFour">
+              <h2 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#admin-accordion-collapseFour" aria-expanded="true" aria-controls="admin-accordion-collapseFour">
+                  Downvotes
+                </button>
+              </h2>
+            </div>
+            <div id="admin-accordion-collapseFour" class="collapse" aria-labelledby="admin-accordion-headingFour" data-parent="#admin-accordion">
+              <div class="card-body table-responsive">
+                <table class="table table-hover table-sm" id="adminDownvotesTable">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th>Date</th>
+                      <th>Account</th>
+                      <th>Reason</th>
+                      <th>User</th>
+                      <th>Title</th>
+                      <th>Type</th>
+                      <th>Limit</th>
+                      <th>Status</th>
+                      <th>Delete</th>
+                  </thead>
+                  <tbody id="adminDownvotesTableBody">
+
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div></section></main>
+    <!--/admin-->
+
+    <!--register-->
+    <main id="register" class="hidden page page-content">
+      <section class="content-block support-block"><div class="container">
+      <div id="registerForm">
+        <h1>Register with Curangel<h1>
+        <div class="lead">
+          Registration is only necessary for curators. If you are not one of our curators, there's nothing to see beyond what you can see now.
+          <form id="registerForm">
+            <div class="form-group">
+              <input class="form-control" type="text" id="registerUsername" placeholder="Your Hive username" />
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="password" id="registerPostingKey" placeholder="Your posting key" />
+            </div>
+            <div id="registerError" class="hidden">Registration error</div>
+            <button id="registerNow" class="btn" href="#">Register</button>
+          </form>
+        </div>
+      </div>
+      <div id="registerSuccess" class="hidden">
+        You were successfully registered. As soon as your delegation arrives, you will get access to the downvote form.<br />
+        If you are a curator, tell an admin to give you the proper permissions.<br />
+        You can <a href="#" id="loginFromRegister">Log in now</a>
+      </div>
+    </div></section>
+    </main>
+    <!--/register-->
+
+    <!--loggedout-->
+    <main id="loggedOut" class="hidden page page-content">
+      <section class="content-block support-block"><div class="container">
+      <h1>Welcome to Curangel!<h1>
+      <div class="lead">
+        <form id="loginForm">
+          <div class="form-group">
+            <input class="form-control" type="text" id="loginUsername" placeholder="Your Hive username" />
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="password" id="loginPostingKey" placeholder="Your posting key" />
+          </div>
+          <div id="loginError" class="hidden">Login error</div>
+          <button id="loginNow" class="btn" href="#">Login</button>
+        </form>
+      </div>
+      </div></section>
+    </main>
+    <!--/loggedout-->
+
+  </div>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -79,7 +451,6 @@
 
   <script src="js/sha256.js"></script>
 
-  <script src="js/sitebuild.js"></script>
   <script src="js/helpers.js"></script>
 
   <script src="js/loggedout.js"></script>

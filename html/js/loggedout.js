@@ -22,11 +22,11 @@ document.getElementById('registerForm').onsubmit = function() {
   return false;
 }
 
-//document.getElementById('logoutNav').onclick = function() {
-//  localStorage.removeItem('username');
-//  localStorage.removeItem('userhash');
-//  window.location.href = '/';
-//}
+document.getElementById('logoutNav').onclick = function() {
+  localStorage.removeItem('username');
+  localStorage.removeItem('userhash');
+  window.location.href = '/';
+}
 
 document.getElementById('loginNow').onclick = function() {
   let loginUser = getValueById('loginUsername');

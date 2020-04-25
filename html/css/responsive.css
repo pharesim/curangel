@@ -1,0 +1,102 @@
+ /*Small devices (landscape phones, 576px and up)*/
+
+ @media (min-width: 576px) {
+     .nav-wrap {
+         padding: 20px 0;
+     }
+     .logo-wrap {
+         float: none;
+         width: 200px;
+         height: 200px;
+         text-align: center;
+         position: absolute;
+         background: none;
+         padding: 0;
+         top: -20px;
+         left: 50%;
+         transform: translate(-50%, 0);
+         -webkit-transform: translate(-50%, 0);
+         -moz-transform: translate(-50%, 0);
+         -ms-transform: translate(-50%, 0);
+         -o-transform: translate(-50%, 0);
+     }
+     .logo-wrap img {
+         max-width: 150px;
+         margin: 30px auto;
+     }
+     .inline-items {
+         float: none;
+         padding: 0 0;
+     }
+     .support-block {
+         padding-top: 100px;
+         text-align: left;
+     }
+     .text-wrap {
+        margin: 50px 0;
+    }
+     .tab-wrap .nav-tabs .nav-item {
+         margin: 0 50px 0 0;
+     }
+     .tab-wrap .nav-tabs {
+         border-bottom: none;
+     }
+     .tab-block:before {
+         position: absolute;
+         content: '';
+         left: 0;
+         width: 100%;
+         border-top: rgba(35, 31, 32, 0.2) 1px solid;
+         top: 74px;
+         display: block;
+     }
+     .logo-wrap:before {
+         content: '';
+         z-index: -1;
+         width: 200px;
+         height: 200px;
+         top: -35px;
+         left: 0;
+         margin: 0 auto;
+         background: #fff;
+         text-align: center;
+         position: absolute;
+         border-radius: 50%;
+         -webkit-border-radius: 50%;
+         -moz-border-radius: 50%;
+         -ms-border-radius: 50%;
+         -o-border-radius: 50%;
+     }
+  
+ }
+
+ /*Medium devices (tablets, 768px and up)*/
+
+ @media (min-width: 768px) {}
+
+ /*Large devices (desktops, 992px and up)*/
+
+ @media (min-width: 992px) {
+     .bordered-btn, .solid-btn {
+         width: 155px;
+     }
+     .support-block h1 {
+        font-size: 38px;
+        line-height: 46px;
+    }
+    .style1, .style2 {
+        font-size: 58px;
+    }
+    .support-block h2 {
+        font-size: 18px;
+        line-height: 26px;
+    }
+    .support-block h3 {
+        font-size: 18px;
+        line-height: 26px;
+    }
+ }
+
+ /*Extra large devices (large desktops, 1200px and up)*/
+
+ @media (min-width: 1200px) {}

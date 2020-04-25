@@ -1,8 +1,8 @@
-document.getElementById('downvoteNav').onclick = function() {
-  hideByClass('page');
-  showById('downvote');
-  loadDownvote();
-}
+//document.getElementById('downvoteNav').onclick = function() {
+//  hideByClass('page');
+//  showById('downvote');
+//  loadDownvote();
+//}
 
 document.getElementById('downvoteForm').onsubmit = function() {
   return false;

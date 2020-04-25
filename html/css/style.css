@@ -1,0 +1,253 @@
+body {
+	margin: 0;
+	padding: 0;
+	line-height: 100%;
+	font-family: 'SegoeUI';
+	font-size: 14px;
+	color: #000000;
+	-webkit-transition: .3s all linear;
+	-moz-transition: .3s all linear;
+	-o-transition: .3s all linear;
+	-ms-transition: .3s all linear;
+	transition: .3s all linear;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+a {
+	-webkit-transition: .3s all linear;
+	-moz-transition: .3s all linear;
+	-o-transition: .3s all linear;
+	-ms-transition: .3s all linear;
+	transition: .3s all linear;
+}
+
+a:hover, a:focus {
+	text-decoration: none;
+}
+
+header {}
+
+.main-header {}
+
+.notification-wrap {
+	background: #B50E0E;
+	color: #fff;
+	padding: 10px 0;
+	position: relative;
+	z-index: 1;
+}
+
+.notification-wrap p {
+	margin: 0;
+}
+
+.nav-wrap {
+	background: #010000;
+	padding: 10px 0;
+	position: relative;
+}
+
+.logo-wrap {
+    float: left;
+	background: #fff;
+	padding: 5px;
+	text-align: center;
+}
+
+
+.logo-wrap img {
+	max-width: 65px;
+}
+
+.inline-items {
+	float: right;
+	padding: 20px 0 0;
+}
+
+.inline-items ul {
+	margin: 0;
+	padding: 0;
+}
+
+.inline-items ul li {
+	list-style-type: none;
+	display: inline-block;
+	margin: 0 0 0 15px;
+	text-transform: uppercase;
+}
+
+.inline-items ul li a {
+	color: #fff;
+}
+
+.inline-items ul li a:hover {
+	color: #B50E0E;
+}
+
+.content-block {
+	padding: 30px 0;
+}
+
+.support-block {
+	text-align: center;
+}
+
+.support-block h1 {
+	font-size: 18px;
+	line-height: 26px;
+	color: #560202;
+	text-transform: uppercase;
+	font-family: 'Helvetica-Bold';
+}
+
+.style1 {
+	color: #B50E0E;
+}
+
+.support-block p {
+	line-height: 24px;
+}
+
+.text-wrap {
+	margin: 20px 0;
+}
+
+.support-block h3 {
+	font-size: 16px;
+	line-height: 22px;
+	color: #B50E0E;
+}
+
+.support-block h3 strong {
+	font-size: 24px;
+	color: #231F20;
+	font-family: 'SegoeUI-Bold';
+}
+
+.btn-groups {}
+
+.bordered-btn {
+	display: inline-block;
+	padding: 9px 15px;
+	color: #666666;
+	border: #666666 1px solid;
+	border-radius: 6px;
+	text-align: center;
+	margin: 5px 0;
+}
+
+.bordered-btn:hover {
+	background: #666666;
+	color: #fff;
+}
+
+.solid-btn {
+	display: inline-block;
+	padding: 10px 15px;
+	color: #fff;
+	background: #B50E0E;
+	border-radius: 6px;
+	text-align: center;
+	margin: 5px 0;
+}
+
+.solid-btn:hover {
+	background: #666666;
+	color: #fff;
+}
+
+.img-wrap {
+	max-width: 400px;
+	margin: 0 auto;
+}
+
+.support-block h2 {
+	font-size: 14px;
+	line-height: 26px;
+	color: #231F20;
+	font-family: 'SegoeUI-Bold';
+}
+
+.right-col {
+	max-width: 400px;
+	margin: 20px auto;
+}
+
+.tab-block {
+	position: relative;
+}
+
+.tab-wrap {}
+
+.tab-wrap .nav-tabs {
+	border-bottom: 1px solid rgba(35, 31, 32, 0.2);
+	position: relative;
+}
+
+.tab-wrap .nav-tabs .nav-item {
+	margin-bottom: 0;
+	margin: 0 15px 0 0;
+}
+
+.tab-wrap .nav-tabs .nav-item:last-child {
+	margin-right: 0;
+}
+
+.tab-wrap .nav-tabs .nav-link {
+	border: none;
+	padding: 15px 0;
+	color: rgba(35, 31, 32, 0.6);
+	position: relative;
+	border-radius: 0;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	-ms-border-radius: 0;
+	-o-border-radius: 0;
+}
+
+.tab-wrap .nav-tabs .nav-link:after {
+	position: absolute;
+	content: '';
+	left: 50%;
+	top: 100%;
+	width: 50px;
+	height: 1px;
+	opacity: 0;
+	background: #B50E0E;
+	transform: translate(-50%, 0);
+	-webkit-transform: translate(-50%, 0);
+	-moz-transform: translate(-50%, 0);
+	-ms-transform: translate(-50%, 0);
+	-o-transform: translate(-50%, 0);
+	transition: .2s all linear;
+	-webkit-transition: .2s all linear;
+	-moz-transition: .2s all linear;
+	-ms-transition: .2s all linear;
+	-o-transition: .2s all linear;
+}
+
+.tab-wrap .nav-tabs .nav-item.show .nav-link, .tab-wrap .nav-tabs .nav-link.active {
+	color: #010000;
+}
+
+.tab-wrap .nav-tabs .nav-link.active:after, .tab-wrap .nav-tabs .nav-link:hover:after {
+	opacity: 1;
+}
+
+.tab-wrap .tab-content>.tab-pane {
+	padding: 30px 0;
+	line-height: 24px;
+}
+
+.custom-field {
+	display: inline-block;
+	padding: 7px 15px;
+	border: #666666 1px solid;
+	border-radius: 6px;
+	text-align: center;
+	margin: 5px 0;
+}

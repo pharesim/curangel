@@ -1,8 +1,8 @@
-document.getElementById('adminNav').onclick = function() {
-  hideByClass('page');
-  showById('admin');
-  loadAdmin();
-}
+//document.getElementById('adminNav').onclick = function() {
+//  hideByClass('page');
+//  showById('admin');
+//  loadAdmin();
+//}
 
 document.getElementById('blacklistForm').onsubmit = function() {
   return false;

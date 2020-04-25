@@ -1,8 +1,8 @@
-document.getElementById('upvoteNav').onclick = function() {
-  hideByClass('page');
-  showById('upvote');
-  loadUpvote();
-}
+//document.getElementById('upvoteNav').onclick = function() {
+//  hideByClass('page');
+//  showById('upvote');
+//  loadUpvote();
+//}
 
 document.getElementById('upvoteForm').onsubmit = function() {
   return false;

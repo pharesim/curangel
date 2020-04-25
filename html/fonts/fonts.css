@@ -1,0 +1,21 @@
+
+@font-face {
+  font-family: 'SegoeUI';
+  src: url('SegoeUI.eot?#iefix') format('embedded-opentype'),  url('SegoeUI.woff') format('woff'), url('SegoeUI.ttf')  format('truetype'), url('SegoeUI.svg#SegoeUI') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SegoeUI-Bold';
+  src: url('SegoeUI-Bold.eot?#iefix') format('embedded-opentype'),  url('SegoeUI-Bold.woff') format('woff'), url('SegoeUI-Bold.ttf')  format('truetype'), url('SegoeUI-Bold.svg#SegoeUI-Bold') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Helvetica-Bold';
+  src: url('Helvetica-Bold.eot?#iefix') format('embedded-opentype'),  url('Helvetica-Bold.woff') format('woff'), url('Helvetica-Bold.ttf')  format('truetype'), url('Helvetica-Bold.svg#Helvetica-Bold') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}

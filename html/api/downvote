@@ -24,10 +24,10 @@ hived_nodes = [
 client = Hive(nodes=hived_nodes)
 chain = Blockchain(client)
 
-# blacklist
-blacklist = {
-  'ericet':'This is not a tool for your personal vendetta.'
-}
+# whitelist
+whitelist = [
+  'pharesim','azircon','nikv','tazi','galenkp','joshmania','lemony-cricket'
+]
 
 # output variable
 data = {}
@@ -75,9 +75,9 @@ else:
     if not reason:
       errorHandler.throwError('You need to give a reason for the downvote.')
 
-    # check blacklist
-    if username in blacklist:
-      errorHandler.throwError('You are blocked. '+blacklist[username])
+    # check whitelist
+    if username not in whitelist:
+      errorHandler.throwError('To use this tool, please apply in our Discord!')
 
     # check if user has more than the limit of posts waiting
 #    result = db.select('downvotes',['id'],{'account':username,'status':'wait'},'id')

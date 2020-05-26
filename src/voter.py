@@ -91,6 +91,9 @@ class Voter:
         if h['to'] in bidbots:
           if (h['to'] == 'minnowbooster' or h['to'] == 'tipu') and h['memo'][:4] != 'http':
             continue
+          # allow peakd tip protocol
+          if h['memo'].startswith("!tip"):
+            continue
           print("\nskipping '{}' because author bought vote...".format(results[0]['link']))
           self.db.update('upvotes',{'status':'skipped voting due to vote buying'},{'id':results[0]['id']})
           return self.next_in_queue(client)

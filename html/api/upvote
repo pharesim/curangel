@@ -126,7 +126,7 @@ else:
           body = "Great work! Your post was selected for curation by one of @curangel's dedicated curators for its contribution to quality!\n<br />"
           body += "...unfortunately, it had to be excluded from curation because of the use of a service ("+b['account']+") to liquify rewards."
           body += "Our upvotes are reserved for content which is created with a commitment to long term growth and decentralization of Hive Power.\n<br />"
-          body += "This exclusion only applies to this post and not all your publications in general. \n<br />"
+          body += "This exclusion only applies to this and eventually other future liquified posts and not all your publications in general. \n<br />"
           body += "Take care and hive five!"
           client.commit.post('Re: '+post['title'], body, 'curangel', permlink=permlink, reply_identifier='@'+post['author']+'/'+post['permlink'])
         errorHandler.throwError('Post is using a liquifier ('+b['account']+') for rewards. Will not add to queue.'+notification)

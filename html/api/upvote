@@ -93,7 +93,7 @@ else:
     for h in history:
       if h['memo'][:4] == 'http' and h['to'] in bidbots:
         notification = ''
-        notified = db.select('upvote_notifications',['user'],{'user':post['author'],'created >':"datetime('now','-7 days')"},'created')
+        notified = db.select('upvote_notifications',['user'],{'user':post['author'],'created >':"datetime('now','-7 days')",'reason':'bidbot'},'created')
         if len(notified) < 1:
           db.insert('upvote_notifications',{'id':uuid.uuid4().hex,'user':post['author'],'reason':'bidbot'})
           notification = ' User has received a comment.'
@@ -115,18 +115,21 @@ else:
     # check if author used liquifier
     liquifiers = ['likwid','reward.app']
     beneficiaries = post['beneficiaries']
+    notification = ''
     for b in beneficiaries:
       if b['account'] in liquifiers:
-        db.insert('upvote_notifications',{'id':uuid.uuid4().hex,'user':post['author'],'reason':'liquifier'})
-        notification = ' User has received a comment.'
-        permlink = ''.join(random.sample(string.ascii_lowercase, k=10))
-        body = "Great work! Your post was selected for curation by one of @curangel's dedicated curators for its contribution to quality!\n<br />"
-        body += "...unfortunately, it had to be excluded from curation because of the use of ("+h['to']+") to liquify rewards."
-        body += "Our upvotes are reserved for content which is created with a commitment to long term growth and decentralization of Hive Power.\n<br />"
-        body += "This exclusion only applies to this post and not all your publications in general. \n<br />"
-        body += "Take care and hive five!"
-        client.commit.post('Re: '+post['title'], body, 'curangel', permlink=permlink, reply_identifier='@'+post['author']+'/'+post['permlink'])
-      errorHandler.throwError('Post is using a liquifier for rewards. Will not add to queue.'+notification)
+        notified = db.select('upvote_notifications',['user'],{'user':post['author'],'reason':'liquifier'},'created')
+        if len(notified) < 1:
+          db.insert('upvote_notifications',{'id':uuid.uuid4().hex,'user':post['author'],'reason':'liquifier'})
+          notification = ' User has received a comment.'
+          permlink = ''.join(random.sample(string.ascii_lowercase, k=10))
+          body = "Great work! Your post was selected for curation by one of @curangel's dedicated curators for its contribution to quality!\n<br />"
+          body += "...unfortunately, it had to be excluded from curation because of the use of ("+h['to']+") to liquify rewards."
+          body += "Our upvotes are reserved for content which is created with a commitment to long term growth and decentralization of Hive Power.\n<br />"
+          body += "This exclusion only applies to this post and not all your publications in general. \n<br />"
+          body += "Take care and hive five!"
+          client.commit.post('Re: '+post['title'], body, 'curangel', permlink=permlink, reply_identifier='@'+post['author']+'/'+post['permlink'])
+        errorHandler.throwError('Post is using a liquifier ('+b['account']+') for rewards. Will not add to queue.'+notification)
 
 
     # check if already voted

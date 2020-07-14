@@ -124,7 +124,7 @@ else:
           notification = ' User has received a comment.'
           permlink = ''.join(random.sample(string.ascii_lowercase, k=10))
           body = "Great work! Your post was selected for curation by one of @curangel's dedicated curators for its contribution to quality!\n<br />"
-          body += "...unfortunately, it had to be excluded from curation because of the use of ("+h['to']+") to liquify rewards."
+          body += "...unfortunately, it had to be excluded from curation because of the use of ("+b['account']+") to liquify rewards."
           body += "Our upvotes are reserved for content which is created with a commitment to long term growth and decentralization of Hive Power.\n<br />"
           body += "This exclusion only applies to this post and not all your publications in general. \n<br />"
           body += "Take care and hive five!"

@@ -83,7 +83,7 @@ else:
     if metadata != '':
       metadata = json.loads(metadata)
       if 'tags' in metadata:
-        if 'cross-post' in metadata['tags']:
+        if 'cross-post' in metadata['tags'] and 'original_permlink' in metadata:
           errorHandler.throwError('This is a cross-post. We do not vote on those.')
 
     # check if author used bitbots

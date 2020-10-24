@@ -86,7 +86,7 @@ class Voter:
       # check if author used bitbots
       bidbots = ['alfanso','appreciator','bdvoter','bid4joy','boomerang','booster','bot-api','brandonfrye','buildawhale','edensgarden','inciter','joeparys','leo.voter','luckyvotes','minnowbooster','minnowhelper','minnowvotes','ocdb','onlyprofitbot','postpromoter','profitvote','promobot','qustodian','redlambo','rocky1','sct.voter','smartmarket','smartsteem','sneaky-ninja','sportsvoter','spydo','steemyoda','thebot','therising','tipu','treeplanter','triplea.bot','unknownonline','upmewhale','upmyvote','whalepromobot']
       postaccount = Account(post['author'],client)
-      history = postaccount.get_account_history(-1,2500,filter_by='transfer')
+      history = postaccount.get_account_history(-1,1000,filter_by='transfer')
       for h in history:
         if h['to'] in bidbots:
           if (h['to'] == 'minnowbooster' or h['to'] == 'tipu') and h['memo'][:4] != 'http':

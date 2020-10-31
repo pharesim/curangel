@@ -3,6 +3,7 @@
 import math
 from datetime import datetime
 from time import sleep
+from argparse import ArgumentParser
 
 from db import DB
 
@@ -10,6 +11,10 @@ from hive.hive import Hive
 from hive.account import Account
 from hive.converter import Converter
 from hive.blockchain import Blockchain
+
+_ap = ArgumentParser()
+_ap.add_argument("--test-scan", action="store_true",
+                 help="test history scanning function only")
 
 hived_nodes = [
   'https://api.pharesim.me',
@@ -51,13 +56,16 @@ def getRewards(dry=False):
         if float(r['vesting_shares'][:-6]) > 0:
           delegator = db.select('delegators',['account','created'],{'account':r['delegator']},'account',1)
           if len(delegator) == 0:
+            print(f"Processing new delegation from {r['delegator']}.")
             new_delegations.append( {'account': r['delegator'], 'created': r['timestamp']})
           else:
             created = datetime.strptime(delegator[0]['created'], "%Y-%m-%dT%H:%M:%S")
             new     = datetime.strptime(r['timestamp'], "%Y-%m-%dT%H:%M:%S")
             if new < created:
+              print(f"Processing updated delegation from {r['delegator']}.")
               updated_delegations.append(({'created':r['timestamp']}, {'account':r['delegator']}))
         else:
+          print(f"Processing removed delegation from {r['delegator']}.")
           removed_delegations.append({'account':r['delegator']})
     else:
       vests = float(r['reward'][:-6])
@@ -72,7 +80,9 @@ def getRewards(dry=False):
           rewards[vote[0]['account']] = rewards[vote[0]['account']] + (hp*0.2)
         else:
           rewards[vote[0]['account']] = (hp*0.2)
-        updated_upvotes.append({'reward_sp':str(hp)}, {'id':vote[0]['id']})
+        path = f"@{r['comment_author']}/{r['comment_permlink']}"
+        print(f"{vests} VESTS for {path}")
+        updated_upvotes.append(({'reward_sp':str(hp)}, {'id':vote[0]['id']}))
 
   if not dry:
     for record in new_delegations:
@@ -155,6 +165,10 @@ def payout():
 
 
 if __name__ == "__main__":
-  assignRewards(getRewards(),getDelegators())
-  payout()
-  client.claim_reward_balance(account=bot)
+  args = _ap.parse_args()
+  if args.test_scan:
+    getRewards(dry=True)
+  else:
+    assignRewards(getRewards(),getDelegators())
+    payout()
+    client.claim_reward_balance(account=bot)

@@ -3,6 +3,7 @@
 import math
 from datetime import datetime
 from time import sleep
+from argparse import ArgumentParser
 
 from db import DB
 
@@ -10,6 +11,10 @@ from hive.hive import Hive
 from hive.account import Account
 from hive.converter import Converter
 from hive.blockchain import Blockchain
+
+_ap = ArgumentParser()
+_ap.add_argument("--test-scan", action="store_true",
+                 help="test history scanning function only")
 
 hived_nodes = [
   'https://api.pharesim.me',
@@ -29,32 +34,39 @@ chain = Blockchain(client)
 converter = Converter(client)
 account = Account(bot,client)
 
-def getRewards():
+def getRewards(dry=False):
   rewards = {}
   last_block = db.select('last_check',['rewards_block'],'1=1','rewards_block',1)[0]['rewards_block']
   hive_per_mvests = converter.hive_per_mvests()
-  received = account.get_account_history(-1,2500,filter_by=['curation_reward','delegate_vesting_shares'])
-  i = 0
-  for r in received:
-    if i < 1:
-      i = i+1
-      db.update('last_check',{'rewards_block':r['block']},{'rewards_block':last_block})
-    if r['block'] <= int(last_block):
-      break
 
+  new_last_block = None
+  new_delegations = []
+  updated_delegations = []
+  removed_delegations = []
+  updated_upvotes = []
+
+  for r in account.history_reverse(['curation_reward', 'delegate_vesting_shares']):
+    if new_last_block is None:
+      new_last_block = r['block']
+    if r['block'] <= int(last_block):
+      # done fetching
+      break
     if 'delegatee' in r:
       if r['delegatee'] == bot:
         if float(r['vesting_shares'][:-6]) > 0:
           delegator = db.select('delegators',['account','created'],{'account':r['delegator']},'account',1)
           if len(delegator) == 0:
-            db.insert('delegators',{'account':r['delegator'],'created':r['timestamp']})
+            print(f"Processing new delegation from {r['delegator']}.")
+            new_delegations.append( {'account': r['delegator'], 'created': r['timestamp']})
           else:
             created = datetime.strptime(delegator[0]['created'], "%Y-%m-%dT%H:%M:%S")
             new     = datetime.strptime(r['timestamp'], "%Y-%m-%dT%H:%M:%S")
             if new < created:
-              db.update('delegators',{'created':r['timestamp']},{'account':r['delegator']})
+              print(f"Processing updated delegation from {r['delegator']}.")
+              updated_delegations.append(({'created':r['timestamp']}, {'account':r['delegator']}))
         else:
-          db.delete('delegators',{'account':r['delegator']})
+          print(f"Processing removed delegation from {r['delegator']}.")
+          removed_delegations.append({'account':r['delegator']})
     else:
       vests = float(r['reward'][:-6])
       hp = round((vests / 1000000 * hive_per_mvests),3)
@@ -68,7 +80,31 @@ def getRewards():
           rewards[vote[0]['account']] = rewards[vote[0]['account']] + (hp*0.2)
         else:
           rewards[vote[0]['account']] = (hp*0.2)
-        db.update('upvotes',{'reward_sp':str(hp)},{'id':vote[0]['id']})
+        path = f"@{r['comment_author']}/{r['comment_permlink']}"
+        print(f"{vests} VESTS for {path}")
+        updated_upvotes.append(({'reward_sp':str(hp)}, {'id':vote[0]['id']}))
+
+  if not dry:
+    for record in new_delegations:
+      db.insert('delegators', record)
+    for values, selector in updated_delegations:
+      db.update('delegators', values, selector)
+    for selector in removed_delegations:
+      db.delete('delegators', selector)
+    for values, selector in updated_upvotes:
+      db.update('upvotes', values, selector)
+    db.update('last_check',{'rewards_block':new_last_block},{'rewards_block':last_block})
+
+  print("Finished scanning since block {} (latest block: {})".format(
+    last_block,
+    new_last_block
+  ))
+  print("Found {} new, {} updated, and {} removed delegations.".format(
+    len(new_delegations),
+    len(updated_delegations),
+    len(removed_delegations)
+  ))
+  print(f"Processed {len(updated_upvotes)} curation rewards.")
 
   return rewards
 
@@ -127,6 +163,12 @@ def payout():
         db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
         db.insert('reward_payouts',{'account':reward['account'],'amount':amount})
 
-assignRewards(getRewards(),getDelegators())
-payout()
-client.claim_reward_balance(account=bot)
+
+if __name__ == "__main__":
+  args = _ap.parse_args()
+  if args.test_scan:
+    getRewards(dry=True)
+  else:
+    assignRewards(getRewards(),getDelegators())
+    payout()
+    client.claim_reward_balance(account=bot)

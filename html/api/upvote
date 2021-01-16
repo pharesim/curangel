@@ -16,24 +16,17 @@ from hive.account import Account
 from lib import db
 from lib import api
 from lib import errorHandler
+from lib.config import config
 
 from lib.rate_limit import Enforcer, RateLimitError
 from lib.db_util import QueueDBHelper
-
-
-hived_nodes = [
-  'https://api.pharesim.me',
-  'https://anyx.io',
-  'https://api.hive.blog',
-  'https://api.openhive.network',
-]
 
 
 credfile = open("../../credentials.txt")
 user = credfile.readline().strip()
 key = credfile.readline().strip()
 
-client = Hive(keys=[key],nodes=hived_nodes)
+client = Hive(keys=[key],nodes=config.nodes)
 chain = Blockchain(client)
 
 # output variable

@@ -12,22 +12,12 @@ from hive.blockchain import Blockchain
 from lib import db
 from lib import api
 from lib import errorHandler
+from lib.config import config
 
 
-hived_nodes = [
-  'https://api.pharesim.me',
-  'https://anyx.io',
-  'https://api.hive.blog',
-  'https://api.openhive.network',
-]
-
-client = Hive(nodes=hived_nodes)
+client = Hive(nodes=config.nodes)
 chain = Blockchain(client)
 
-# whitelist
-whitelist = [
-  'pharesim','azircon','nikv','tazi','galenkp','joshmania','lemony-cricket'
-]
 
 # output variable
 data = {}
@@ -76,7 +66,7 @@ else:
       errorHandler.throwError('You need to give a reason for the downvote.')
 
     # check whitelist
-    if username not in whitelist:
+    if username not in config.downvote_whitelist:
       errorHandler.throwError('To use this tool, please apply in our Discord!')
 
     # check if user has more than the limit of posts waiting

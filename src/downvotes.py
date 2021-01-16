@@ -3,25 +3,20 @@
 import time
 import datetime
 from db import DB
+from config import config
 
 from hive.hive import Hive
 from hive.blockchain import Blockchain
 
 ADDED_VALUE_TRAIL = 600
 
-hived_nodes = [
-  'https://api.pharesim.me',
-  'https://anyx.io',
-  'https://api.hive.blog',
-  'https://api.openhive.network',
-]
 
 credfile = open("credentials.txt")
 bot = credfile.readline().strip()
 key = credfile.readline().strip()
 
 db    = DB('curangel.sqlite3')
-client = Hive(keys=[key],nodes=hived_nodes)
+client = Hive(keys=[key],nodes=config.nodes)
 chain = Blockchain(client)
 
 def getCurrentVoteValue():

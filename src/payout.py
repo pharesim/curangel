@@ -6,6 +6,7 @@ from time import sleep
 from argparse import ArgumentParser
 
 from db import DB
+from config import config
 
 from hive.hive import Hive
 from hive.account import Account
@@ -16,20 +17,13 @@ _ap = ArgumentParser()
 _ap.add_argument("--test-scan", action="store_true",
                  help="test history scanning function only")
 
-hived_nodes = [
-  'https://api.pharesim.me',
-  'https://anyx.io',
-  'https://api.hive.blog',
-  'https://api.openhive.network',
-]
-
 credfile = open("credentials.txt")
 bot = credfile.readline().strip()
 postkey = credfile.readline().strip()
 key = credfile.readline().strip()
 
 db    = DB('curangel.sqlite3')
-client = Hive(keys=[key],nodes=hived_nodes)
+client = Hive(keys=[key],nodes=config.nodes)
 chain = Blockchain(client)
 converter = Converter(client)
 account = Account(bot,client)
@@ -48,6 +42,7 @@ def getRewards(dry=False):
   for r in account.history_reverse(['curation_reward', 'delegate_vesting_shares']):
     if new_last_block is None:
       new_last_block = r['block']
+      print(f"Latest block is {new_last_block}")
     if r['block'] <= int(last_block):
       # done fetching
       break

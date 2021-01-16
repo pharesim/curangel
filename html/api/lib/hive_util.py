@@ -1,11 +1,6 @@
 import hive.hive
 
-DEFAULT_NODES = [
-  'https://api.pharesim.me',
-  'https://anyx.io',
-  'https://api.hive.blog',
-  'https://api.openhive.network',
-]
+from .config import config
 
 
 class Hive(hive.hive.Hive):
@@ -13,5 +8,5 @@ class Hive(hive.hive.Hive):
         if "nodes" in kwargs:
             nodes = kwargs["nodes"]
         else:
-            nodes = DEFAULT_NODES
+            nodes = config.nodes
         super().__init__(nodes, **kwargs)

@@ -7,22 +7,16 @@ from traceback import format_exc
 from hive.hive import Hive
 
 from voter import Voter
+from config import config
 
 # Print status at least once every this many seconds.
 MONITOR_INTERVAL_SEC = 300
 
-hived_nodes = [
-  'https://api.pharesim.me',
-  'https://anyx.io',
-  'https://api.hive.blog',
-  'https://api.openhive.network',
-]
-
 class Curangel():
   def __init__(self, user, postingKey):
-    self.client = Hive(keys=[postingKey],nodes=hived_nodes)
+    self.client = Hive(keys=[postingKey],nodes=config.nodes)
     self.user = user
-    self.voter = Voter(self.client, hived_nodes, user)
+    self.voter = Voter(self.client, config.nodes, user)
     self.last_update_duration = 0
 
   def wait_for_recharge(self):

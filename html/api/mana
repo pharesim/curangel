@@ -3,23 +3,37 @@
 
 import cgi
 
+from sorcery import dict_of
+
 from lib import api
 from lib import errorHandler
 from lib.errors import CurangelError
 from lib.account_util import Account
+from lib.notify_hook import notify
 
 
 def get_mana(account):
     mana = account.mana.value
     stamina = account.stamina.value
     step = account.stamina.step
-    return {"mana": mana,
-            "stamina": {"step": step,
-                        "value": stamina}}
+    notify("mana_check", dict_of(
+        account,
+        mana,
+        stamina,
+        step
+    ))
+    return {
+        "mana": mana,
+        "stamina": {
+            "step": step,
+            "value": stamina
+        }
+    }
 
 
 def main(username, userhash, account):
     requester = Account(username)
+
     requester.login(userhash)
     if username == account:
         return get_mana(requester)
@@ -31,10 +45,10 @@ def main(username, userhash, account):
 
 if __name__ == "__main__":
     form = cgi.FieldStorage()
-    username = form.getvalue('username')
-    userhash = form.getvalue('userhash')
-    account = form.getvalue('account')
+    username_ = form.getvalue('username')
+    userhash_ = form.getvalue('userhash')
+    account_ = form.getvalue('account')
     try:
-        api.output(main(username, userhash, account))
+        api.output(main(username_, userhash_, account_))
     except CurangelError as e:
         errorHandler.throwError(e.fmt())

@@ -8,6 +8,9 @@ hivepy = ">=0.10"
 rfc3987 = "*"
 pyyaml = "*"
 munch = "*"
+loguru = "*"
+requests = "*"
+sorcery = "*"
 
 [dev-packages]
 jedi = "*"

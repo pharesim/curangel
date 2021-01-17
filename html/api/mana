@@ -16,7 +16,7 @@ def get_mana(account):
     mana = account.mana.value
     stamina = account.stamina.value
     step = account.stamina.step
-    notify("mana_check", dict_of(
+    notify("mana-check", dict_of(
         mana,
         stamina,
         step,

@@ -9,16 +9,10 @@ from hive.hive import Hive
 from lib import db
 from lib import api
 from lib import errorHandler
+from lib.config import config
 
 
-hived_nodes = [
-  'https://api.pharesim.me',
-  'https://anyx.io',
-  'https://api.hive.blog',
-  'https://api.openhive.network',
-]
-
-client = Hive(nodes=hived_nodes)
+client = Hive(nodes=config.nodes)
 
 # output variable
 data = {}
@@ -89,7 +83,11 @@ else:
   for row in results:
     user = dict(row)
     user['delegator'] = 0
-    delegations = client.get_vesting_delegations(user['account'],'curangel',1)
+    if "skip_delegator_check" in config and config.skip_delegator_check:
+      delegations = []
+    else:
+      delegations = client.get_vesting_delegations(user['account'],'curangel',1)
+
     if len(delegations) > 0 and delegations[0]['delegatee'] == 'curangel':
       user['delegator'] = 1
     users.append(user)
@@ -98,7 +96,7 @@ else:
 
   # get upvotes
   upvotes = []
-  results = db.select('upvotes',['id','account','created','link','user','category','slug','title','type','payout','status','reward_sp'],'1=1','created DESC')
+  results = db.select('upvotes',['id','account','created','link','user','category','slug','title','type','payout','status','reward_sp'],'1=1','created DESC', 100)
   for row in results:
     upvotes.append(dict(row))
 
@@ -114,7 +112,7 @@ else:
 
   # get downvotes
   downvotes = []
-  results = db.select('downvotes',['id','created','account','reason','link','user','category','slug','title','type','payout','maxi','status'],'1=1','created DESC')
+  results = db.select('downvotes',['id','created','account','reason','link','user','category','slug','title','type','payout','maxi','status'],'1=1','created DESC', 100)
   for row in results:
     downvotes.append(dict(row))
 

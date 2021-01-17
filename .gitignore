@@ -5,4 +5,5 @@
 *.pyc
 *.ini
 *.yaml
+.idea/*
 credentials.txt

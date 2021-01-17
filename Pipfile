@@ -4,10 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-hivepy = "*"
+hivepy = ">=0.10"
 rfc3987 = "*"
 pyyaml = "*"
 munch = "*"
+loguru = "*"
+requests = "*"
+sorcery = "*"
 
 [dev-packages]
 jedi = "*"

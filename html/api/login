@@ -8,16 +8,9 @@ from hive.hive import Hive
 from lib import db
 from lib import api
 from lib import errorHandler
+from lib.config import config
 
-
-hived_nodes = [
-  'https://api.pharesim.me',
-  'https://anyx.io',
-  'https://api.hive.blog',
-  'https://api.openhive.network',
-]
-
-client = Hive(nodes=hived_nodes)
+client = Hive(nodes=config.nodes)
 
 # output variable
 user = {}

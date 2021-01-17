@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import sqlite3
+import sys
 
 from . import errorHandler
 
@@ -10,7 +11,7 @@ from .config import config
 conn = sqlite3.connect(config.db.file)
 conn.row_factory = sqlite3.Row
 
-def select(table,fields,condition,order):
+def select(table,fields,condition,order,limit=None):
   query = 'SELECT '
   length = len(fields)
   t = ()
@@ -36,6 +37,9 @@ def select(table,fields,condition,order):
   else:
     query = query+condition
   query = query+' ORDER BY '+order
+  if limit is not None:
+    query += " LIMIT " + str(limit)
+    print(query, file=sys.stderr)
   c = conn.cursor()
   c.execute(query,t)
   result = c.fetchall()

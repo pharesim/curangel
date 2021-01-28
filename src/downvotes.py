@@ -3,7 +3,9 @@
 import time
 import datetime
 from db import DB
-from config import config
+
+import _cgi_path # noqa: F401
+from config import config, load_credentials
 
 from hive.hive import Hive
 from hive.blockchain import Blockchain
@@ -11,9 +13,9 @@ from hive.blockchain import Blockchain
 ADDED_VALUE_TRAIL = 600
 
 
-credfile = open("credentials.txt")
-bot = credfile.readline().strip()
-key = credfile.readline().strip()
+credentials = load_credentials()
+bot = credentials.username
+key = credentials.posting
 
 db    = DB('curangel.sqlite3')
 client = Hive(keys=[key],nodes=config.nodes)

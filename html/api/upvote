@@ -16,15 +16,15 @@ from hive.account import Account
 from lib import db
 from lib import api
 from lib import errorHandler
-from lib.config import config
+from lib.config import config, load_credentials
 
 from lib.rate_limit import Enforcer, RateLimitError
 from lib.db_util import QueueDBHelper
 
 
-credfile = open("../../credentials.txt")
-user = credfile.readline().strip()
-key = credfile.readline().strip()
+credentials = load_credentials()
+user = credentials.username
+key = credentials.posting
 
 client = Hive(keys=[key],nodes=config.nodes)
 chain = Blockchain(client)

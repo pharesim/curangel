@@ -4,6 +4,7 @@
 import cgi
 import os
 import uuid
+import html
 
 from lib import db
 from lib import api
@@ -18,7 +19,7 @@ userhash = form.getvalue('userhash')
 
 userip   = '0.0.0.0'
 if 'REMOTE_ADDR' in os.environ:
-  userip = cgi.escape(os.environ["REMOTE_ADDR"])
+  userip = html.escape(os.environ["REMOTE_ADDR"])
 
 # save a new entry
 if username and userhash:

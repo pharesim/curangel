@@ -9,4 +9,4 @@ nodes:
   - https://api.openhive.network
 downvote_whitelist: []
 skip_delegator_check: false
-
+hard_queue_limit: 20

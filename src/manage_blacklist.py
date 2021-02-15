@@ -1,32 +1,41 @@
 #! /bin/env python3
-from hive.hive import Hive
-from hive.account import Account
-
 from db import DB
 import uuid
 import requests
 
-from pprint import pprint
-import sys
-
 db = DB('curangel.sqlite3')
+
+def get_holders(url):
+  richlist = requests.get(url=url).json()["richlist"]
+  return {u["account"] for u in richlist if float(u["balance"]) > 0}
 
 def manageSPIholders():
   # spi steem-engine token, list available at https://steem-engine.rocks/tokens/SPI/richlist
-  URL = "https://steem-engine.rocks/tokens/SPI/richlist"
-  richlist = requests.get(url = URL).json()['richlist']
-  spiusers = []
-  for holder in richlist:
-    if float(holder['balance']) > 0:
-      spiusers.append(holder['account'])
+  sespiusers = get_holders("https://steem-engine.rocks/tokens/SPI/richlist")
+  print(f"Number of SE:SPI holders: {len(sespiusers)}")
 
-  print('Number of SPI holders: '+str(len(spiusers)))
+  # spi hive-engine token, list available at https://hive-engine.rocks/tokens/SPI/richlist
+  hespiusers = get_holders("https://hive-engine.rocks/tokens/SPI/richlist")
+  print(f"Number of HE:SPI holders: {len(hespiusers)}")
 
+  # take the intersection of the two sets for now
+  spiusers = sespiusers & hespiusers
+  print(f"Number of users holding SPI on both chains: {len(hespiusers)}")
+
+  blacklisted_by_reason = {}
   for user in spiusers:
-    exists = db.select('blacklist',['user'],{'user':user},'user',1)
+    exists = db.select('blacklist',['user', 'reason'],{'user':user},'user',1)
     if len(exists) < 1:
-      db.insert('blacklist',{'id':uuid.uuid4().hex,'user':user,'reason':'holder of spi','account':'pharesim'})
+      db.insert('blacklist',{'id':uuid.uuid4().hex,'user':user,'reason':'holder of spi','account':'curangel'})
       print(user+' inserted for holding spi')
+    for row in exists:
+      try:
+        blacklisted_by_reason[row["reason"]].add(row["user"])
+      except KeyError:
+        blacklisted_by_reason[row["reason"]] = {row["user"]}
+
+  for reason, users in blacklisted_by_reason.items():
+    print(f"{len(users)} already blacklisted with reason \"{reason}\"")
 
   removeOld = db.select('blacklist',['user'],{'reason': 'holder of spi'},'user',9999)
   print('Checking '+str(len(removeOld))+' entries for changes')
@@ -35,7 +44,6 @@ def manageSPIholders():
       db.delete('blacklist',{'user':user['user']})
       print('removed '+user['user']+' because not holding spi any more')
 
-steemcryptosicko = db.select('blacklist',['user'],{'reason': 'part of steemcryptosicko circle'},'user',9999)
-xiguang = db.select('blacklist',['user'],{'reason': 'delegates to xiguang'},'user',9999)
+if __name__ == "__main__":
+  manageSPIholders()
 
-manageSPIholders()

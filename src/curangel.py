@@ -7,7 +7,9 @@ from traceback import format_exc
 from hive.hive import Hive
 
 from voter import Voter
-from config import config
+
+import _cgi_path # noqa: F401
+from config import config, load_credentials
 
 # Print status at least once every this many seconds.
 MONITOR_INTERVAL_SEC = 300
@@ -58,9 +60,9 @@ class Curangel():
         pass
 
 if __name__ == '__main__':
-  credfile = open("credentials.txt")
-  user = credfile.readline().strip()
-  key = credfile.readline().strip()
+  credentials = load_credentials()
+  user = credentials.username
+  key = credentials.posting
 
   curangel = Curangel(user,key)
 

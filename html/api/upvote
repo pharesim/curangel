@@ -12,19 +12,21 @@ import json
 from hive.hive import Hive
 from hive.blockchain import Blockchain
 from hive.account import Account
+from sorcery import dict_of
 
 from lib import db
 from lib import api
 from lib import errorHandler
-from lib.config import config
+from lib.config import config, load_credentials
+from lib.notify_hook import notify
 
 from lib.rate_limit import Enforcer, RateLimitError
 from lib.db_util import QueueDBHelper
 
 
-credfile = open("../../credentials.txt")
-user = credfile.readline().strip()
-key = credfile.readline().strip()
+credentials = load_credentials()
+user = credentials.username
+key = credentials.posting
 
 client = Hive(keys=[key],nodes=config.nodes)
 chain = Blockchain(client)
@@ -168,6 +170,18 @@ else:
     db_path = db.config.db.file
     with QueueDBHelper(db_path) as qdbh:
       queue_length = qdbh.query_queue_length()
+
+
+    # let's not let the queue get out of hand (fix mana someday)
+    if hasattr(config, "hard_queue_limit"):
+      if queue_length >= config.hard_queue_limit:
+        message = f"I'm sorry, {username}; I'm afraid I can't do that. "
+        message += f"\n\n(Queue size would exceed {config.hard_queue_limit}.)"
+        notify("queue-limit", dict_of(
+          username,
+          post=post['url']
+        ))
+        errorHandler.throwError(message)
 
     # check mana
     try:

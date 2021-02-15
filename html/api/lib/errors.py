@@ -6,11 +6,10 @@ class CurangelError(RuntimeError):
         name = self.__class__.__name__
         desc = self.fmt()
         return "<{}: {}>".format(name, desc)
-        return self.__class__.__name__
 
     def fmt(self, user=None):
         if user is None:
             user = "user"
         else:
             user = "user '{}'".format(user)
-        return self._fmt().strip().format(user=user, **vars(self))
+        return self._fmt.strip().format(user=user, **vars(self))

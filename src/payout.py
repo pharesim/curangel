@@ -7,10 +7,10 @@ from argparse import ArgumentParser
 
 from db import DB
 
-import _cgi_path
-from config import config
-from lib.notify_hook import notify
+import _cgi_path # noqa: F401
+from config import config, load_credentials
 
+from lib.notify_hook import notify
 
 from hive.hive import Hive
 from hive.account import Account
@@ -23,10 +23,11 @@ _ap = ArgumentParser()
 _ap.add_argument("--test-scan", action="store_true",
                  help="test history scanning function only")
 
-credfile = open("credentials.txt")
-bot = credfile.readline().strip()
-postkey = credfile.readline().strip()
-key = credfile.readline().strip()
+
+credentials = load_credentials()
+bot = credentials.username
+postkey = credentials.posting
+key = credentials.active
 
 db    = DB('curangel.sqlite3')
 

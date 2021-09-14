@@ -61,7 +61,7 @@ def getPostContent():
   content += 'https://i.imgur.com/1TgMmfZ.png'
 
   content += 'The Curangel project is brought to you by witness <a href="http://pharesim.me">@pharesim</a>'+"\n"
-  content += 'Vote for your witnesses <a href="https://peakd.com/~witnesses">here</a>'+"\n"
+  content += 'Vote for your witnesses <a href="https://peakd.com/me/witnesses">here</a>'+"\n"
 
   content += '</center>'
   return content

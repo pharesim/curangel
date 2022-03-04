@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 hivepy = ">=0.10"
 rfc3987 = "*"
-pyyaml = "*"
+PyYAML = "*"
 munch = "*"
 loguru = "*"
 requests = "*"

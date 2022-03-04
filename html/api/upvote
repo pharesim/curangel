@@ -202,7 +202,7 @@ else:
 
   # get upvotes
   upvotes = []
-  results = db.select('upvotes',['id','created','link','user','category','slug','title','type','payout','status','reward_sp'],{'account':username},'created DESC')
+  results = db.select('upvotes',['id','created','link','user','category','slug','title','type','payout','status','reward_sp'],{'account':username},'created DESC', 1000)
   for row in results:
     upvotes.append(dict(row))
 

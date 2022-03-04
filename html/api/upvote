@@ -158,13 +158,12 @@ else:
       errorHandler.throwError('Author blacklistet. Reason: '+results[0]['reason']+'. Will not add to queue.')
 
     # check previous votes for author
-    results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'status !':'canceled','created >':"datetime('now','-7 days')"},'created')
+    results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'status !':'canceled','created >':"datetime('now','-5 days')"},'created')
     if len(results) > 0:
-      errorHandler.throwError('You already submitted a post of this author in the last week. Will not add to queue.')
-    results = db.select('upvotes',['created'],{'user':post['author'],'status !':'canceled','created >':"datetime('now','-1 day')",'status !':'canceled'},'created')
+      errorHandler.throwError('You already submitted a post of this author in the past 5 days. Will not add to queue.')
+    results = db.select('upvotes',['created'],{'user':post['author'],'status !':'canceled','created >':"datetime('now','-18 hours')",'status !':'canceled'},'created')
     if len(results) > 0:
-      errorHandler.throwError('Someone else already submitted a post of this author today. Will not add to queue.')
-
+      errorHandler.throwError('This author has had a post submitted within the past 18 hours. Will not add to queue.')
 
     # get queue length
     db_path = db.config.db.file

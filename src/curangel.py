@@ -9,7 +9,7 @@ from hive.hive import Hive
 from voter import Voter
 
 import _cgi_path # noqa: F401
-from config import config, load_credentials
+from lib.config import config, load_credentials
 
 # Print status at least once every this many seconds.
 MONITOR_INTERVAL_SEC = 300

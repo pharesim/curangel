@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 from db import DB
 
 import _cgi_path # noqa: F401
-from config import config, load_credentials
+from lib.config import config, load_credentials
 
 from lib.notify_hook import notify
 

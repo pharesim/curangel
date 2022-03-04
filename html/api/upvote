@@ -40,6 +40,14 @@ username = form.getvalue('username')
 userhash = form.getvalue('userhash')
 postlink = form.getvalue('postlink')
 deleteuv = form.getvalue('deleteupvote')
+safemode = form.getvalue('safe_mode')
+
+# if safemode is a string, handle it
+if isinstance(safemode, str):
+  if safemode.lower().startswith("t"):
+    safemode = True
+  else:
+    safemode = False
 
 # check permissions
 results = db.select('users',['id'],{'account':username,'hash':userhash,'curator':1},'id')
@@ -133,7 +141,7 @@ else:
         errorHandler.throwError('We already voted on that post.')
 
     # check if post has a lot of rewards already
-    if float(post['pending_payout_value'][:-4]) >= 15:
+    if float(post['pending_payout_value'][:-4]) >= 30:
       errorHandler.throwError('This post has quite a bit of recognition already. Please curate content which really needs a boost, there are many posts which receive next to nothing!')
 
     # check if exists in upvote queue
@@ -158,13 +166,12 @@ else:
       errorHandler.throwError('Author blacklistet. Reason: '+results[0]['reason']+'. Will not add to queue.')
 
     # check previous votes for author
-    results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'status !':'canceled','created >':"datetime('now','-7 days')"},'created')
+    results = db.select('upvotes',['created'],{'user':post['author'],'account':username,'status !':'canceled','created >':"datetime('now','-5 days')"},'created')
     if len(results) > 0:
-      errorHandler.throwError('You already submitted a post of this author in the last week. Will not add to queue.')
-    results = db.select('upvotes',['created'],{'user':post['author'],'status !':'canceled','created >':"datetime('now','-1 day')",'status !':'canceled'},'created')
+      errorHandler.throwError('You already submitted a post of this author in the past 5 days. Will not add to queue.')
+    results = db.select('upvotes',['created'],{'user':post['author'],'status !':'canceled','created >':"datetime('now','-18 hours')",'status !':'canceled'},'created')
     if len(results) > 0:
-      errorHandler.throwError('Someone else already submitted a post of this author today. Will not add to queue.')
-
+      errorHandler.throwError('This author has had a post submitted within the past 18 hours. Will not add to queue.')
 
     # get queue length
     db_path = db.config.db.file
@@ -187,6 +194,8 @@ else:
     try:
       enforcer = Enforcer.from_database_user(db_path, username, chaininfo['head_block_number'])
       allowed_strength, *_ = enforcer.curate(queue_length)
+      if safemode and allowed_strength < 1:
+        errorHandler.throwError("Not voting less than full strength in safe mode. Wait for recharge or disable safe mode.")
       enforcer.write_to_database(db_path, username, chaininfo['head_block_number'])
     except RateLimitError as e:
       errorHandler.throwError(e.fmt(username))
@@ -203,7 +212,7 @@ else:
 
   # get upvotes
   upvotes = []
-  results = db.select('upvotes',['id','created','link','user','category','slug','title','type','payout','status','reward_sp'],{'account':username},'created DESC')
+  results = db.select('upvotes',['id','created','link','user','category','slug','title','type','payout','status','reward_sp'],{'account':username},'created DESC', 1000)
   for row in results:
     upvotes.append(dict(row))
 

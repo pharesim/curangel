@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
+
+import cgi
+import time
+import datetime
+import uuid
+import random
+import string
+import json
+
+from hive.hive import Hive
+from hive.blockchain import Blockchain
+from hive.account import Account
+from sorcery import dict_of
+
+from lib import db
+from lib import api
+from lib import errorHandler
+from lib.config import config, load_credentials
+from lib.notify_hook import notify
+
+from lib.rate_limit import Enforcer, RateLimitError
+from lib.db_util import QueueDBHelper
+
+
+credentials = load_credentials()
+user = credentials.username
+key = credentials.posting
+
+client = Hive(keys=[key],nodes=config.nodes)
+chain = Blockchain(client)
+
+# output variable
+data = {}
+
+# get and set variables
+form     = cgi.FieldStorage()
+username = form.getvalue('username')
+userhash = form.getvalue('userhash')
+postlink = form.getvalue('postlink')
+deleteuv = form.getvalue('deleteupvote')
+
+# check permissions
+results = db.select('users',['id'],{'account':username,'hash':userhash,'curator':1},'id')
+if len(results) < 1:
+  errorHandler.throwError('No permission')
+
+# get queue length
+chaininfo = chain.info()
+with QueueDBHelper(db.config.db.file) as qdbh:
+  queue_length = qdbh.query_queue_length()
+
+# check mana
+try:
+  enforcer = Enforcer.from_database_user(db.config.db.file, username, chaininfo['head_block_number'])
+  allowed_strength, sta_step, sta_value, mana_value = enforcer.curate(queue_length)
+  data["allowed_strength"] = allowed_strength
+  data["stamina_step"] = sta_step
+  data["stamina_value"] = sta_value
+  data["mana_value"] = mana_value
+except RateLimitError as e:
+  errorHandler.throwError(e.fmt(username))
+
+api.output(data)

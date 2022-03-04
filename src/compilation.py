@@ -9,7 +9,7 @@ from string import ascii_letters, digits
 from db import DB
 
 import _cgi_path # noqa: F401
-from config import config, load_credentials
+from lib.config import config, load_credentials
 
 from hive.hive import Hive
 from hive.blockchain import Blockchain

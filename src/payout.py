@@ -18,10 +18,15 @@ from hive.converter import Converter
 from hive.blockchain import Blockchain
 from loguru import logger
 from sorcery import dict_of
+from munch import Munch
 
 _ap = ArgumentParser()
 _ap.add_argument("--test-scan", action="store_true",
                  help="test history scanning function only")
+_ap.add_argument("--last-good-recipient", type=str, default=None,
+                 help="resume failed payout after specified user")
+_ap.add_argument("--user", type=str, default=None,
+                 help="force instant payout to specified user only")
 
 
 credentials = load_credentials()
@@ -81,7 +86,7 @@ def getRewards(dry=False):
   removed_delegations = []
   updated_upvotes = []
 
-  for r in cycler.account.history_reverse(['curation_reward', 'delegate_vesting_shares']):
+  for r in cycler.account.history_reverse(['curation_reward', 'delegate_vesting_shares'], batch_size=100):
     if new_last_block is None:
       new_last_block = r['block']
       print(f"Latest block is {new_last_block}")
@@ -191,10 +196,18 @@ def assignRewards(rewards,delegators):
         part = amount * pct
         addReward(account,part)
 
-def payout():
+def payout(context):
   rewards = db.select('rewards',['account','sp'],'1=1','account',9999)
   for reward in rewards:
     recipient = reward["account"]
+    if context.last_good_recipient is not None:
+      if recipient <= context.last_good_recipient:
+        logger.info(f"skipping payment to {recipient} (LGR: {context.last_good_recipient})")
+        continue
+    if context.user is not None:
+      if recipient != context.user:
+        logger.info(f"skipping payment to {recipient} (not forced user {context.user})")
+        continue
     balance = float(cycler.hive.get_account(bot)['balance'][:-5])
     print('Current balance: '+str(balance))
     amount = math.floor(reward['sp']*1000)/1000
@@ -207,17 +220,40 @@ def payout():
         logger.warning(f"missed payment of {amount} to {recipient}: transaction error")
         notify("payout-tx-error", dict_of(amount, recipient))
       else:
-        while float(cycler.hive.get_account(bot)['balance'][:-5]) == balance:
-          print('Waiting for transfer...')
-          sleep(3)
+        tx_verified = None
+        while not tx_verified:
+          old_balance = balance
+          try:
+            if tx_verified is not None:
+              print('Waiting for transfer...')
+              sleep(3)
+            new_balance = cycler.tryUntilSuccess(lambda: float(cycler.hive.get_account(bot)['balance'][:-5]))
+            tx_verified = new_balance < old_balance
+          except:
+            logger.exception(f"API failure while verifying balance!")
+            notify("payout-verify-error", dict_of(recipient, amount, old_balance))
+            sleep(3)
         db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
         db.insert('reward_payouts',{'account':reward['account'],'amount':amount})
+        context.last_good_recipient = recipient
     elif balance < amount:
       logger.error(f"missed payment of {amount} to {recipient}: low balance")
       notify("payout-low-balance", dict_of(amount, recipient))
     elif amount < 0.001:
       logger.info(f"skipped payment of {amount} to {recipient}: below precision threshold")
+  context.done = True
 
+def payout_until_complete(last_good_recipient=None, user=None):
+  context = Munch()
+  context.done = False
+  context.last_good_recipient = last_good_recipient
+  context.user = user
+  while not context.done:
+    try:
+      payout(context)
+    except Exception:
+      logger.exception("payout hiccup")
+      logger.error("ctx was: {}", dict(context))
 
 def claimRewards():
   cycler.hive.claim_reward_balance(account=bot)
@@ -232,7 +268,7 @@ if __name__ == "__main__":
     if not args.test_scan:
       delegators = cycler.tryUntilSuccess(getDelegators)
       assignRewards(results,delegators)
-      payout()
+      payout_until_complete(args.last_good_recipient, args.user)
       claimRewards()
     notify("payout-success", results)
   except Exception:

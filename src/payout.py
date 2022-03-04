@@ -81,10 +81,10 @@ def getRewards(dry=False):
   last_block_seen = False
   num_ops = 0
   new_last_block = None
-  new_delegations = []
-  updated_delegations = []
-  removed_delegations = []
   updated_upvotes = []
+  delegation_ops = []
+
+  logger.info("database is at height {}", last_block)
 
   for r in cycler.account.history_reverse(['curation_reward', 'delegate_vesting_shares'], batch_size=100):
     if new_last_block is None:
@@ -98,20 +98,10 @@ def getRewards(dry=False):
     num_ops += 1
     if 'delegatee' in r:
       if r['delegatee'] == bot:
-        if float(r['vesting_shares'][:-6]) > 0:
-          delegator = db.select('delegators',['account','created'],{'account':r['delegator']},'account',1)
-          if len(delegator) == 0:
-            print(f"Processing new delegation from {r['delegator']}.")
-            new_delegations.append( {'account': r['delegator'], 'created': r['timestamp']})
-          else:
-            created = datetime.strptime(delegator[0]['created'], "%Y-%m-%dT%H:%M:%S")
-            new     = datetime.strptime(r['timestamp'], "%Y-%m-%dT%H:%M:%S")
-            if new < created:
-              print(f"Processing updated delegation from {r['delegator']}.")
-              updated_delegations.append(({'created':r['timestamp']}, {'account':r['delegator']}))
-        else:
-          print(f"Processing removed delegation from {r['delegator']}.")
-          removed_delegations.append({'account':r['delegator']})
+        op = (r['timestamp'], r['delegator'], float(r['vesting_shares'][:-6]))
+        delegation_ops.append(op)
+        logger.info("{} delegates {} at {} in block {}",
+                    op[1], op[2], op[0], r['block'])
     else:
       vests = float(r['reward'][:-6])
       hp = round((vests / 1000000 * hive_per_mvests),3)
@@ -126,23 +116,66 @@ def getRewards(dry=False):
         else:
           rewards[vote[0]['account']] = (hp*0.2)
         path = f"@{r['comment_author']}/{r['comment_permlink']}"
-        print(f"{vests} VESTS for {path}")
+        logger.info(f"{vests} VESTS for {path}")
         updated_upvotes.append(({'reward_sp':str(hp)}, {'id':vote[0]['id']}))
+
+  mod_counts = Munch(created=0, updated=0, removed=0)
+
+  def create_delegation(delegator_, timestamp_):
+    if not dry:
+      db.insert('delegators', {'account': delegator_, 'created': timestamp_})
+    logger.info("create delegation for {} at {}", delegator_, timestamp_)
+    mod_counts.created += 1
+
+  def update_delegation(delegator_, timestamp_):
+    if not dry:
+      # Actually updating the created time would cause delegators to be missed
+      # for a day. Since we don't want to happen, we'll leave this happy little
+      # accident intact.
+      #
+      # db.update('delegators', {'created': timestamp_}, {'account': delegator_})
+      pass
+    logger.info("update delegation for {} at {}", delegator_, timestamp_)
+    mod_counts.updated += 1
+
+  def remove_delegation(delegator_):
+    if not dry:
+      db.delete('delegators', {'account': delegator_})
+    logger.info("remove delegation for {}", delegator_)
+    mod_counts.removed += 1
 
   if not last_block_seen:
     # it's unsafe to update the database as there may be unprocessed ops
     raise BadNodeError(f"History scan failed to reach last scanned block after {num_ops} ops.")
-  elif not dry:
-    for record in new_delegations:
-      db.insert('delegators', record)
-    for values, selector in updated_delegations:
-      db.update('delegators', values, selector)
-    for selector in removed_delegations:
-      db.delete('delegators', selector)
-    for values, selector in updated_upvotes:
-      db.update('upvotes', values, selector)
-    db.update('last_check',{'rewards_block':new_last_block},{'rewards_block':last_block})
 
+  # sort received delegation by timestamp (since we scanned backwards)
+  delegation_ops.sort(key=lambda x: x[0])
+
+  # apply updates in chronological order
+  dele_updates = {}
+  for timestamp, delegator, vests in delegation_ops:
+    dele_updates[delegator] = (vests, timestamp)
+
+  # check updated amounts against database state and update accordingly
+  for delegator, (vests, timestamp) in dele_updates.items():
+    dele_records = db.select('delegators',['account','created'],{'account':delegator},'account',1)
+    dele_record = dele_records[0] if len(dele_records) > 0 else None
+    if dele_record is None:
+      if vests > 0:
+        create_delegation(delegator, timestamp)
+      else:
+        logger.info("skip creating empty delegation for {}", delegator)
+    else:
+      created = datetime.strptime(dele_record['created'], "%Y-%m-%dT%H:%M:%S")
+      new = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+      assert new > created
+      if vests > 0:
+        update_delegation(delegator, timestamp)
+      else:
+        remove_delegation(delegator)
+
+  if not dry:
+    db.update('last_check',{'rewards_block':new_last_block},{'rewards_block':last_block})
 
   print("Finished scanning {} ops since block {} (latest block: {})".format(
     num_ops,
@@ -150,9 +183,9 @@ def getRewards(dry=False):
     new_last_block
   ))
   print("Found {} new, {} updated, and {} removed delegations.".format(
-    len(new_delegations),
-    len(updated_delegations),
-    len(removed_delegations)
+    mod_counts.created,
+    mod_counts.updated,
+    mod_counts.removed
   ))
   print(f"Processed {len(updated_upvotes)} curation rewards.")
 

@@ -8,6 +8,59 @@ document.getElementById('upvoteForm').onsubmit = function() {
   return false;
 }
 
+function calculate_mana_info(mana, stamina_bar, stamina_step) {
+  var max_mana = 43200000000;
+  var mana_pct = (mana / max_mana) * 100;
+  var to_recharge_full = (stamina_step + 1) - stamina_bar;
+  var to_recharge_bar = 1 - stamina_bar;
+  var current_pct = 100 - (20 * stamina_step);
+  var hours_per_bar = 3;
+  var bar_recharge_minutes = 0;
+  if (current_pct < 100) {
+    bar_recharge_minutes = to_recharge_bar * hours_per_bar * 60;
+  }
+  return {
+    mana_pct,
+    stamina: to_recharge_full,
+    vote_weight: current_pct,
+    bar_recharge_minutes
+  }
+}
+
+document.getElementById('simulateUpvote').onclick = function() {
+  $.ajax({
+    url: "api/simulate-upvote",
+    data: {
+      username: localStorage.username,
+      userhash: localStorage.userhash,
+      postlink: getValueById('newUpvote')
+    },
+    type: "POST"
+  }).fail(function(){
+    alert('Error simulating upvote, please try again');
+  }).done(function( data ) {
+    if(data['error']) {
+      alert(data['error']);
+    } else {
+      var mana = parseInt(data['mana_value']);
+      var stamina_bar = parseFloat(data['stamina_value']);
+      var stamina_step = parseInt(data['stamina_step']);
+      var this_strength = parseInt(parseFloat(data["allowed_strength"]) * 100);
+      var mana_info = calculate_mana_info(mana, stamina_bar, stamina_step);
+      var output = "If you submit a post for curation right now...\n\n";
+      output += "The vote weight will be: " + this_strength.toString() + "%\n";
+      output += "Your mana will be: " + mana_info.mana_pct.toString() + "%\n";
+      output += "Your stamina will be: -" + mana_info.stamina.toString() + "\n";
+      output += "Your maximum vote weight will be: " + mana_info.vote_weight.toString() + "\n"
+      if (mana_info.bar_recharge_minutes > 0) {
+        output += "Your maximum vote weight would increase after: " + mana_info.bar_recharge_minutes.toString() + " minutes";
+      }
+      alert(output);
+    }
+  }).always(function() {
+  });
+}
+
 document.getElementById('checkMana').onclick = function() {
   $.ajax({
     url: "api/mana",
@@ -26,19 +79,13 @@ document.getElementById('checkMana').onclick = function() {
       var mana = parseInt(data['mana']);
       var stamina_bar = parseFloat(data['stamina']['value']);
       var stamina_step = parseInt(data['stamina']['step']);
-      var max_mana = 43200000000;
-      var mana_pct = (mana / max_mana) * 100;
-      var to_recharge_full = (stamina_step + 1) - stamina_bar;
-      var to_recharge_bar = 1 - stamina_bar;
-      var current_pct = 100 - (20 * stamina_step);
-      var hours_per_bar = 3;
+      var mana_info = calculate_mana_info(mana, stamina_bar, stamina_step);
       var output = "";
-      output += "Mana: " + mana_pct.toString() + "%\n";
-      output += "Stamina: -" + to_recharge_full.toString() + "\n";
-      output += "Current max vote weight: " + current_pct.toString() + "%\n";
-      if (current_pct < 100) {
-        var bar_recharge_minutes = to_recharge_bar * hours_per_bar * 60;
-        output += "Max vote weight increases in: " + bar_recharge_minutes.toString() + " minutes";
+      output += "Mana: " + mana_info.mana_pct.toString() + "%\n";
+      output += "Stamina: -" + mana_info.stamina.toString() + "\n";
+      output += "Current max vote weight: " + mana_info.vote_weight.toString() + "%\n";
+      if (mana_info.bar_recharge_minutes > 0) {
+        output += "Max vote weight increases in: " + mana_info.bar_recharge_minutes.toString() + " minutes";
       }
       alert(output);
     }
@@ -53,7 +100,8 @@ document.getElementById('sendNewUpvote').onclick = function() {
     data: {
       username: localStorage.username,
       userhash: localStorage.userhash,
-      postlink: getValueById('newUpvote')
+      postlink: getValueById('newUpvote'),
+      safe_mode: $("#safeModeCheckbox")[0].checked
     },
     type: "POST"
   }).fail(function(){

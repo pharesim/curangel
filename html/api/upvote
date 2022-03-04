@@ -40,6 +40,14 @@ username = form.getvalue('username')
 userhash = form.getvalue('userhash')
 postlink = form.getvalue('postlink')
 deleteuv = form.getvalue('deleteupvote')
+safemode = form.getvalue('safe_mode')
+
+# if safemode is a string, handle it
+if isinstance(safemode, str):
+  if safemode.lower().startswith("t"):
+    safemode = True
+  else:
+    safemode = False
 
 # check permissions
 results = db.select('users',['id'],{'account':username,'hash':userhash,'curator':1},'id')
@@ -186,6 +194,8 @@ else:
     try:
       enforcer = Enforcer.from_database_user(db_path, username, chaininfo['head_block_number'])
       allowed_strength, *_ = enforcer.curate(queue_length)
+      if safemode and allowed_strength < 1:
+        errorHandler.throwError("Not voting less than full strength in safe mode. Wait for recharge or disable safe mode.")
       enforcer.write_to_database(db_path, username, chaininfo['head_block_number'])
     except RateLimitError as e:
       errorHandler.throwError(e.fmt(username))

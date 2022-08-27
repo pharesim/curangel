@@ -35,7 +35,8 @@ class DB:
     else:
       query = query+condition
     query = query+' ORDER BY '+order
-    query = query+' LIMIT '+str(limit)
+    if limit is not None:
+      query = query+' LIMIT '+str(limit)
     conn = sqlite3.connect(self.config)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()

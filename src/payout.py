@@ -1,6 +1,8 @@
 #! /bin/env python3
 
 import math
+import sys
+from uuid import uuid4
 from datetime import datetime
 from time import sleep
 from argparse import ArgumentParser
@@ -216,18 +218,28 @@ def getDelegators():
 def addReward(account,amount):
   existing = db.select('rewards',['sp'],{'account':account},'account',1)
   if len(existing) == 0:
-    db.insert('rewards',{'account':account,'sp':amount})
+    db.insert('rewards',{'account':account,'sp':amount}, throw=True)
   else:
-    db.update('rewards',{'sp':existing[0]['sp']+amount},{'account':account})
+    db.update('rewards',{'sp':existing[0]['sp']+amount},{'account':account}, throw=True)
 
-def assignRewards(rewards,delegators):
-  for account, amount in rewards.items():
-    if account != 'delegators':
-      addReward(account,amount)
+def assignRewards(delegators):
+  # This lock prevents rewards from being reassigned in an edge case
+  # where final reward assignment failed
+  #
+  acquire_RAL()
+  for id, group, sp in db.select('partially_calculated_rewards',
+                             ['id', 'group_', 'sp'], '1=1', 'group_', None):
+    if group != 'delegators':
+      addReward(group,sp)
     else:
       for account, pct in delegators.items():
-        part = amount * pct
+        part = sp * pct
         addReward(account,part)
+    db.delete('partially_calculated_rewards', {'id': id}, throw=True)
+  if len(db.select('partially_calculated_rewards',
+                   ['group_', 'sp'], '1=1', 'group_', None)) > 0:
+    raise RuntimeError("unassigned partially calculated rewards")
+  release_RAL()
 
 def payout(context):
   rewards = db.select('rewards',['account','sp'],'1=1','account',9999)
@@ -291,6 +303,17 @@ def payout_until_complete(last_good_recipient=None, user=None):
 def claimRewards():
   cycler.hive.claim_reward_balance(account=bot)
 
+def acquire_RAL():
+  db.insert("reward_assignment_lock", {'id': 0}, throw=True)
+def release_RAL():
+  db.delete("reward_assignment_lock", {'id': 0}, throw=True)
+
+def savePartialRewards(results):
+  acquire_RAL()
+  for target, amount in results.items():
+    db.insert("partially_calculated_rewards", {"id": str(uuid4()), "group_": target, "sp": amount}, throw=True)
+  release_RAL()
+
 if __name__ == "__main__":
   args = _ap.parse_args()
   cycler = NodeCycler(bot, [key], config.nodes)
@@ -299,11 +322,13 @@ if __name__ == "__main__":
     for target, amount in results.items():
       print(f"{target} will be assigned {amount} HIVE")
     if not args.test_scan:
+      savePartialRewards(results)
       delegators = cycler.tryUntilSuccess(getDelegators)
-      assignRewards(results,delegators)
+      assignRewards(delegators)
       payout_until_complete(args.last_good_recipient, args.user)
       claimRewards()
     notify("payout-success", results)
   except Exception:
     logger.exception("uncaught exception during payout")
     notify("payout-failed", {})
+    sys.exit(1)

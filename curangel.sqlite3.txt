@@ -76,3 +76,14 @@ CREATE TABLE reward_payouts(
 CREATE TABLE last_check (
   rewards_block TEXT NOT NULL
 );
+
+CREATE TABLE partially_calculated_rewards (
+  id TEXT PRIMARY KEY,
+  group_ TEXT NOT NULL,
+  sp NUMERIC NOT NULL
+);
+
+CREATE TABLE reward_assignment_lock (
+  id NUMERIC PRIMARY KEY,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);

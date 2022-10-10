@@ -35,7 +35,8 @@ class DB:
     else:
       query = query+condition
     query = query+' ORDER BY '+order
-    query = query+' LIMIT '+str(limit)
+    if limit is not None:
+      query = query+' LIMIT '+str(limit)
     conn = sqlite3.connect(self.config)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
@@ -45,7 +46,7 @@ class DB:
     return result
 
 
-  def insert(self,table,values):
+  def insert(self,table,values,*,throw=False):
     query = 'INSERT OR IGNORE INTO '+table+' ('
     length = len(values)
     count = 0
@@ -72,10 +73,13 @@ class DB:
         conn.commit()
         c.close()
     except Exception as e:
-      print("Failed writing to database; "+str(e))
+      if throw:
+        raise
+      else:
+        print("Failed writing to database; "+str(e))
 
 
-  def update(self,table,values,condition):
+  def update(self,table,values,condition,*,throw=False):
     query = 'UPDATE '+table+' SET '
     length = len(values)
     count = 0
@@ -108,10 +112,13 @@ class DB:
         conn.commit()
         c.close()
     except Exception as e:
-      print("Failed writing to database, please try again; "+str(e))
+      if throw:
+        raise
+      else:
+        print("Failed writing to database, please try again; "+str(e))
 
 
-  def delete(self,table,condition):
+  def delete(self,table,condition,*,throw=False):
     query = 'DELETE FROM '+table+' WHERE '
     t = ()
     length = len(condition)
@@ -131,4 +138,7 @@ class DB:
         conn.commit()
         c.close()
     except Exception as e:
-      print("Failed to access database, please reload the page; "+str(e))
+      if throw:
+        raise
+      else:
+        print("Failed to access database, please reload the page; "+str(e))

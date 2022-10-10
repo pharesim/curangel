@@ -1,6 +1,8 @@
 #! /bin/env python3
 
 import math
+import sys
+from uuid import uuid4
 from datetime import datetime
 from time import sleep
 from argparse import ArgumentParser
@@ -8,7 +10,7 @@ from argparse import ArgumentParser
 from db import DB
 
 import _cgi_path # noqa: F401
-from config import config, load_credentials
+from lib.config import config, load_credentials
 
 from lib.notify_hook import notify
 
@@ -18,10 +20,15 @@ from hive.converter import Converter
 from hive.blockchain import Blockchain
 from loguru import logger
 from sorcery import dict_of
+from munch import Munch
 
 _ap = ArgumentParser()
 _ap.add_argument("--test-scan", action="store_true",
                  help="test history scanning function only")
+_ap.add_argument("--last-good-recipient", type=str, default=None,
+                 help="resume failed payout after specified user")
+_ap.add_argument("--user", type=str, default=None,
+                 help="force instant payout to specified user only")
 
 
 credentials = load_credentials()
@@ -76,12 +83,12 @@ def getRewards(dry=False):
   last_block_seen = False
   num_ops = 0
   new_last_block = None
-  new_delegations = []
-  updated_delegations = []
-  removed_delegations = []
   updated_upvotes = []
+  delegation_ops = []
 
-  for r in cycler.account.history_reverse(['curation_reward', 'delegate_vesting_shares']):
+  logger.info("database is at height {}", last_block)
+
+  for r in cycler.account.history_reverse(['curation_reward', 'delegate_vesting_shares'], batch_size=100):
     if new_last_block is None:
       new_last_block = r['block']
       print(f"Latest block is {new_last_block}")
@@ -93,20 +100,10 @@ def getRewards(dry=False):
     num_ops += 1
     if 'delegatee' in r:
       if r['delegatee'] == bot:
-        if float(r['vesting_shares'][:-6]) > 0:
-          delegator = db.select('delegators',['account','created'],{'account':r['delegator']},'account',1)
-          if len(delegator) == 0:
-            print(f"Processing new delegation from {r['delegator']}.")
-            new_delegations.append( {'account': r['delegator'], 'created': r['timestamp']})
-          else:
-            created = datetime.strptime(delegator[0]['created'], "%Y-%m-%dT%H:%M:%S")
-            new     = datetime.strptime(r['timestamp'], "%Y-%m-%dT%H:%M:%S")
-            if new < created:
-              print(f"Processing updated delegation from {r['delegator']}.")
-              updated_delegations.append(({'created':r['timestamp']}, {'account':r['delegator']}))
-        else:
-          print(f"Processing removed delegation from {r['delegator']}.")
-          removed_delegations.append({'account':r['delegator']})
+        op = (r['timestamp'], r['delegator'], float(r['vesting_shares'][:-6]))
+        delegation_ops.append(op)
+        logger.info("{} delegates {} at {} in block {}",
+                    op[1], op[2], op[0], r['block'])
     else:
       vests = float(r['reward'][:-6])
       hp = round((vests / 1000000 * hive_per_mvests),3)
@@ -121,23 +118,66 @@ def getRewards(dry=False):
         else:
           rewards[vote[0]['account']] = (hp*0.2)
         path = f"@{r['comment_author']}/{r['comment_permlink']}"
-        print(f"{vests} VESTS for {path}")
+        logger.info(f"{vests} VESTS for {path}")
         updated_upvotes.append(({'reward_sp':str(hp)}, {'id':vote[0]['id']}))
+
+  mod_counts = Munch(created=0, updated=0, removed=0)
+
+  def create_delegation(delegator_, timestamp_):
+    if not dry:
+      db.insert('delegators', {'account': delegator_, 'created': timestamp_})
+    logger.info("create delegation for {} at {}", delegator_, timestamp_)
+    mod_counts.created += 1
+
+  def update_delegation(delegator_, timestamp_):
+    if not dry:
+      # Actually updating the created time would cause delegators to be missed
+      # for a day. Since we don't want to happen, we'll leave this happy little
+      # accident intact.
+      #
+      # db.update('delegators', {'created': timestamp_}, {'account': delegator_})
+      pass
+    logger.info("update delegation for {} at {}", delegator_, timestamp_)
+    mod_counts.updated += 1
+
+  def remove_delegation(delegator_):
+    if not dry:
+      db.delete('delegators', {'account': delegator_})
+    logger.info("remove delegation for {}", delegator_)
+    mod_counts.removed += 1
 
   if not last_block_seen:
     # it's unsafe to update the database as there may be unprocessed ops
     raise BadNodeError(f"History scan failed to reach last scanned block after {num_ops} ops.")
-  elif not dry:
-    for record in new_delegations:
-      db.insert('delegators', record)
-    for values, selector in updated_delegations:
-      db.update('delegators', values, selector)
-    for selector in removed_delegations:
-      db.delete('delegators', selector)
-    for values, selector in updated_upvotes:
-      db.update('upvotes', values, selector)
-    db.update('last_check',{'rewards_block':new_last_block},{'rewards_block':last_block})
 
+  # sort received delegation by timestamp (since we scanned backwards)
+  delegation_ops.sort(key=lambda x: x[0])
+
+  # apply updates in chronological order
+  dele_updates = {}
+  for timestamp, delegator, vests in delegation_ops:
+    dele_updates[delegator] = (vests, timestamp)
+
+  # check updated amounts against database state and update accordingly
+  for delegator, (vests, timestamp) in dele_updates.items():
+    dele_records = db.select('delegators',['account','created'],{'account':delegator},'account',1)
+    dele_record = dele_records[0] if len(dele_records) > 0 else None
+    if dele_record is None:
+      if vests > 0:
+        create_delegation(delegator, timestamp)
+      else:
+        logger.info("skip creating empty delegation for {}", delegator)
+    else:
+      created = datetime.strptime(dele_record['created'], "%Y-%m-%dT%H:%M:%S")
+      new = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+      assert new > created
+      if vests > 0:
+        update_delegation(delegator, timestamp)
+      else:
+        remove_delegation(delegator)
+
+  if not dry:
+    db.update('last_check',{'rewards_block':new_last_block},{'rewards_block':last_block})
 
   print("Finished scanning {} ops since block {} (latest block: {})".format(
     num_ops,
@@ -145,9 +185,9 @@ def getRewards(dry=False):
     new_last_block
   ))
   print("Found {} new, {} updated, and {} removed delegations.".format(
-    len(new_delegations),
-    len(updated_delegations),
-    len(removed_delegations)
+    mod_counts.created,
+    mod_counts.updated,
+    mod_counts.removed
   ))
   print(f"Processed {len(updated_upvotes)} curation rewards.")
 
@@ -178,23 +218,41 @@ def getDelegators():
 def addReward(account,amount):
   existing = db.select('rewards',['sp'],{'account':account},'account',1)
   if len(existing) == 0:
-    db.insert('rewards',{'account':account,'sp':amount})
+    db.insert('rewards',{'account':account,'sp':amount}, throw=True)
   else:
-    db.update('rewards',{'sp':existing[0]['sp']+amount},{'account':account})
+    db.update('rewards',{'sp':existing[0]['sp']+amount},{'account':account}, throw=True)
 
-def assignRewards(rewards,delegators):
-  for account, amount in rewards.items():
-    if account != 'delegators':
-      addReward(account,amount)
+def assignRewards(delegators):
+  # This lock prevents rewards from being reassigned in an edge case
+  # where final reward assignment failed
+  #
+  acquire_RAL()
+  for id, group, sp in db.select('partially_calculated_rewards',
+                             ['id', 'group_', 'sp'], '1=1', 'group_', None):
+    if group != 'delegators':
+      addReward(group,sp)
     else:
       for account, pct in delegators.items():
-        part = amount * pct
+        part = sp * pct
         addReward(account,part)
+    db.delete('partially_calculated_rewards', {'id': id}, throw=True)
+  if len(db.select('partially_calculated_rewards',
+                   ['group_', 'sp'], '1=1', 'group_', None)) > 0:
+    raise RuntimeError("unassigned partially calculated rewards")
+  release_RAL()
 
-def payout():
+def payout(context):
   rewards = db.select('rewards',['account','sp'],'1=1','account',9999)
   for reward in rewards:
     recipient = reward["account"]
+    if context.last_good_recipient is not None:
+      if recipient <= context.last_good_recipient:
+        logger.info(f"skipping payment to {recipient} (LGR: {context.last_good_recipient})")
+        continue
+    if context.user is not None:
+      if recipient != context.user:
+        logger.info(f"skipping payment to {recipient} (not forced user {context.user})")
+        continue
     balance = float(cycler.hive.get_account(bot)['balance'][:-5])
     print('Current balance: '+str(balance))
     amount = math.floor(reward['sp']*1000)/1000
@@ -207,20 +265,54 @@ def payout():
         logger.warning(f"missed payment of {amount} to {recipient}: transaction error")
         notify("payout-tx-error", dict_of(amount, recipient))
       else:
-        while float(cycler.hive.get_account(bot)['balance'][:-5]) == balance:
-          print('Waiting for transfer...')
-          sleep(3)
+        tx_verified = None
+        while not tx_verified:
+          old_balance = balance
+          try:
+            if tx_verified is not None:
+              print('Waiting for transfer...')
+              sleep(3)
+            new_balance = cycler.tryUntilSuccess(lambda: float(cycler.hive.get_account(bot)['balance'][:-5]))
+            tx_verified = new_balance < old_balance
+          except:
+            logger.exception(f"API failure while verifying balance!")
+            notify("payout-verify-error", dict_of(recipient, amount, old_balance))
+            sleep(3)
         db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
         db.insert('reward_payouts',{'account':reward['account'],'amount':amount})
+        context.last_good_recipient = recipient
     elif balance < amount:
       logger.error(f"missed payment of {amount} to {recipient}: low balance")
       notify("payout-low-balance", dict_of(amount, recipient))
     elif amount < 0.001:
       logger.info(f"skipped payment of {amount} to {recipient}: below precision threshold")
+  context.done = True
 
+def payout_until_complete(last_good_recipient=None, user=None):
+  context = Munch()
+  context.done = False
+  context.last_good_recipient = last_good_recipient
+  context.user = user
+  while not context.done:
+    try:
+      payout(context)
+    except Exception:
+      logger.exception("payout hiccup")
+      logger.error("ctx was: {}", dict(context))
 
 def claimRewards():
   cycler.hive.claim_reward_balance(account=bot)
+
+def acquire_RAL():
+  db.insert("reward_assignment_lock", {'id': 0}, throw=True)
+def release_RAL():
+  db.delete("reward_assignment_lock", {'id': 0}, throw=True)
+
+def savePartialRewards(results):
+  acquire_RAL()
+  for target, amount in results.items():
+    db.insert("partially_calculated_rewards", {"id": str(uuid4()), "group_": target, "sp": amount}, throw=True)
+  release_RAL()
 
 if __name__ == "__main__":
   args = _ap.parse_args()
@@ -230,11 +322,13 @@ if __name__ == "__main__":
     for target, amount in results.items():
       print(f"{target} will be assigned {amount} HIVE")
     if not args.test_scan:
+      savePartialRewards(results)
       delegators = cycler.tryUntilSuccess(getDelegators)
-      assignRewards(results,delegators)
-      payout()
+      assignRewards(delegators)
+      payout_until_complete(args.last_good_recipient, args.user)
       claimRewards()
     notify("payout-success", results)
   except Exception:
     logger.exception("uncaught exception during payout")
     notify("payout-failed", {})
+    sys.exit(1)

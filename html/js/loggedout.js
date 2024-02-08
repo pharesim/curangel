@@ -38,7 +38,7 @@ document.getElementById('loginNow').onclick = function() {
   }
 
   let pub = steem.auth.wifToPublic(loginKey);
-  steem.api.setOptions({ url: 'https://api.pharesim.me' });
+  steem.api.setOptions({ url: 'https://api.hive.blog' });
   steem.api.getAccounts([loginUser], function(err, result) {
     let keys = result[0]['posting']['key_auths'];
     for (var i = 0; i < keys.length; i++) {

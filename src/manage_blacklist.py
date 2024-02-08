@@ -9,6 +9,14 @@ def get_holders(url):
   richlist = requests.get(url=url).json()["richlist"]
   return {u["account"] for u in richlist if float(u["balance"]) > 0}
 
+def pardon_spi():
+  # get all blacklisted users with reason "holder of spi"
+  rows = db.select('blacklist', ['user', 'reason'], {'reason': 'holder of spi'}, 9999)
+  for row in rows:
+    user = row['user']
+    db.delete('blacklist', {'user': user})
+    print(f"pardoned user {user} for holding SPI")
+
 def manageSPIholders():
   # spi steem-engine token, list available at https://steem-engine.rocks/tokens/SPI/richlist
   sespiusers = get_holders("https://steem-engine.rocks/tokens/SPI/richlist")
@@ -45,5 +53,6 @@ def manageSPIholders():
       print('removed '+user['user']+' because not holding spi any more')
 
 if __name__ == "__main__":
-  manageSPIholders()
+  # manageSPIholders()
+  pardon_spi()
 

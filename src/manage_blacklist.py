@@ -11,7 +11,7 @@ def get_holders(url):
 
 def pardon_spi():
   # get all blacklisted users with reason "holder of spi"
-  rows = db.select('blacklist', ['user', 'reason'], {'reason': 'holder of spi'}, 9999)
+  rows = db.select('blacklist', ['user', 'reason'], {'reason': 'holder of spi'}, 'user', 9999)
   for row in rows:
     user = row['user']
     db.delete('blacklist', {'user': user})

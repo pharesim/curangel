@@ -353,7 +353,7 @@ if __name__ == "__main__":
   except Exception:
     logger.exception("uncaught exception during payout")
     notify(
-      "payout-failed",
+      "payout-error",
       "Curangel payout exception",
       "check server logs for details",
       priority="urgent"

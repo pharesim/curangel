@@ -7,6 +7,9 @@ nodes:
   - https://hive-api.arcange.eu
   - https://anyx.io
   - https://api.openhive.network
+ntfy:
+  endpoint: https://ntfy.sh
+  master_topic: s3cr37k3y--curangel
 downvote_whitelist: []
 skip_delegator_check: false
 hard_queue_limit: 20

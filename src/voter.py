@@ -14,8 +14,6 @@ from lib.db_util import QueueDBHelper, NoVoteStrengthError
 from lib.notify_hook import notify
 from db import DB
 
-from sorcery import dict_of
-
 
 # Maximum VP allowed.
 MAX_VP = 9990
@@ -146,11 +144,11 @@ class Voter:
         # Block until the vote is reflected on the remote node.
         # This prevents double vote attempts.
         time.sleep(1)
-      notify("upvote-execute", dict_of(
-        uri,
-        weight,
-        id
-      ))
+      notify(
+        "upvote-execute",
+        "Curangel vote",
+        f"Curangel voted for {uri} with weight {weight}"
+      )
 
   def vote(self, uri, id):
     weight = self.calculate_vote_weight(id)

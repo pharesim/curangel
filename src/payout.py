@@ -19,7 +19,6 @@ from hive.account import Account
 from hive.converter import Converter
 from hive.blockchain import Blockchain
 from loguru import logger
-from sorcery import dict_of
 from munch import Munch
 
 _ap = ArgumentParser()
@@ -263,7 +262,11 @@ def payout(context):
         print('Sending transfer of '+str(amount)+' HIVE to '+reward['account'])
       except:
         logger.warning(f"missed payment of {amount} to {recipient}: transaction error")
-        notify("payout-tx-error", dict_of(amount, recipient))
+        notify(
+          "payout-error",
+          "Curangel payout skipped",
+          "transaction error (check server logs)"
+        )
       else:
         tx_verified = None
         while not tx_verified:
@@ -276,14 +279,24 @@ def payout(context):
             tx_verified = new_balance < old_balance
           except:
             logger.exception(f"API failure while verifying balance!")
-            notify("payout-verify-error", dict_of(recipient, amount, old_balance))
+            notify(
+              "payout-error",
+              "Curangel payout failure",
+              "API failure while verifying balance",
+              priority="urgent"
+            )
             sleep(3)
         db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
         db.insert('reward_payouts',{'account':reward['account'],'amount':amount})
         context.last_good_recipient = recipient
     elif balance < amount:
       logger.error(f"missed payment of {amount} to {recipient}: low balance")
-      notify("payout-low-balance", dict_of(amount, recipient))
+      notify(
+        "payout-error",
+        "Curangel low balance",
+        "check server logs for details",
+        priority="urgent"
+      )
     elif amount < 0.001:
       logger.info(f"skipped payment of {amount} to {recipient}: below precision threshold")
   context.done = True
@@ -299,6 +312,12 @@ def payout_until_complete(last_good_recipient=None, user=None):
     except Exception:
       logger.exception("payout hiccup")
       logger.error("ctx was: {}", dict(context))
+      notify(
+        "payout-error",
+        "Curangel payout exception",
+        "check server logs for details",
+        priority="urgent"
+      )
 
 def claimRewards():
   cycler.hive.claim_reward_balance(account=bot)
@@ -327,8 +346,16 @@ if __name__ == "__main__":
       assignRewards(delegators)
       payout_until_complete(args.last_good_recipient, args.user)
       claimRewards()
-    notify("payout-success", results)
+    notify(
+      "payout-success",
+      "Curangel payout successful"
+    )
   except Exception:
     logger.exception("uncaught exception during payout")
-    notify("payout-failed", {})
+    notify(
+      "payout-failed",
+      "Curangel payout exception",
+      "check server logs for details",
+      priority="urgent"
+    )
     sys.exit(1)

@@ -9,19 +9,12 @@ from lib import api
 from lib import errorHandler
 from lib.errors import CurangelError
 from lib.account_util import Account
-from lib.notify_hook import notify
 
 
 def get_mana(account):
     mana = account.mana.value
     stamina = account.stamina.value
     step = account.stamina.step
-    notify("mana-check", dict_of(
-        mana,
-        stamina,
-        step,
-        account=account.name
-    ))
     return {
         "mana": mana,
         "stamina": {

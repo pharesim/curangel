@@ -1,12 +1,12 @@
 #! /bin/env python3
 
-from threading import Thread
 from time import sleep, time
 from traceback import format_exc
 
 from hive.hive import Hive
 
 from voter import Voter
+from watchdog import watchdog
 
 import _cgi_path # noqa: F401
 from lib.config import config, load_credentials
@@ -44,6 +44,7 @@ class Curangel():
 
   def run(self):
     while True:
+      watchdog.touch()
       try:
         self.wait_for_recharge()
         uri, id = self.voter.next_in_queue(self.client)
@@ -64,6 +65,8 @@ if __name__ == '__main__':
   user = credentials.username
   key = credentials.posting
 
+  # allow up to 1.25x the status logging interval before sending notification
+  watchdog.timeout_seconds = 1.25 * MONITOR_INTERVAL_SEC
   curangel = Curangel(user,key)
 
   curangel.run()

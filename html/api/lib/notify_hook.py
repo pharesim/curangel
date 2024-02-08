@@ -9,28 +9,34 @@ _warned = False
 def _warn():
     global _warned
     if not _warned:
-        logger.warning("notify_endpoint not configured; skipping notification")
+        logger.warning("ntfy not configured; skipping notification")
         _warned = True
 
 
-def notify(channel, data):
+def notify(subtopic, title, public_info="", *, priority="default", private_info=None):
     try:
-        url = config.notify_endpoint
+        endpoint = config.ntfy.endpoint
+        master_topic = config.ntfy.master_topic
+        url = f"{endpoint}/{master_topic}--{subtopic}"
     except AttributeError:
         _warn()
         return
 
-    body = {
-        "channel": channel,
-        "data": data
-    }
     try:
-        result = requests.post(config.notify_endpoint, json=data)
+        result = requests.post(
+            url,
+            data=public_info,
+            headers={
+                "Title": title,
+                "Priority": priority,
+                "Firebase": "no"
+            }
+        )
     except requests.exceptions.RequestException:
-        logger.exception(f"exception caught while notifying channel {channel}")
+        logger.exception(f"exception caught while notifying on {subtopic}")
         return
 
     if not result.status_code == requests.codes.ok:
         error = result.status_code
-        logger.error(f"failed notification on channel {channel}: {error}")
+        logger.error(f"failed notification on {subtopic}: {error}")
 

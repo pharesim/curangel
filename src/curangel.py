@@ -23,6 +23,7 @@ class Curangel():
 
   def wait_for_recharge(self):
     while True:
+      watchdog.touch()
       sleep(3)
       current_vp = self.voter.get_current_vp()
       if current_vp >= 9990:

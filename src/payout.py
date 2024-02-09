@@ -7,6 +7,8 @@ from datetime import datetime
 from time import sleep
 from argparse import ArgumentParser
 
+from beemapi.exceptions import MissingRequiredActiveAuthority
+
 from db import DB
 
 import _cgi_path # noqa: F401
@@ -59,7 +61,12 @@ class NodeCycler:
     passes = 0
     while True:
       try:
-        return to_call()
+        try:
+          return to_call()
+        except TypeError as e:
+          if "string indices" in e.args[0]:
+            raise BadNodeError("bad error message from node")
+          raise
       except BadNodeError:
         logger.warning(f"Node problem detected (primary node is {self.nodes[0]}).")
         self.next()
@@ -276,6 +283,16 @@ def assignRewards(delegators):
     raise RuntimeError("unassigned partially calculated rewards")
   release_RAL()
 
+def safe_transfer(to, value, unit, memo, expect_balance):
+  try:
+    balance = get_bot_hive_balance()
+    if balance != expect_balance:
+      raise RuntimeError("Aborting transfer: balance mismatch")
+    get_bot_acc().transfer(to, value, unit, memo, skip_account_check=True)
+  except MissingRequiredActiveAuthority:
+    # What the hell? Some node(s) think(s) our signatures are bad (they're not)
+    raise BadNodeError("broadcast on this node might be broken")
+
 def payout(context):
   rewards = db.select('rewards',['account','sp'],'1=1','account',9999)
   for reward in rewards:
@@ -294,11 +311,9 @@ def payout(context):
     print('Next: '+str(amount)+' for '+reward['account'])
     if amount >= 0.001 and balance >= amount:
       try:
-        get_bot_acc().transfer(
-          reward['account'],
-          amount, 'HIVE',
-          'Thank you for being a part of @curangel!',
-          skip_account_check=True
+        msg = 'Thank you for being a part of @curangel!'
+        cycler.tryUntilSuccess(
+          lambda: safe_transfer(reward['account'], amount, 'HIVE', msg, balance)
         )
         print('Sending transfer of '+str(amount)+' HIVE to '+reward['account'])
       except:

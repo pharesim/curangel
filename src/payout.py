@@ -109,7 +109,11 @@ def getRewards(dry=False):
         logger.info("{} delegates {} at {} in block {}",
                     op[1], op[2], op[0], r['block'])
     else:
-      vests = float(r['reward'][:-6])
+      if r['reward']['nai'] != '@@000000037':
+        raise TypeError("reward was wrong type!")
+      uvests = float(r['reward']['amount'])
+      vests = uvests / 10 ** 6
+
       hp = round((vests / 1000000 * hive_per_mvests),3)
       vote = db.select('upvotes',['id','account'],{'user':r['comment_author'],'slug':r['comment_permlink'],'status LIKE':'voted%'},'vote_time',1)
       if len(vote) > 0:

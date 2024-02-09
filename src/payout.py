@@ -73,7 +73,20 @@ def get_bot_acc():
   return Account(bot, full=False, lazy=True, blockchain_instance=cycler.hive)
 
 def get_bot_hive_balance():
-  return float(get_bot_acc().get_balance('available', 'HIVE')[:-5])
+  balance = get_bot_acc().get_balance('available', 'HIVE')
+  return balance.amount
+
+def unwrap_nai(nai_dict, expect_unit=None):
+  value = float(nai_dict['amount'])
+  value /= 10 ** int(nai_dict['precision'])
+  unit = {
+    "@@000000037": "VESTS",
+    "@@000000021": "HIVE",
+    "@@000000013": "HBD"
+  }[nai_dict['nai']]
+  if expect_unit is not None and expect_unit != unit:
+    raise ValueError(f"unexpected unit {unit} (wanted {expect_unit})")
+  return value, unit
 
 def getRewards(dry=False):
   rewards = {}
@@ -104,16 +117,12 @@ def getRewards(dry=False):
     num_ops += 1
     if 'delegatee' in r:
       if r['delegatee'] == bot:
-        op = (r['timestamp'], r['delegator'], float(r['vesting_shares'][:-6]))
+        op = (r['timestamp'], r['delegator'], unwrap_nai(r['vesting_shares']))
         delegation_ops.append(op)
         logger.info("{} delegates {} at {} in block {}",
                     op[1], op[2], op[0], r['block'])
     else:
-      if r['reward']['nai'] != '@@000000037':
-        raise TypeError("reward was wrong type!")
-      uvests = float(r['reward']['amount'])
-      vests = uvests / 10 ** 6
-
+      vests, _ = unwrap_nai(r['reward'], "VESTS")
       hp = round((vests / 1000000 * hive_per_mvests),3)
       author = r['author']
       permlink = r['permlink']
@@ -227,10 +236,7 @@ def getDelegators():
       logger.info(f"fetching delegation from {delegator['account']}...")
       delegation = get_vesting_delegation(delegator['account'])
       if delegation is not None:
-        if delegation['vesting_shares']['nai'] != '@@000000037':
-          raise TypeError("delegation was wrong type!")
-        uvests = float(delegation['vesting_shares']['amount'])
-        vesting_shares = uvests / 10 ** 6
+        vesting_shares = unwrap_nai(delegation['vesting_shares'], "VESTS")
         total_delegations = total_delegations + vesting_shares
         delegators[delegator['account']] = vesting_shares
     else:

@@ -11,6 +11,7 @@ munch = "*"
 loguru = "*"
 requests = "*"
 sorcery = "*"
+beem = "*"
 
 [dev-packages]
 jedi = "*"

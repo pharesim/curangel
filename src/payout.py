@@ -14,10 +14,8 @@ from lib.config import config, load_credentials
 
 from lib.notify_hook import notify
 
-from hive.hive import Hive
-from hive.account import Account
-from hive.converter import Converter
-from hive.blockchain import Blockchain
+from beem.hive import Hive
+from beem.account import Account
 from loguru import logger
 from munch import Munch
 
@@ -49,9 +47,6 @@ class NodeCycler:
 
   def _make_objects(self):
     self.hive = Hive(keys=self.keys, nodes=self.nodes)
-    self.chain = Blockchain(self.hive)
-    self.converter = Converter(self.hive)
-    self.account = Account(self.username, self.hive)
     logger.debug(f"Hive objects reconstructed with \"{self.nodes[0]}\" as primary node.")
 
   def next(self):
@@ -74,10 +69,16 @@ class NodeCycler:
           logger.error(f"Cycling is not fixing node problem!")
           raise
 
+def get_bot_acc():
+  return Account(bot, full=False, lazy=True, blockchain_instance=cycler.hive)
+
+def get_bot_hive_balance():
+  return float(get_bot_acc().get_balance('available', 'HIVE')[:-5])
+
 def getRewards(dry=False):
   rewards = {}
   last_block = db.select('last_check',['rewards_block'],'1=1','rewards_block',1)[0]['rewards_block']
-  hive_per_mvests = cycler.converter.hive_per_mvests()
+  hive_per_mvests = cycler.hive.get_hive_per_mvest()
 
   last_block_seen = False
   num_ops = 0
@@ -87,7 +88,11 @@ def getRewards(dry=False):
 
   logger.info("database is at height {}", last_block)
 
-  for r in cycler.account.history_reverse(['curation_reward', 'delegate_vesting_shares'], batch_size=100):
+  for r in get_bot_acc().history_reverse(batch_size=100):
+    if r['type'] not in ['curation_reward', 'delegate_vesting_shares']:
+      # disturbingly, api.hive.blog seems to silently skip curation rewards
+      # unless we do the filtering ourselves... better safe than sorry
+      continue
     if new_last_block is None:
       new_last_block = r['block']
       print(f"Latest block is {new_last_block}")
@@ -192,10 +197,20 @@ def getRewards(dry=False):
 
   return rewards
 
+def get_vesting_delegation(account):
+  account_obj = Account(account, lazy=True)
+  delegations = account_obj.get_vesting_delegations(bot, 1)
+  if len(delegations):
+    delegation = delegations.pop()
+    if delegation['delegatee'] == bot:
+      return delegation
+  return None
+
 def getDelegators():
   delegators = {}
   logger.info("fetching delegations...")
-  total_delegations = float(cycler.hive.get_account(bot)['vesting_shares'][:-6])
+  bot_acc = Account(bot, blockchain_instance=cycler.hive)
+  total_delegations = float(bot_acc['vesting_shares'][:-6])
   delegations = db.select('delegators',['account','created'],"1=1",'account',9999)
   for delegator in delegations:
     created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
@@ -203,9 +218,9 @@ def getDelegators():
     duration = now - created
     if duration.days >= 1:
       logger.info(f"fetching delegation from {delegator['account']}...")
-      delegation = cycler.hive.get_vesting_delegations(delegator['account'],bot,1)
-      if len(delegation) > 0 and delegation[0]['delegatee'] == bot:
-        vesting_shares = float(delegation[0]['vesting_shares'][:-6])
+      delegation = get_vesting_delegation(delegator['account'])
+      if delegation is not None:
+        vesting_shares = float(delegation['vesting_shares'][:-6])
         total_delegations = total_delegations + vesting_shares
         delegators[delegator['account']] = vesting_shares
     else:
@@ -252,13 +267,18 @@ def payout(context):
       if recipient != context.user:
         logger.info(f"skipping payment to {recipient} (not forced user {context.user})")
         continue
-    balance = float(cycler.hive.get_account(bot)['balance'][:-5])
+    balance = get_bot_hive_balance()
     print('Current balance: '+str(balance))
     amount = math.floor(reward['sp']*1000)/1000
     print('Next: '+str(amount)+' for '+reward['account'])
     if amount >= 0.001 and balance >= amount:
       try:
-        cycler.hive.transfer(reward['account'], amount, 'HIVE', 'Thank you for being a part of @curangel!', bot)
+        get_bot_acc().transfer(
+          reward['account'],
+          amount, 'HIVE',
+          'Thank you for being a part of @curangel!',
+          skip_account_check=True
+        )
         print('Sending transfer of '+str(amount)+' HIVE to '+reward['account'])
       except:
         logger.warning(f"missed payment of {amount} to {recipient}: transaction error")
@@ -275,7 +295,8 @@ def payout(context):
             if tx_verified is not None:
               print('Waiting for transfer...')
               sleep(3)
-            new_balance = cycler.tryUntilSuccess(lambda: float(cycler.hive.get_account(bot)['balance'][:-5]))
+
+            new_balance = cycler.tryUntilSuccess(lambda: get_bot_hive_balance())
             tx_verified = new_balance < old_balance
           except:
             logger.exception(f"API failure while verifying balance!")
@@ -320,7 +341,7 @@ def payout_until_complete(last_good_recipient=None, user=None):
       )
 
 def claimRewards():
-  cycler.hive.claim_reward_balance(account=bot)
+  get_bot_acc().claim_reward_balance()
 
 def acquire_RAL():
   db.insert("reward_assignment_lock", {'id': 0}, throw=True)

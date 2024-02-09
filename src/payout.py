@@ -298,7 +298,7 @@ def payout(context):
         )
         print('Sending transfer of '+str(amount)+' HIVE to '+reward['account'])
       except:
-        logger.warning(f"missed payment of {amount} to {recipient}: transaction error")
+        logger.exception(f"missed payment of {amount} to {recipient}: transaction error")
         notify(
           "payout-error",
           "Curangel payout skipped",

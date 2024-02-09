@@ -216,7 +216,8 @@ def getDelegators():
   delegators = {}
   logger.info("fetching delegations...")
   bot_acc = Account(bot, blockchain_instance=cycler.hive)
-  total_delegations = float(bot_acc['vesting_shares'][:-6])
+  own_vests = get_bot_acc().get_balance('available', 'VESTS')
+  total_delegations = float(own_vests.amount)
   delegations = db.select('delegators',['account','created'],"1=1",'account',9999)
   for delegator in delegations:
     created = datetime.strptime(delegator['created'], "%Y-%m-%dT%H:%M:%S")
@@ -226,7 +227,10 @@ def getDelegators():
       logger.info(f"fetching delegation from {delegator['account']}...")
       delegation = get_vesting_delegation(delegator['account'])
       if delegation is not None:
-        vesting_shares = float(delegation['vesting_shares'][:-6])
+        if delegation['vesting_shares']['nai'] != '@@000000037':
+          raise TypeError("delegation was wrong type!")
+        uvests = float(delegation['vesting_shares']['amount'])
+        vesting_shares = uvests / 10 ** 6
         total_delegations = total_delegations + vesting_shares
         delegators[delegator['account']] = vesting_shares
     else:

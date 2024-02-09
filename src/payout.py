@@ -117,7 +117,8 @@ def getRewards(dry=False):
     num_ops += 1
     if 'delegatee' in r:
       if r['delegatee'] == bot:
-        op = (r['timestamp'], r['delegator'], unwrap_nai(r['vesting_shares']))
+        vesting_shares, _ = unwrap_nai(r['vesting_shares'])
+        op = (r['timestamp'], r['delegator'], vesting_shares)
         delegation_ops.append(op)
         logger.info("{} delegates {} at {} in block {}",
                     op[1], op[2], op[0], r['block'])
@@ -236,7 +237,7 @@ def getDelegators():
       logger.info(f"fetching delegation from {delegator['account']}...")
       delegation = get_vesting_delegation(delegator['account'])
       if delegation is not None:
-        vesting_shares = unwrap_nai(delegation['vesting_shares'], "VESTS")
+        vesting_shares, _ = unwrap_nai(delegation['vesting_shares'], "VESTS")
         total_delegations = total_delegations + vesting_shares
         delegators[delegator['account']] = vesting_shares
     else:

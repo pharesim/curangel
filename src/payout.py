@@ -125,9 +125,13 @@ def getRewards(dry=False):
     else:
       vests, _ = unwrap_nai(r['reward'], "VESTS")
       hp = round((vests / 1000000 * hive_per_mvests),3)
-      author = r['author']
-      permlink = r['permlink']
-      vote = db.select('upvotes',['id','account'],{'user':r['author'],'slug':r['permlink'],'status LIKE':'voted%'},'vote_time',1)
+
+      # apparently the 'curation_reward' vop is changing...
+      # https://gitlab.syncad.com/hive/hive/-/merge_requests/1170
+      author = r['author'] if 'author' in r else r['comment_author']
+      permlink = r['permlink'] if 'permlink' in r else r['comment_permlink']
+
+      vote = db.select('upvotes',['id','account'],{'user':author,'slug':permlink,'status LIKE':'voted%'},'vote_time',1)
       if len(vote) > 0:
         if 'delegators' in rewards:
           rewards['delegators'] = rewards['delegators'] + (hp*0.8)

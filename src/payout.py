@@ -115,7 +115,9 @@ def getRewards(dry=False):
       vests = uvests / 10 ** 6
 
       hp = round((vests / 1000000 * hive_per_mvests),3)
-      vote = db.select('upvotes',['id','account'],{'user':r['comment_author'],'slug':r['comment_permlink'],'status LIKE':'voted%'},'vote_time',1)
+      author = r['author']
+      permlink = r['permlink']
+      vote = db.select('upvotes',['id','account'],{'user':r['author'],'slug':r['permlink'],'status LIKE':'voted%'},'vote_time',1)
       if len(vote) > 0:
         if 'delegators' in rewards:
           rewards['delegators'] = rewards['delegators'] + (hp*0.8)
@@ -125,7 +127,7 @@ def getRewards(dry=False):
           rewards[vote[0]['account']] = rewards[vote[0]['account']] + (hp*0.2)
         else:
           rewards[vote[0]['account']] = (hp*0.2)
-        path = f"@{r['comment_author']}/{r['comment_permlink']}"
+        path = f"@{author}/{permlink}"
         logger.info(f"{vests} VESTS for {path}")
         updated_upvotes.append(({'reward_sp':str(hp)}, {'id':vote[0]['id']}))
 

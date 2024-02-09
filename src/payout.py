@@ -46,7 +46,7 @@ class NodeCycler:
     self._make_objects()
 
   def _make_objects(self):
-    self.hive = Hive(keys=self.keys, nodes=self.nodes)
+    self.hive = Hive(keys=self.keys, node=self.nodes)
     logger.debug(f"Hive objects reconstructed with \"{self.nodes[0]}\" as primary node.")
 
   def next(self):

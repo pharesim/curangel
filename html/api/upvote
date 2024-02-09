@@ -184,10 +184,11 @@ else:
       if queue_length >= config.hard_queue_limit:
         message = f"I'm sorry, {username}; I'm afraid I can't do that. "
         message += f"\n\n(Queue size would exceed {config.hard_queue_limit}.)"
+        link = post['url']
         notify(
           "queue-hard-limit",
           "Curangel queue is full",
-          f"{username} tried to submit {uri} but hit the hard limit"
+          f"{username} tried to submit {link} but hit the hard limit"
         )
         errorHandler.throwError(message)
 

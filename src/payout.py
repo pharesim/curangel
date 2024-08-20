@@ -21,6 +21,8 @@ from beem.account import Account
 from loguru import logger
 from munch import Munch
 
+from payment_builder import PaymentBuilder
+
 _ap = ArgumentParser()
 _ap.add_argument("--test-scan", action="store_true",
                  help="test history scanning function only")
@@ -82,6 +84,26 @@ def get_bot_acc():
 def get_bot_hive_balance():
   balance = get_bot_acc().get_balance('available', 'HIVE')
   return balance.amount
+
+
+def find_bot_tx(txid, start_block):
+  bot = get_bot_acc()
+  limit = 50
+  for op in bot.get_account_history(-1, limit):
+    if op["block"] < start_block:
+      return False
+    if op["trx_id"].lower() == txid.lower():
+      return True
+  raise RuntimeError("exhausted history range")
+
+
+def wait_bot_tx(txid):
+  logger.info(f"waiting for tx: {txid}")
+  bot = get_bot_acc()
+  start_block = bot.blockchain.get_dynamic_global_properties()["head_block_number"]
+  while not find_bot_tx(txid, start_block):
+    sleep(3)
+
 
 def unwrap_nai(nai_dict, expect_unit=None):
   value = float(nai_dict['amount'])
@@ -293,10 +315,74 @@ def safe_transfer(to, value, unit, memo, expect_balance):
     # What the hell? Some node(s) think(s) our signatures are bad (they're not)
     raise BadNodeError("broadcast on this node might be broken")
 
+
+def do_payment(context, balance, reward, recipient):
+  if amount >= 0.001 and balance >= amount:
+    try:
+      msg = 'Thank you for being a part of @curangel!'
+      cycler.tryUntilSuccess(
+        lambda: safe_transfer(reward['account'], amount, 'HIVE', msg, balance)
+      )
+      print(
+        'Sending transfer of ' + str(amount) + ' HIVE to ' + reward['account'])
+    except:
+      logger.exception(
+        f"missed payment of {amount} to {recipient}: transaction error")
+      notify(
+        "payout-error",
+        "Curangel payout skipped",
+        "transaction error (check server logs)"
+      )
+    else:
+      tx_verified = None
+      while not tx_verified:
+        old_balance = balance
+        try:
+          if tx_verified is not None:
+            print('Waiting for transfer...')
+            sleep(3)
+
+          new_balance = cycler.tryUntilSuccess(lambda: get_bot_hive_balance())
+          tx_verified = new_balance < old_balance
+        except:
+          logger.exception(f"API failure while verifying balance!")
+          notify(
+            "payout-error",
+            "Curangel payout failure",
+            "API failure while verifying balance",
+            priority="urgent"
+          )
+          sleep(3)
+      context.last_good_recipient = recipient
+  elif balance < amount:
+    logger.error(f"missed payment of {amount} to {recipient}: low balance")
+    notify(
+      "payout-error",
+      "Curangel low balance",
+      "check server logs for details",
+      priority="urgent"
+    )
+  elif amount < 0.001:
+    logger.info(
+      f"skipped payment of {amount} to {recipient}: below precision threshold")
+
+def assert_aggregation_empty():
+  pending = db.select('payout_aggregation', ['account', 'amount'], "1=1", 'account', 9999)
+  if len(pending) > 0:
+    raise RuntimeError("pending payout aggregation detected")
+
+def flush_aggregation():
+  db.delete_all('payout_aggregation')
+
 def payout(context):
+  pb = PaymentBuilder(get_bot_acc())
+  memo = "Thank you for being a part of @curangel!"
+  lgr = context.last_good_recipient
+
   rewards = db.select('rewards',['account','sp'],'1=1','account',9999)
   for reward in rewards:
     recipient = reward["account"]
+    amount = math.floor(reward['sp']*1000)/1000
     if context.last_good_recipient is not None:
       if recipient <= context.last_good_recipient:
         logger.info(f"skipping payment to {recipient} (LGR: {context.last_good_recipient})")
@@ -305,57 +391,34 @@ def payout(context):
       if recipient != context.user:
         logger.info(f"skipping payment to {recipient} (not forced user {context.user})")
         continue
+    if amount < 0.001:
+      logger.info(f"skipped payment of {amount} to {recipient}: below precision threshold")
+      continue
+    print('Adding: '+str(amount)+' for '+recipient)
+    pb.add_payment(recipient, amount, memo)
+    # do_payment(context, balance, reward, recipient)
+
+  while pb.has_pending():
+    assert_aggregation_empty()
+    tx, paying = pb.build_tx()
+    total = 0
+    for account, amount in paying:
+      total += amount
+      db.insert('payout_aggregation', {'account': account, 'amount': amount})
+      acc_bal = db.select('rewards',['sp'], {'account': account},'account',9999)[0]
+      db.update('rewards', {'sp': acc_bal - amount}, {'account': account})
+      db.insert('reward_payouts',{'account': account, 'amount': amount})
+
+    # ready to send
     balance = get_bot_hive_balance()
     print('Current balance: '+str(balance))
-    amount = math.floor(reward['sp']*1000)/1000
-    print('Next: '+str(amount)+' for '+reward['account'])
-    if amount >= 0.001 and balance >= amount:
-      try:
-        msg = 'Thank you for being a part of @curangel!'
-        cycler.tryUntilSuccess(
-          lambda: safe_transfer(reward['account'], amount, 'HIVE', msg, balance)
-        )
-        print('Sending transfer of '+str(amount)+' HIVE to '+reward['account'])
-      except:
-        logger.exception(f"missed payment of {amount} to {recipient}: transaction error")
-        notify(
-          "payout-error",
-          "Curangel payout skipped",
-          "transaction error (check server logs)"
-        )
-      else:
-        tx_verified = None
-        while not tx_verified:
-          old_balance = balance
-          try:
-            if tx_verified is not None:
-              print('Waiting for transfer...')
-              sleep(3)
+    print(f'Total to send: {total} HIVE')
+    print("waiting 10 seconds...")
+    sleep(10)
+    cycler.hive.broadcast(tx)
+    wait_bot_tx(tx.id)
+    flush_aggregation()
 
-            new_balance = cycler.tryUntilSuccess(lambda: get_bot_hive_balance())
-            tx_verified = new_balance < old_balance
-          except:
-            logger.exception(f"API failure while verifying balance!")
-            notify(
-              "payout-error",
-              "Curangel payout failure",
-              "API failure while verifying balance",
-              priority="urgent"
-            )
-            sleep(3)
-        db.update('rewards',{'sp':reward['sp']-amount},{'account':reward['account']})
-        db.insert('reward_payouts',{'account':reward['account'],'amount':amount})
-        context.last_good_recipient = recipient
-    elif balance < amount:
-      logger.error(f"missed payment of {amount} to {recipient}: low balance")
-      notify(
-        "payout-error",
-        "Curangel low balance",
-        "check server logs for details",
-        priority="urgent"
-      )
-    elif amount < 0.001:
-      logger.info(f"skipped payment of {amount} to {recipient}: below precision threshold")
   context.done = True
 
 def payout_until_complete(last_good_recipient=None, user=None):
@@ -381,6 +444,7 @@ def claimRewards():
 
 def acquire_RAL():
   db.insert("reward_assignment_lock", {'id': 0}, throw=True)
+
 def release_RAL():
   db.delete("reward_assignment_lock", {'id': 0}, throw=True)
 

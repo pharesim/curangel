@@ -142,3 +142,20 @@ class DB:
         raise
       else:
         print("Failed to access database, please reload the page; "+str(e))
+
+  def delete_all(self,table,*,throw=False):
+    query = f"DELETE FROM {table}"
+    try:
+      conn = sqlite3.connect(self.config)
+      conn.row_factory = sqlite3.Row
+      c = conn.cursor()
+      t = ()
+      with conn:
+        c.execute(query, t)
+        conn.commit()
+        c.close()
+    except Exception as e:
+      if throw:
+        raise
+      else:
+        print("Failed to access database, please reload the page; "+str(e))

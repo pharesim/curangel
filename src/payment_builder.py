@@ -35,4 +35,4 @@ class PaymentBuilder:
             paying.append((target, amount))
         txb.appendSigner(self.acct.name, "active")
         tx = txb.sign()
-        return tx, paying
+        return txb, tx, paying

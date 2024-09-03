@@ -1,5 +1,6 @@
 #! /bin/env python3
 
+import yaml
 import math
 import sys
 from uuid import uuid4
@@ -400,22 +401,23 @@ def payout(context):
 
   while pb.has_pending():
     assert_aggregation_empty()
-    tx, paying = pb.build_tx()
+    txb, tx, paying = pb.build_tx()
     total = 0
     for account, amount in paying:
       total += amount
       db.insert('payout_aggregation', {'account': account, 'amount': amount})
-      acc_bal = db.select('rewards',['sp'], {'account': account},'account',9999)[0]
+      acc_bal = db.select('rewards',['sp'], {'account': account},'account',9999)[0]['sp']
       db.update('rewards', {'sp': acc_bal - amount}, {'account': account})
       db.insert('reward_payouts',{'account': account, 'amount': amount})
 
     # ready to send
     balance = get_bot_hive_balance()
+    print(yaml.safe_dump(json.loads(str(tx))))
     print('Current balance: '+str(balance))
     print(f'Total to send: {total} HIVE')
     print("waiting 10 seconds...")
     sleep(10)
-    cycler.hive.broadcast(tx)
+    txb.broadcast()
     wait_bot_tx(tx.id)
     flush_aggregation()
 
@@ -438,6 +440,7 @@ def payout_until_complete(last_good_recipient=None, user=None):
         "check server logs for details",
         priority="urgent"
       )
+      raise
 
 def claimRewards():
   get_bot_acc().claim_reward_balance()

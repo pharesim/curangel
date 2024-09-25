@@ -1,6 +1,7 @@
 #! /bin/env python3
 
 import yaml
+import json
 import math
 import sys
 from uuid import uuid4
@@ -8,7 +9,7 @@ from datetime import datetime
 from time import sleep
 from argparse import ArgumentParser
 
-from beemapi.exceptions import MissingRequiredActiveAuthority
+from beemapi.exceptions import MissingRequiredActiveAuthority, UnhandledRPCError
 
 from db import DB
 
@@ -86,7 +87,6 @@ def get_bot_hive_balance():
   balance = get_bot_acc().get_balance('available', 'HIVE')
   return balance.amount
 
-
 def find_bot_tx(txid, start_block):
   bot = get_bot_acc()
   limit = 50
@@ -97,14 +97,12 @@ def find_bot_tx(txid, start_block):
       return True
   raise RuntimeError("exhausted history range")
 
-
 def wait_bot_tx(txid):
   logger.info(f"waiting for tx: {txid}")
   bot = get_bot_acc()
   start_block = bot.blockchain.get_dynamic_global_properties()["head_block_number"]
   while not find_bot_tx(txid, start_block):
     sleep(3)
-
 
 def unwrap_nai(nai_dict, expect_unit=None):
   value = float(nai_dict['amount'])
@@ -417,7 +415,11 @@ def payout(context):
     print(f'Total to send: {total} HIVE')
     print("waiting 10 seconds...")
     sleep(10)
-    txb.broadcast()
+    try:
+      txb.broadcast()
+    except UnhandledRPCError as e:
+      if "Duplicate transaction check failed" in " ".join(e.args):
+        logger.warning("got duplicate transaction error; check API node responses")
     wait_bot_tx(tx.id)
     flush_aggregation()
 

@@ -36,10 +36,10 @@ _ap.add_argument("--user", type=str, default=None,
                  help="force instant payout to specified user only")
 _ap.add_argument("--offset-failed-aggregation", action="store_true",
                  help="fix stuck payouts due to a failed tx")
+_ap.add_argument("--flush-aggregation", action="store_true",
+                 help="dismiss a stuck payout which actually happened")
 _ap.add_argument("--confirm", action="store_true",
                  help="ignore if you don't know what you're doing")
-_ap.add_argument("--dismiss-failed-aggregation", action="store_true",
-                 help="dismiss a stuck payout which actually happened")
 
 
 credentials = load_credentials()

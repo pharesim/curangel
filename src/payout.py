@@ -425,17 +425,21 @@ def offset_failed_aggregation(dry=True):
     new_bal = old_bal + amount
     # this should really be done inside a transaction but we're not really
     # using those elsewhere so we'll handle that later
+
     logger.warning(d+"delete reward_payouts rowid {}", found_rowid)
     if not dry:
-      db.delete('reward_payouts', f'rowid={found_rowid}', throw=True)
-    logger.warning(d+"delete payout_aggregation rowid {}", agg_rowid)
-    if not dry:
-      db.update('rewards', {'sp': new_bal}, {'account': account}, throw=True)
+      db.delete('reward_payouts', {"rowid": found_rowid}, throw=True)
+
     logger.warning(
       d+"update rewards for {} ({} -> HIVE)",
       amount, account, old_bal, new_bal)
     if not dry:
-      db.delete('payout_aggregation', f'rowid={agg_rowid}', throw=True)
+      db.update('rewards', {'sp': new_bal}, {'account': account}, throw=True)
+
+    logger.warning(d+"delete payout_aggregation rowid {}", agg_rowid)
+    if not dry:
+      db.delete('payout_aggregation', {"rowid": agg_rowid}, throw=True)
+
   logger.success(d+"finished offsetting failed aggregation")
 
 def payout(context):

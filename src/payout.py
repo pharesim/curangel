@@ -392,7 +392,7 @@ def offset_failed_aggregation(dry=True):
   # prefix for log messages
   d = "" if dry else "[dry run] "
   balances = get_pending_aggregation()
-  if len(pending) < 1:
+  if len(balances) < 1:
     raise RuntimeError("no pending aggregation; nothing to offset")
   for account, amount, agg_rowid in balances:
     logger.warning(

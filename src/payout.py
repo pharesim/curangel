@@ -390,7 +390,7 @@ def flush_aggregation():
 
 def offset_failed_aggregation(dry=True):
   # prefix for log messages
-  d = "" if dry else "[dry run] "
+  d = "[dry run] " if dry else ""
   balances = get_pending_aggregation()
   if len(balances) < 1:
     raise RuntimeError("no pending aggregation; nothing to offset")
@@ -417,8 +417,8 @@ def offset_failed_aggregation(dry=True):
         "last payout record amount does not match expected value; investigate")
     found_created = results[0]["created"]
     logger.warning(
-      d+"offsetting invalid payout on {} of {} HIVE to {} (rowid {})",
-      found_created.date().isoformat(), amount, account, found_rowid)
+      d+"offsetting invalid payout at {} of {} HIVE to {} (rowid {})",
+      found_created, amount, account, found_rowid)
     # get the account's current rewards balance
     old_bal = db.select('rewards',['sp'], {'account': account},'account',9999)[0]['sp']
     # offset the amount

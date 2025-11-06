@@ -38,6 +38,8 @@ _ap.add_argument("--offset-failed-aggregation", action="store_true",
                  help="fix stuck payouts due to a failed tx")
 _ap.add_argument("--confirm", action="store_true",
                  help="ignore if you don't know what you're doing")
+_ap.add_argument("--dismiss-failed-aggregation", action="store_true",
+                 help="dismiss a stuck payout which actually happened")
 
 
 credentials = load_credentials()
@@ -533,6 +535,21 @@ if __name__ == "__main__":
     dry = False if args.confirm else True
     offset_failed_aggregation(dry)
     if dry:
+      logger.warning(
+        "this was a DRY RUN. if everything looks good, add --confirm")
+    raise SystemExit(0)
+
+  if args.flush_aggregation:
+    records = get_pending_aggregation()
+    for user, amount, _ in records:
+      logger.warning(
+        ("" if args.confirm else "[dry run] ") +
+        "clear payout lock for {}: {} HIVE",
+        user, amount)
+    if args.confirm:
+      flush_aggregation()
+      logger.success("payout locks cleared")
+    else:
       logger.warning(
         "this was a DRY RUN. if everything looks good, add --confirm")
     raise SystemExit(0)

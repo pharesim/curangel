@@ -32,6 +32,10 @@ _ap.add_argument("--last-good-recipient", type=str, default=None,
                  help="resume failed payout after specified user")
 _ap.add_argument("--user", type=str, default=None,
                  help="force instant payout to specified user only")
+_ap.add_argument("--offset-failed-aggregation", action="store_true",
+                 help="fix stuck payouts due to a failed tx")
+_ap.add_argument("--confirm", action="store_true",
+                 help="ignore if you don't know what you're doing")
 
 
 credentials = load_credentials()
@@ -177,7 +181,7 @@ def getRewards(dry=False):
 
   def create_delegation(delegator_, timestamp_):
     if not dry:
-      db.insert('delegators', {'account': delegator_, 'created': timestamp_})
+      db.insert('delegators', {'account': delegator_, 'created': timestamp_}, throw=True)
     logger.info("create delegation for {} at {}", delegator_, timestamp_)
     mod_counts.created += 1
 
@@ -194,7 +198,7 @@ def getRewards(dry=False):
 
   def remove_delegation(delegator_):
     if not dry:
-      db.delete('delegators', {'account': delegator_})
+      db.delete('delegators', {'account': delegator_}, throw=True)
     logger.info("remove delegation for {}", delegator_)
     mod_counts.removed += 1
 
@@ -229,7 +233,7 @@ def getRewards(dry=False):
         remove_delegation(delegator)
 
   if not dry:
-    db.update('last_check',{'rewards_block':new_last_block},{'rewards_block':last_block})
+    db.update('last_check',{'rewards_block':new_last_block},{'rewards_block':last_block},throw=True)
 
   print("Finished scanning {} ops since block {} (latest block: {})".format(
     num_ops,
@@ -365,13 +369,74 @@ def do_payment(context, balance, reward, recipient):
     logger.info(
       f"skipped payment of {amount} to {recipient}: below precision threshold")
 
+def get_pending_aggregation():
+  records = db.select(
+    'payout_aggregation',
+    ['account', 'amount', 'rowid'],
+    "1=1",
+    'account',
+    9999)
+  return [
+    (record["account"], record["amount"], record["rowid"])
+    for record in records]
+
 def assert_aggregation_empty():
-  pending = db.select('payout_aggregation', ['account', 'amount'], "1=1", 'account', 9999)
+  pending = get_pending_aggregation()
   if len(pending) > 0:
     raise RuntimeError("pending payout aggregation detected")
 
 def flush_aggregation():
-  db.delete_all('payout_aggregation')
+  db.delete_all('payout_aggregation', throw=True)
+
+def offset_failed_aggregation(dry=True):
+  # prefix for log messages
+  d = "" if dry else "[dry run] "
+  balances = get_pending_aggregation()
+  if len(pending) < 1:
+    raise RuntimeError("no pending aggregation; nothing to offset")
+  for account, amount, agg_rowid in balances:
+    logger.warning(
+      d+"found pending payout to {} ({} HIVE)",
+      account, amount)
+    # find the most recently inserted record in reward_payouts for account
+    results = db.select(
+      'reward_payouts',
+      ['rowid', 'account', 'amount', 'created'],
+      f"account=\"{account}\"",
+      "created desc",
+      1)
+    if len(results) != 1:
+      raise RuntimeError("cannot find payout record to offset; aborting here")
+    found_rowid = results[0]["rowid"]
+    found_acc = results[0]["account"]
+    if found_acc != account:
+      raise RuntimeError("account mismatch, this should never happen")
+    found_amt = results[0]["amount"]
+    if found_amt != amount:
+      raise RuntimeError(
+        "last payout record amount does not match expected value; investigate")
+    found_created = results[0]["created"]
+    logger.warning(
+      d+"offsetting invalid payout on {} of {} HIVE to {} (rowid {})",
+      found_created.date().isoformat(), amount, account, found_rowid)
+    # get the account's current rewards balance
+    old_bal = db.select('rewards',['sp'], {'account': account},'account',9999)[0]['sp']
+    # offset the amount
+    new_bal += amount
+    # this should really be done inside a transaction but we're not really
+    # using those elsewhere so we'll handle that later
+    logger.warning(d+"delete reward_payouts rowid {}", found_rowid)
+    if not dry:
+      db.delete('reward_payouts', f'rowid={found_rowid}', throw=True)
+    logger.warning(d+"delete payout_aggregation rowid {}", agg_rowid)
+    if not dry:
+      db.update('rewards', {'sp': new_bal}, {'account': account}, throw=True)
+    logger.warning(
+      d+"update rewards for {} ({} -> HIVE)",
+      amount, account, old_bal, new_bal)
+    if not dry:
+      db.delete('payout_aggregation', f'rowid={agg_rowid}', throw=True)
+  logger.success(d+"finished offsetting failed aggregation")
 
 def payout(context):
   pb = PaymentBuilder(get_bot_acc())
@@ -395,7 +460,6 @@ def payout(context):
       continue
     print('Adding: '+str(amount)+' for '+recipient)
     pb.add_payment(recipient, amount, memo)
-    # do_payment(context, balance, reward, recipient)
 
   while pb.has_pending():
     assert_aggregation_empty()
@@ -403,10 +467,10 @@ def payout(context):
     total = 0
     for account, amount in paying:
       total += amount
-      db.insert('payout_aggregation', {'account': account, 'amount': amount})
+      db.insert('payout_aggregation', {'account': account, 'amount': amount}, throw=True)
       acc_bal = db.select('rewards',['sp'], {'account': account},'account',9999)[0]['sp']
-      db.update('rewards', {'sp': acc_bal - amount}, {'account': account})
-      db.insert('reward_payouts',{'account': account, 'amount': amount})
+      db.update('rewards', {'sp': acc_bal - amount}, {'account': account}, throw=True)
+      db.insert('reward_payouts',{'account': account, 'amount': amount}, throw=True)
 
     # ready to send
     balance = get_bot_hive_balance()
@@ -461,6 +525,15 @@ def savePartialRewards(results):
 
 if __name__ == "__main__":
   args = _ap.parse_args()
+
+  if args.offset_failed_aggregation:
+    dry = False if args.confirm else True
+    offset_failed_aggregation(dry)
+    if dry:
+      logger.warning(
+        "this was a DRY RUN. if everything looks good, add --confirm")
+    raise SystemExit(0)
+
   cycler = NodeCycler(bot, [key], config.nodes)
   try:
     results = cycler.tryUntilSuccess(lambda: getRewards(dry=args.test_scan))

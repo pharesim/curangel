@@ -20,6 +20,8 @@ from lib.notify_hook import notify
 
 from beem.hive import Hive
 from beem.account import Account
+from beem.blockchain import Blockchain
+from beemapi.exceptions import UnknownTransaction
 from loguru import logger
 from munch import Munch
 
@@ -91,22 +93,19 @@ def get_bot_hive_balance():
   balance = get_bot_acc().get_balance('available', 'HIVE')
   return balance.amount
 
-def find_bot_tx(txid, start_block):
-  bot = get_bot_acc()
-  limit = 50
-  for op in bot.get_account_history(-1, limit):
-    if op["block"] < start_block:
-      return False
-    if op["trx_id"].lower() == txid.lower():
-      return True
-  raise RuntimeError("exhausted history range")
+def find_tx(txid):
+  try:
+    Blockchain().get_transaction(txid)
+    return True
+  except UnknownTransaction:
+    return False
 
-def wait_bot_tx(txid):
-  logger.info(f"waiting for tx: {txid}")
-  bot = get_bot_acc()
-  start_block = bot.blockchain.get_dynamic_global_properties()["head_block_number"]
-  while not find_bot_tx(txid, start_block):
-    sleep(3)
+def wait_tx(txid):
+  interval = 3
+  while not find_tx(txid):
+    logger.info("waiting for tx: {}", txid)
+    sleep(interval)
+    interval = min(60, interval * 2)
 
 def unwrap_nai(nai_dict, expect_unit=None):
   value = float(nai_dict['amount'])
@@ -488,7 +487,7 @@ def payout(context):
     except UnhandledRPCError as e:
       if "Duplicate transaction check failed" in " ".join(e.args):
         logger.warning("got duplicate transaction error; check API node responses")
-    wait_bot_tx(tx.id)
+    wait_tx(tx.id)
     flush_aggregation()
 
   context.done = True

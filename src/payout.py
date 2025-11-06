@@ -422,7 +422,7 @@ def offset_failed_aggregation(dry=True):
     # get the account's current rewards balance
     old_bal = db.select('rewards',['sp'], {'account': account},'account',9999)[0]['sp']
     # offset the amount
-    new_bal += amount
+    new_bal = old_bal + amount
     # this should really be done inside a transaction but we're not really
     # using those elsewhere so we'll handle that later
     logger.warning(d+"delete reward_payouts rowid {}", found_rowid)

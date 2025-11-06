@@ -431,8 +431,8 @@ def offset_failed_aggregation(dry=True):
       db.delete('reward_payouts', {"rowid": found_rowid}, throw=True)
 
     logger.warning(
-      d+"update rewards for {} ({} -> HIVE)",
-      amount, account, old_bal, new_bal)
+      d+"update rewards for {} ({} -> {})",
+      account, old_bal, new_bal)
     if not dry:
       db.update('rewards', {'sp': new_bal}, {'account': account}, throw=True)
 
